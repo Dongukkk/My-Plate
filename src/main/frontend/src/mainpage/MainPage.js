@@ -8,19 +8,24 @@ function MainPage() {
 
             <header>
                 <h1>🍽 혼밥인</h1>
-                <input type="text" placeholder="맛집 검색하기..." />
-                <button>맞춤 추천</button>
-                <div style={{display:"flex", alignItems:"center", marginLeft:"10px"}}>
-                    <img src="https://cdn.pixabay.com/photo/2025/08/17/10/46/bird-9779577_1280.png" style={{borderRadius:"90%", marginRight:"6px", height:"40px", width:"40px"}} />
-                    <span style={{fontSize:"16px", fontWeight:"bold"}}>김밥천국</span>
+                <div style={{display:"flex", justifyContent:"center"}}>
+                    <input type="text" placeholder="맛집 검색하기..." />
+                    <button>검색</button>
+                    <div style={{display:"inline-flex", alignItems:"center", marginLeft:"10px"}}>
+                        <img src="https://cdn.pixabay.com/photo/2025/08/17/10/46/bird-9779577_1280.png" style={{borderRadius:"90%", marginRight:"6px", height:"40px", width:"40px"}} />
+                        <span style={{fontSize:"16px", fontWeight:"bold"}}>김밥천국</span>
+                    </div>
                 </div>
             </header>
 
             <section class="hero">
                 <h2>혼자서도 맛있게, 혼밥인</h2>
                 <p>당신을 위한 맞춤형 혼밥 맛집 추천 서비스</p>
-                <button class="btn-orange">맛집 검색하기</button>
-                <button class="btn-white">지도로 보기</button>
+                <div>
+                    <button class="btn-orange">맛집 검색하기</button>
+                    <button class="btn-white">지도로 보기</button>
+                </div>
+                
             </section>
 
             <section class="container">
