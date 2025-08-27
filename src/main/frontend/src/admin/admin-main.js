@@ -56,7 +56,7 @@ const AdminMain = () => {
     return (
         <div className="admin-container">
             {/* 사이드바 */}
-            <aside className="sidebar">
+            <aside className="admin-sidebar">
                 <h2 className="logo">
                     <img
                         src={"https://i.imgur.com/tiY7WKl.png"}
@@ -66,7 +66,7 @@ const AdminMain = () => {
                 </h2>
                 <nav>
                     <ul>
-                        <li onClick={() => navigate("/")}>홈</li>
+                        <li onClick={() => navigate("/adminMain")}>홈</li>
                         <li onClick={() => navigate("/adminrestaurants")}>식당 관리</li>
                         <li onClick={() => navigate("/adminUser")}>사용자 관리</li>
                         <li onClick={() => navigate("/adminContent")}>콘텐츠 관리</li>
@@ -77,7 +77,7 @@ const AdminMain = () => {
 
             {/* 메인 */}
             <main className="main-content">
-                <header className="topbar">
+                <div className="topbar">
                     <div className="search-box">
                         <input type="text" placeholder="식당, 리뷰 또는 메뉴 검색..." className="search" />
                         <button className="search-btn">검색</button>
@@ -103,7 +103,7 @@ const AdminMain = () => {
                             </div>
                         )}
                     </div>
-                </header>
+                </div>
 
                 {/* 요약 카드 */}
                 <section className="stats">

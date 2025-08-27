@@ -11,7 +11,7 @@ body {
 }
 
 /* ───────── 사이드바 ───────── */
-.sidebar {
+.admin-sidebar {
     width: 240px;
     background: #e74c3c;
     color: #fff;
@@ -31,13 +31,13 @@ body {
     height: auto;
 }
 
-.sidebar nav ul {
+.admin-sidebar nav ul {
     list-style: none;
     padding: 0;
     margin: 0;
 }
 
-.sidebar nav ul li {
+.admin-sidebar nav ul li {
     margin: 15px 0;
     padding: 10px;
     cursor: pointer;
@@ -45,7 +45,7 @@ body {
     transition: background 0.2s;
 }
 
-.sidebar nav ul li:hover {
+.admin-sidebar nav ul li:hover {
     background: rgba(255, 255, 255, 0.2);
 }
 
