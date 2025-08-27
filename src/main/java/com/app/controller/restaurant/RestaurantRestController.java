@@ -1,16 +1,25 @@
 package com.app.controller.restaurant;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.app.dto.restaurant.RestaurantDTO;
 import com.app.service.ApiRestaurantService;
+import com.app.service.restaurant.RestaurantService;
 
 @RestController
+@CrossOrigin(origins = "http://localhost:3000")
 public class RestaurantRestController {
 	
 	@Autowired
 	ApiRestaurantService apiRestaurantService; 
+	
+	@Autowired
+	RestaurantService restaurantService;
 	
 	@GetMapping("/api/restaurants/save")
     public String saveRestaurants() {
@@ -22,4 +31,11 @@ public class RestaurantRestController {
             return "저장 중 오류 발생: " + e.getMessage();
         }
     }
+	
+	@GetMapping("/api/restaurants/getAllRestaurants")
+    public List<RestaurantDTO> getAllRestaurants() {
+		List<RestaurantDTO> restList = restaurantService.findAllRestaurants();
+		System.out.println(restList);
+		return restList;
+	}
 }

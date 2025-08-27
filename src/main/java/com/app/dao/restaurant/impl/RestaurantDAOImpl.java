@@ -1,5 +1,7 @@
 package com.app.dao.restaurant.impl;
 
+import java.util.List;
+
 import org.mybatis.spring.SqlSessionTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
@@ -19,6 +21,12 @@ public class RestaurantDAOImpl implements RestaurantDAO {
 		int rst = sqlSessionTemplate.insert("restaurant_mapper.saveApiRestaurant", restaurant);
 		
 		return rst;
+	}
+
+	@Override
+	public List<RestaurantDTO> findAllRestaurants() {
+		
+		return sqlSessionTemplate.selectList("restaurant_mapper.findAllRestaurants");
 	}
 
 }

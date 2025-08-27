@@ -3,15 +3,18 @@ const RestaurantCard = ({ restaurant }) => {
     <div className="restaurant-card">
       <div className="card-image"></div>
       <div className="card-content">
-        <h3>{restaurant.name}</h3>
+        <h3>{restaurant.restrntNm}</h3>
         <div className="rating-info">
-          ⭐ {restaurant.rating} ({restaurant.reviewCount})
+          ⭐ {restaurant.avgrating} ({restaurant.ratingCount})
         </div>
-        <p className="description">{restaurant.description}</p>
+        <div className="description">
+            <span>주소 : {restaurant.restrntAddr}</span><br/>
+            <span>전화번호 : {restaurant.restrntInqrTel}</span><br/><br/>
+            {restaurant.restrntSumm}
+        </div>
         <div className="info-badges">
-          <span>{restaurant.distance} 떨어진 곳</span>
-          <span>{restaurant.deliveryTime}</span>
-          {restaurant.isBCard && <span>💳 복지카드 가능</span>}
+          
+          
         </div>
         <div className="card-actions">
           <button className="details-button">상세 보기</button>
