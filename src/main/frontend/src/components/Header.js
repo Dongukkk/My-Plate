@@ -1,9 +1,12 @@
+import { useNavigate } from "react-router-dom";
 import "../components/Header.css"
 
 function Header(){
+    const navigate = useNavigate();
+
     return (
         <header className="main-header">
-            <img src={process.env.PUBLIC_URL + '/images/logo/MYPLATEHEADERLOGO.png'} style={{width:"150px"}} alt="로고" />
+            <img src={process.env.PUBLIC_URL + '/images/logo/MYPLATEHEADERLOGO.png'} style={{width:"150px", cursor:"pointer"}} alt="로고" onClick={() => navigate(`/`)}/>
             <div style={{display:"flex", justifyContent:"center"}}>
                 <div class="search-box">
                     <input type="text" placeholder="맛집 검색하기..." />
