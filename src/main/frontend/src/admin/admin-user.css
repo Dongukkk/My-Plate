@@ -7,9 +7,9 @@
 }
 
 /* 헤더 */
-.admin-head h1 {
+.admin-head h2 {
     margin: 8px 0 20px 0;
-    font-size: 20px;
+    font-size: 22px;
 }
 
 .admin-head p {

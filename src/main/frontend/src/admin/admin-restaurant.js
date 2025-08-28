@@ -305,7 +305,6 @@ export default function AdminRestaurant() {
                                         <td>
                                             <div className="admin-name-col">
                                                 <strong className="admin-link" onClick={() => navigate(`/adminrestaurants/${r.id}`)}>{r.name}</strong>
-                                                <span className="admin-sub">ID: #{r.id}</span>
                                             </div>
                                         </td>
                                         <td>{r.category}</td>

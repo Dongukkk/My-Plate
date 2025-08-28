@@ -29,6 +29,8 @@ admin-logo {
 .admin-logo-img {
     width: 100%;
     height: auto;
+    padding-top: 20px;
+    padding-bottom: 20px;
 }
 
 .admin-sidebar nav ul {

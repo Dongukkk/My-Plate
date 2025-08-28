@@ -202,7 +202,7 @@ export default function AdminUser() {
             <div className="admin-wrap">
                 <div className="admin-head">
                     <div>
-                        <h1>사용자 관리</h1>
+                        <h2>사용자 관리</h2>
                     </div>
                 </div>
 
@@ -352,7 +352,7 @@ export default function AdminUser() {
                         <section className="admin-panel">
                             <div className="admin-panel-head">
                                 <h3>사용자 피드백</h3>
-                                <button className="admin-link">모두 보기</button>
+                                <button className="admin-view">모두 보기</button>
                             </div>
                             <ul className="admin-feed">
                                 {mockFeedback.map((f, i) => (
