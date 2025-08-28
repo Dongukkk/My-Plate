@@ -2,7 +2,7 @@
   display: flex;
   width:100vw;
   min-height: 100vh;
-  background-color: #f8f9fa;
+  background-color: var(--background-color);
   font-family: 'Noto Sans KR', sans-serif;
 }
 
@@ -26,7 +26,7 @@
 .rd-info{
     display: flex;
   width: 100%;
-  padding: 20px;
+  padding: 20px 0;
   gap: 20px;
 }
 .rd-main {
@@ -59,12 +59,28 @@
   color: #555;
 }
 
+.rd-restaurant-header button {
+    margin-top: 25px;
+    margin-left: 10px;
+  padding: 8px 14px;
+  border: none;
+  border-radius: 8px;
+  background-color: var(--primary-color);
+  color: white;
+  cursor: pointer;
+}
+
+.rd-restaurant-header .button-color-gray {
+    background-color: rgb(226, 226, 226);
+    color: black;
+}
+
 .rd-card button {
   margin-left: 10px;
   padding: 8px 14px;
   border: none;
   border-radius: 8px;
-  background-color: #f8ac3a;
+  background-color: var(--primary-color);
   color: white;
   cursor: pointer;
 }
@@ -74,7 +90,7 @@
 }
 
 .rd-badge {
-  background-color: #ff9800;
+  background-color: var(--primary-color);
   color: white;
   padding: 4px 8px;
   border-radius: 6px;
@@ -124,7 +140,7 @@
   padding: 8px 14px;
   border: none;
   border-radius: 8px;
-  background-color: #ffbb2a;
+  background-color: var(--primary-color);
   color: white;
   cursor: pointer;
   width: 100%;

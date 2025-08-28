@@ -1,7 +1,7 @@
 /* 기본 스타일 초기화 및 폰트 설정 */
 body {
     font-family: Arial, sans-serif;
-    background-color: #f0f2f5;
+    background-color: var(--background-color);
     margin: 0;
     padding: 0;
 }
@@ -121,7 +121,7 @@ body {
 .rc-details-button {
     width: 100%;
     padding: 10px;
-    background-color: #e76c00;
+    background-color: var(--primary-color);
     color: white;
     border: none;
     border-radius: 4px;

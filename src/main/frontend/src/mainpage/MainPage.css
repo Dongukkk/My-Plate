@@ -1,3 +1,7 @@
+:root {
+  --background-color: #f5f5f5;
+  --primary-color: #e74c3c;
+}
 body {
     margin: 0;
     font-family: sans-serif;
@@ -6,7 +10,7 @@ body {
 
 
 .mainpage-hero {
-    background-image: url("https://cdn.pixabay.com/photo/2017/01/26/02/06/christmas-wallpaper-2009590_640.jpg");
+    /* background-image: url("https://cdn.pixabay.com/photo/2017/01/26/02/06/christmas-wallpaper-2009590_640.jpg"); */
     background-size: cover;
     background-repeat: no-repeat;
     background-position: center;
@@ -42,7 +46,7 @@ body {
 }
 
 .mainpage-btn-orange {
-    background: #f97316;
+    background: var(--primary-color);
     color: #fff;
     border-radius: 10px;
     padding: 5px 15px;
@@ -79,7 +83,7 @@ body {
 }
 
 .mainpage-restaurant .mainpage-tags span {
-    color: #ec8448;
+    color: var(--primary-color);
     margin-right: 6px;
     font-size: 14px;
 }

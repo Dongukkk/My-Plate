@@ -6,7 +6,7 @@ import "../restaurantList/RestaurantDetail.css";
 
 function RestaurantDetail() {
   const navigate = useNavigate();
-  
+
   const { id } = useParams();
   const [restaurant, setRestaurant] = useState(null);
 
@@ -32,16 +32,16 @@ function RestaurantDetail() {
       <SideBarMenu/>
       <div className="rd-container">
         <div className="rd-represent">
-          <div class="rd-restaurant-header rd-card">
+          <div class="rd-restaurant-header">
             <div>
               <h2>{restaurant.restrntNm}</h2>
               <p>일본 음식 · 스시 · 아시아 퓨전 ⭐ {restaurant.avgrating} ({restaurant.ratingCount} 리뷰)</p>
             </div>
             <div>
               <button>리뷰 작성하기</button>
-              <button>공유</button>
-              <button>저장</button>
-              <button onClick={() => navigate(`/restaurantList`)}>레스토랑 목록으로 돌아가기</button>
+              <button className="button-color-gray">공유</button>
+              <button className="button-color-gray">저장</button>
+              <button className="button-color-gray" onClick={() => navigate(`/restaurantList`)}>레스토랑 목록으로 돌아가기</button>
             </div>
           </div>
           <div className="rd-repr-image">
