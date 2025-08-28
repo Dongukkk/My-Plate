@@ -84,6 +84,10 @@ admin-logo {
     align-items: center;
 }
 
+.admin-search-box input{
+    padding: 8px;
+}
+
 .admin-search {
     width: 260px;
     padding: 8px 12px;
