@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import SideBarMenu from "../components/SideBarMenu";
 import "../restaurantList/RestaurantDetail.css";
+import KakaoMap from "../components/KakaoMap";
 
 function RestaurantDetail() {
   const navigate = useNavigate();
@@ -99,6 +100,9 @@ function RestaurantDetail() {
             <p>월~금: 오전 11시 - 오후 10시<br/>토: 오전 12시 - 오후 10시<br/>일: 오전 12시 - 오후 9시</p>
             <h3>주소</h3>
             <p>{restaurant.restrntAddr}</p>
+            {restaurant.mapLat && restaurant.mapLot && (
+              <KakaoMap lat={restaurant.mapLat} lng={restaurant.mapLot} />
+            )}
             <h3>전화번호</h3>
             <p>{restaurant.restrntInqrTel}</p>
             <button>전화하기</button>
