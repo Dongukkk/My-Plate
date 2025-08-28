@@ -40,7 +40,7 @@ function RestaurantList() {
 
     return (
         <div className="app-container">
-            <main className='main'>
+            <main className='restaurant-list-main'>
                 <SideBarMenu />
                 <div className="restaurant-list">
                     <div className="list-header">

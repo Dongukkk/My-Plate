@@ -2,7 +2,7 @@ import "../components/Header.css"
 
 function Header(){
     return (
-        <header>
+        <header className="main-header">
             <h1>🍽 혼밥인</h1>
             <div style={{display:"flex", justifyContent:"center"}}>
                 <input type="text" placeholder="맛집 검색하기..." />

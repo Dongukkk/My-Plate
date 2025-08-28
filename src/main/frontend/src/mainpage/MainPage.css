@@ -4,36 +4,8 @@ body {
     color: #333;
 }
 
-header {
-    background: #fbd2b6;
-    padding: 10px 20px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-}
 
-header h1 {
-    font-size: 20px;
-    font-weight: bold;
-}
-
-header input {
-    width: 200px;
-    padding: 6px 10px;
-    border-radius: 10px;
-    border: 1px solid #ccc;
-}
-
-header button {
-    background: #f97316;
-    color: white;
-    border: none;
-    padding: 8px 14px;
-    border-radius: 8px;
-    cursor: pointer;
-}
-
-.hero {
+.mainpage-hero {
     background-image: url("https://cdn.pixabay.com/photo/2017/01/26/02/06/christmas-wallpaper-2009590_640.jpg");
     background-size: cover;
     background-repeat: no-repeat;
@@ -47,20 +19,20 @@ header button {
     padding: auto;
 }
 
-.hero h2 {
+.mainpage-hero h2 {
     font-size: 40px;
     font-weight: bold;
     margin-bottom: 10px;
     color: #ffffff;
 }
 
-.hero p {
+.mainpage-hero p {
     font-size: 20px;
     margin-bottom: 20px;
     color: #ffffff;
 }
 
-.hero button {
+.mainpage-hero button {
     margin: auto 5px;
     padding: 10px;
     border-radius: 8px;
@@ -69,7 +41,7 @@ header button {
     width: 150px;
 }
 
-.btn-orange {
+.mainpage-btn-orange {
     background: #f97316;
     color: #fff;
     border-radius: 10px;
@@ -78,19 +50,19 @@ header button {
     cursor: pointer;
 }
 
-.btn-white {
+.mainpage-btn-white {
     background: #fff;
     border: 1px solid #ccc;
     color: #555;
 }
 
-.container {
+.mainpage-container {
     max-width: 800px;
     margin: 0 auto;
     padding: 40px 20px;
 }
 
-.restaurant {
+.mainpage-restaurant {
     background: #fff;
     border-radius: 10px;
     padding: 20px;
@@ -98,7 +70,7 @@ header button {
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
 }
 
-.restaurant h4 {
+.mainpage-restaurant h4 {
     font-size: 18px;
     font-weight: bold;
     margin: 0 0 8px 0;
@@ -106,36 +78,36 @@ header button {
     justify-content: space-between;
 }
 
-.restaurant .tags span {
+.mainpage-restaurant .mainpage-tags span {
     color: #ec8448;
     margin-right: 6px;
     font-size: 14px;
 }
 
-.restaurant p {
+.mainpage-restaurant p {
     margin: 6px 0;
     font-size: 14px;
     color: #555;
 }
 
-.services {
+.mainpage-services {
     background: #f4f4f4;
     padding: 40px 20px;
 }
 
-.grid {
+.mainpage-grid {
     display: grid;
     grid-template-columns: 1fr;
     gap: 20px;
 }
 
 @media(min-width:768px) {
-    .grid {
+    .mainpage-grid {
         grid-template-columns: repeat(3, 1fr);
     }
 }
 
-.service-card {
+.mainpage-service-card {
     background: #fff;
     border-radius: 10px;
     padding: 20px;
@@ -143,12 +115,12 @@ header button {
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
 }
 
-.service-card h4 {
+.mainpage-service-card h4 {
     font-weight: bold;
     margin-bottom: 10px;
 }
 
-.service-card p {
+.mainpage-service-card p {
     font-size: 14px;
     color: #666;
     margin-bottom: 14px;

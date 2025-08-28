@@ -1,4 +1,4 @@
-header {
+.main-header {
     background: #fbd2b6;
     padding: 10px 20px;
     display: flex;
@@ -6,19 +6,19 @@ header {
     justify-content: space-between;
 }
 
-header h1 {
+.main-header h1 {
     font-size: 20px;
     font-weight: bold;
 }
 
-header input {
+.main-header input {
     width: 200px;
     padding: 6px 10px;
     border-radius: 10px;
     border: 1px solid #ccc;
 }
 
-header button {
+.main-header button {
     background: #f97316;
     color: white;
     border: none;

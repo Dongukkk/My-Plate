@@ -13,7 +13,7 @@ body {
 }
 
 /* 메인 레이아웃 (사이드바 + 콘텐츠) */
-.main {
+.restaurant-list-main {
     display: flex;
     gap: 20px;
 }
@@ -67,32 +67,32 @@ body {
     flex-direction: column;
 }
 
-.card-image {
+.rc-card-image {
     background-color: #e0e0e0; /* 임시 이미지 플레이스홀더 */
     height: 180px;
     width: 100%;
 }
 
-.card-content {
+.rc-card-content {
     padding: 20px;
     display: flex;
     flex-direction: column;
     height: 100%;
 }
 
-.card-content h3 {
+.rc-card-content h3 {
     margin: 0 0 10px;
     font-size: 20px;
     color: #333;
 }
 
-.rating-info {
+.rc-rating-info {
     font-size: 14px;
     color: #666;
     margin-bottom: 10px;
 }
 
-.description {
+.rc-description {
     font-size: 14px;
     color: #555;
     line-height: 1.5;
@@ -100,7 +100,7 @@ body {
     margin-bottom: 15px;
 }
 
-.info-badges {
+.rc-info-badges {
     display: flex;
     gap: 15px;
     font-size: 14px;
@@ -109,11 +109,11 @@ body {
     margin-bottom: 15px;
 }
 
-.card-actions {
+.rc-card-actions {
     margin-top: 10px;
 }
 
-.details-button {
+.rc-details-button {
     width: 100%;
     padding: 10px;
     background-color: #e76c00;
@@ -125,6 +125,6 @@ body {
     transition: background-color 0.3s;
 }
 
-.details-button:hover {
+.rc-details-button:hover {
     background-color: #c75a00;
 }
