@@ -1,0 +1,135 @@
+.restaurantDetail-page {
+  display: flex;
+  width:100vw;
+  min-height: 100vh;
+  background-color: #f8f9fa;
+  font-family: 'Noto Sans KR', sans-serif;
+}
+
+.rd-container {
+  max-width: 1200px;
+  width:75%;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+.rd-represent {
+    width: 100%;
+}
+
+.rd-repr-image {
+    width: 100%;
+    height: 300px;
+    background-color: #95c8ff;
+}
+
+.rd-info{
+    display: flex;
+  width: 100%;
+  padding: 20px;
+  gap: 20px;
+}
+.rd-main {
+  flex: 3;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.rd-card {
+  background: #fff;
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+}
+
+.rd-restaurant-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.rd-restaurant-header h2 {
+  margin: 0;
+  font-size: 1.5rem;
+}
+
+.rd-restaurant-header p {
+  margin: 5px 0 0;
+  color: #555;
+}
+
+.rd-card button {
+  margin-left: 10px;
+  padding: 8px 14px;
+  border: none;
+  border-radius: 8px;
+  background-color: #f8ac3a;
+  color: white;
+  cursor: pointer;
+}
+
+.rd-card button:hover {
+  background-color: #ff6c28;
+}
+
+.rd-badge {
+  background-color: #ff9800;
+  color: white;
+  padding: 4px 8px;
+  border-radius: 6px;
+  font-size: 0.9rem;
+}
+
+.rd-menu-item {
+  padding: 8px 0;
+  border-bottom: 1px solid #eee;
+}
+
+.rd-event-item {
+  padding: 8px 0;
+  border-bottom: 1px solid #eee;
+}
+
+.rd-review-item {
+  padding: 12px 0;
+  border-bottom: 1px solid #eee;
+}
+
+.rd-review-item strong {
+  margin-right: 8px;
+}
+
+
+.rd-right-info {
+  flex: 1;
+  background: #fff;
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+}
+
+.rd-right-info h3 {
+  margin-top: 20px;
+  font-size: 1.2rem;
+}
+
+.rd-right-info p {
+  margin: 8px 0;
+  color: #444;
+}
+
+.rd-right-info button {
+  margin-top: 12px;
+  padding: 8px 14px;
+  border: none;
+  border-radius: 8px;
+  background-color: #ffbb2a;
+  color: white;
+  cursor: pointer;
+  width: 100%;
+}
+
+.rd-right-info button:hover {
+  background-color: #ff8411;
+}

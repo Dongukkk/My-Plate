@@ -29,4 +29,10 @@ public class RestaurantDAOImpl implements RestaurantDAO {
 		return sqlSessionTemplate.selectList("restaurant_mapper.findAllRestaurants");
 	}
 
+	@Override
+	public RestaurantDTO getRestaurantById(Long id) {
+		
+		return sqlSessionTemplate.selectOne("restaurant_mapper.getRestaurantById", id);
+	}
+
 }

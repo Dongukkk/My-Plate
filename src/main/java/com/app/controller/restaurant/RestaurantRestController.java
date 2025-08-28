@@ -5,6 +5,7 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.app.dto.restaurant.RestaurantDTO;
@@ -38,4 +39,9 @@ public class RestaurantRestController {
 		System.out.println(restList);
 		return restList;
 	}
+	
+	@GetMapping("/api/restaurants/{id}")
+	public RestaurantDTO getRestaurantDetail(@PathVariable Long id) {
+        return restaurantService.getRestaurantById(id);
+    }
 }

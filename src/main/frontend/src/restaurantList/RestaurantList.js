@@ -16,7 +16,7 @@ function RestaurantList() {
         const fetchRestaurants = async () => {
             try {
 
-                const response = await axios.get('http://localhost:8080/api/restaurants/getAllRestaurants');
+                const response = await axios.get('http://localhost:3000/api/restaurants/getAllRestaurants');
 
                 setRestaurants(response.data);
             } catch (e) {
@@ -39,25 +39,29 @@ function RestaurantList() {
     }
 
     return (
-        <div className="app-container">
-            <main className='restaurant-list-main'>
-                <SideBarMenu />
-                <div className="restaurant-list">
-                    <div className="list-header">
-                        <h2>레스토랑 목록</h2>
-                        <p>검색 결과: {restaurants.length}개의 레스토랑</p>
-                        <select>
-                            <option>평점 순 (높은순)</option>
-                        </select>
+        <div className="restaurantList-page">
+            <SideBarMenu />
+            <div className="rl-container">
+                <main className='restaurant-list-main'>
+                    
+                    <div className="restaurant-list">
+                        <div className="list-header">
+                            <h2>레스토랑 목록</h2>
+                            <p>검색 결과: {restaurants.length}개의 레스토랑</p>
+                            <select>
+                                <option>평점 순 (높은순)</option>
+                            </select>
+                        </div>
+                        <div className="restaurant-grid">
+                            {restaurants.map(restaurant => (
+                                <RestaurantCard key={restaurant.id} restaurant={restaurant} />
+                            ))}
+                        </div>
                     </div>
-                    <div className="restaurant-grid">
-                        {restaurants.map(restaurant => (
-                            <RestaurantCard key={restaurant.id} restaurant={restaurant} />
-                        ))}
-                    </div>
-                </div>
-            </main>
+                </main>
+            </div>
         </div>
+        
     );
 };
 

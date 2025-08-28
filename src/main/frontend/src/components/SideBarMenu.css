@@ -5,7 +5,8 @@ body {
 }
 
 .main-sidebar-menu {
-    width: 250px;
+    min-width: 200px;
+    width: 20vw;
     height: 100vh;
     background-color: #fff;
     padding-top: 20px;
