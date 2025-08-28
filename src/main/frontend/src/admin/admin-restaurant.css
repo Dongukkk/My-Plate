@@ -4,6 +4,7 @@
     color: #1f2937;
     background: #f5f5f5;
     font-family: "Noto Sans KR", sans-serif;
+    min-height: 100vh;
 }
 
 .admin-top {

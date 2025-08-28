@@ -2,7 +2,6 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "./admin-main.css";
 
-
 const LogoutModal = ({ isOpen, onClose }) => {
     if (!isOpen) return null;
 
