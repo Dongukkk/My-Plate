@@ -92,6 +92,9 @@
         ADDRESS,
         PHONE
         FROM MP_RESTAURANT
+        <if test="sortField != null and sortDirection != null">
+        ORDER BY ${sortField} ${sortDirection}
+    	</if>
     </select>
 	
 	<select id="getRestaurantById" parameterType="long" resultType="Restaurant">

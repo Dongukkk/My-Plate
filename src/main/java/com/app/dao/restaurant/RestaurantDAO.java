@@ -8,7 +8,7 @@ import com.app.dto.restaurant.RestaurantDTO;
 public interface RestaurantDAO {
 	public int saveApiRestaurant(RestaurantDTO restaurant);
 	
-	public List<RestaurantDTO> findAllRestaurants();
+	public List<RestaurantDTO> findAllRestaurants(String sort, String direction);
 	
 	public RestaurantDTO getRestaurantById(Long id);
 }

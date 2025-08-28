@@ -1,6 +1,8 @@
 package com.app.dao.restaurant.impl;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.mybatis.spring.SqlSessionTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,9 +26,12 @@ public class RestaurantDAOImpl implements RestaurantDAO {
 	}
 
 	@Override
-	public List<RestaurantDTO> findAllRestaurants() {
-		
-		return sqlSessionTemplate.selectList("restaurant_mapper.findAllRestaurants");
+	public List<RestaurantDTO> findAllRestaurants(String sort, String direction) {
+		Map<String, String> params = new HashMap<>();
+		System.out.println(sort+direction );
+	    params.put("sortField", sort);
+	    params.put("sortDirection", direction);
+		return sqlSessionTemplate.selectList("restaurant_mapper.findAllRestaurants", params);
 	}
 
 	@Override

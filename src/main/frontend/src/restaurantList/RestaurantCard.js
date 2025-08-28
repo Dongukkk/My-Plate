@@ -9,7 +9,7 @@ const RestaurantCard = ({ restaurant }) => {
       <div className="rc-card-content">
         <h3>{restaurant.restrntNm}</h3>
         <div className="rc-rating-info">
-          ⭐ {restaurant.avgrating} ({restaurant.ratingCount})
+          ⭐ {restaurant.avgRating} ({restaurant.ratingCount})
         </div>
         <div className="rc-description">
             <span>주소 : {restaurant.restrntAddr}</span><br/>
