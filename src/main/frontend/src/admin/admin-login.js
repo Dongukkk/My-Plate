@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "./admin-login.css";
 
@@ -50,30 +50,30 @@ export default function AdminLogin() {
 
     return (
         <div className="admin-login">
-            <div className="login-wrap">
+            <div className="admin-login-wrap">
                 {/* 브랜드 */}
-                <div className="brand">
-                    <span className="brand-name">
+                <div className="admin-brand">
+                    <span className="admin-brand-name">
                         <img
                             src={"https://i.imgur.com/Q5H1oqv.png"}
                             alt="My Plate Logo"
-                            className="logo-img"
+                            className="admin-logo-img"
                         />
                     </span>
                 </div>
 
                 {/* 타이틀 */}
-                <h1 className="login-title">관리자 전용 로그인</h1>
-                <p className="login-sub">
+                <h1 className="admin-login-title">관리자 전용 로그인</h1>
+                <p className="admin-login-sub">
                     관리자 계정의 이메일 및 비밀번호로 로그인할 수 있습니다.
                 </p>
 
                 {/* 폼 */}
-                <form className="login-card" onSubmit={onSubmit}>
-                    <label className="field">
-                        <span className="field-label">관리자 이메일</span>
+                <form className="admin-login-card" onSubmit={onSubmit}>
+                    <label className="admin-field">
+                        <span className="admin-field-label">관리자 이메일</span>
                         <input
-                            className="mp-input"
+                            className="admin-mp-input"
                             type="text"
                             name="username"
                             value={form.username}
@@ -83,11 +83,11 @@ export default function AdminLogin() {
                         />
                     </label>
 
-                    <label className="field">
-                        <span className="field-label">비밀번호</span>
-                        <div className="pw-row">
+                    <label className="admin-field">
+                        <span className="admin-field-label">비밀번호</span>
+                        <div className="admin-pw-row">
                             <input
-                                className="mp-input"
+                                className="admin-mp-input"
                                 type={showPw ? "text" : "password"}
                                 name="password"
                                 value={form.password}
@@ -97,7 +97,7 @@ export default function AdminLogin() {
                             />
                             <button
                                 type="button"
-                                className="pw-toggle"
+                                className="admin-pw-toggle"
                                 onClick={() => setShowPw((v) => !v)}
                                 aria-label={showPw ? "비밀번호 숨기기" : "비밀번호 보기"}
                             >
@@ -106,8 +106,8 @@ export default function AdminLogin() {
                         </div>
                     </label>
 
-                    <div className="row-between">
-                        <label className="remember">
+                    <div className="admin-row-between">
+                        <label className="admin-remember">
                             <input
                                 type="checkbox"
                                 name="remember"
@@ -118,17 +118,17 @@ export default function AdminLogin() {
                         </label>
                         <button
                             type="button"
-                            className="link-btn"
+                            className="admin-link-btn"
                             onClick={() => nav("/admin/forgot-password")}
                         >
                             비밀번호를 잊으셨나요?
                         </button>
                     </div>
 
-                    {err && <div className="error">{err}</div>}
+                    {err && <div className="admin-error">{err}</div>}
 
                     <button
-                        className="btn-primary"
+                        className="admin-btn-primary"
                         type="submit"
                         disabled={!canSubmit}
                         aria-disabled={!canSubmit}
@@ -137,12 +137,12 @@ export default function AdminLogin() {
                     </button>
                 </form>
 
-                <div className="divider" role="separator" />
-                <p className="help">
+                <div className="admin-divider" role="separator" />
+                <p className="admin-help">
                     관리자 계정이 필요하신가요?{" "}
                     <button
                         type="button"
-                        className="link-btn strong"
+                        className="admin-link-btn strong"
                         onClick={() => nav("/admin/request-account")}
                     >
                         관리자 계정 요청하기

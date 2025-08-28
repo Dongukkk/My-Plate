@@ -8,43 +8,43 @@
         "Apple SD Gothic Neo", "맑은 고딕", "Malgun Gothic", sans-serif;
 }
 
-.login-wrap {
+.admin-login-wrap {
     width: min(520px, 92vw);
     text-align: center;
 }
 
-.brand {
+.admin-brand {
     display: inline-flex;
     align-items: center;
     gap: 10px;
     margin-bottom: 6px;
 }
 
-.brand-icon {
+.admin-brand-icon {
     font-size: 28px;
     line-height: 1;
 }
 
-.brand-name img {
+.admin-brand-name img {
     width: 40%;
     font-size: 28px;
     color: #ef4b3f;
 }
 
-.login-title {
+.admin-login-title {
     font-size: 20px;
     margin: 6px 0 8px;
     font-weight: 700;
     color: #222;
 }
 
-.login-sub {
+.admin-login-sub {
     margin: 0 0 22px;
     font-size: 14px;
     color: #6b7280;
 }
 
-.login-card {
+.admin-login-card {
     display: flex;
     flex-direction: column;
     gap: 14px;
@@ -57,19 +57,19 @@
     overflow: hidden;
 }
 
-.field {
+.admin-field {
     text-align: left;
     width: 92%;
 }
 
-.field-label {
+.admin-field-label {
     display: inline-block;
     font-size: 13px;
     color: #374151;
     margin-bottom: 8px;
 }
 
-.mp-input {
+.admin-mp-input {
     width: 100%;
     height: 44px;
     border-radius: 22px;
@@ -86,21 +86,21 @@
     margin: 0 auto;
 }
 
-.mp-input::placeholder {
+.admin-mp-input::placeholder {
     color: #9ca3af;
 }
 
-.mp-input:focus {
+.admin-mp-input:focus {
     border-color: #ef4b3f;
     background: #fff;
 }
 
-.pw-row {
+.admin-pw-row {
     width: 100%;
     position: relative;
 }
 
-.pw-toggle {
+.admin-pw-toggle {
     position: absolute;
     right: 12px;
     /* 입력칸 오른쪽 내부에 고정 */
@@ -114,7 +114,7 @@
     padding: 6px 8px;
 }
 
-.row-between {
+.admin-row-between {
     width: 92%;
     display: flex;
     align-items: center;
@@ -123,7 +123,7 @@
     gap: 8px;
 }
 
-.remember {
+.admin-remember {
     display: inline-flex;
     align-items: center;
     gap: 8px;
@@ -131,13 +131,13 @@
     color: #4b5563;
 }
 
-.remember input[type="checkbox"] {
+.admin-remember input[type="checkbox"] {
     width: 16px;
     height: 16px;
     accent-color: #ef4b3f;
 }
 
-.link-btn {
+.admin-link-btn {
     border: none;
     background: transparent;
     padding: 0;
@@ -146,18 +146,18 @@
     cursor: pointer;
 }
 
-.link-btn.strong {
+.admin-link-btn.strong {
     font-weight: 700;
 }
 
-.error {
+.admin-error {
     margin-top: 2px;
     font-size: 13px;
     color: #e11d48;
     text-align: left;
 }
 
-.btn-primary {
+.admin-btn-primary {
     width: 100%;
     height: 48px;
     border-radius: 12px;
@@ -170,28 +170,28 @@
     transition: transform 0.05s ease, opacity 0.1s ease;
 }
 
-.btn-primary:hover {
+.admin-btn-primary:hover {
     opacity: 0.96;
 }
 
-.btn-primary:active {
+.admin-btn-primary:active {
     transform: translateY(1px);
 }
 
-.btn-primary[disabled],
-.btn-primary[aria-disabled="true"] {
+.admin-btn-primary[disabled],
+.admin-btn-primary[aria-disabled="true"] {
     opacity: 0.55;
     cursor: not-allowed;
 }
 
-.divider {
+.admin-divider {
     height: 8px;
     margin: 18px 0 12px;
     background: #f3f4f6;
     border-radius: 999px;
 }
 
-.help {
+.admin-help {
     font-size: 14px;
     color: #4b5563;
 }

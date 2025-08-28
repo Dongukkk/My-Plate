@@ -13,14 +13,14 @@ const LogoutModal = ({ isOpen, onClose }) => {
     };
 
     return (
-        <div className="modal-overlay">
-            <div className="modal-content">
+        <div className="admin-modal-overlay">
+            <div className="admin-modal-content">
                 <p>정말 로그아웃하시겠습니까?</p>
-                <div className="modal-actions">
-                    <button onClick={handleLogout} className="btn-logout">
+                <div className="admin-modal-actions">
+                    <button onClick={handleLogout} className="admin-btn-logout">
                         로그아웃
                     </button>
-                    <button onClick={onClose} className="btn-cancel">
+                    <button onClick={onClose} className="admin-btn-cancel">
                         취소
                     </button>
                 </div>
@@ -31,12 +31,12 @@ const LogoutModal = ({ isOpen, onClose }) => {
 
 /* 요약 카드 */
 const StatsCard = ({ title, value, change, onClick }) => (
-    <div className="card" onClick={onClick} style={{ cursor: "pointer" }}>
+    <div className="admin-card" onClick={onClick} style={{ cursor: "pointer" }}>
         {title}
         <br />
-        <span className="value">{value}</span>
+        <span className="admin-value">{value}</span>
         <br />
-        <span className="change">{change}</span>
+        <span className="admin-change">{change}</span>
     </div>
 );
 
@@ -57,11 +57,11 @@ const AdminMain = () => {
         <div className="admin-container">
             {/* 사이드바 */}
             <aside className="admin-sidebar">
-                <h2 className="logo">
+                <h2 className="admin-logo">
                     <img
                         src={"https://i.imgur.com/tiY7WKl.png"}
                         alt="My Plate Logo"
-                        className="logo-img"
+                        className="admin-logo-img"
                     />
                 </h2>
                 <nav>
@@ -76,22 +76,22 @@ const AdminMain = () => {
             </aside>
 
             {/* 메인 */}
-            <main className="main-content">
-                <div className="topbar">
-                    <div className="search-box">
-                        <input type="text" placeholder="식당, 리뷰 또는 메뉴 검색..." className="search" />
-                        <button className="search-btn">검색</button>
+            <main className="admin-main-content">
+                <div className="admin-topbar">
+                    <div className="admin-search-box">
+                        <input type="text" placeholder="식당, 리뷰 또는 메뉴 검색..." className="admin-search" />
+                        <button className="admin-search-btn">검색</button>
                     </div>
 
-                    <div className="profile-container">
+                    <div className="admin-profile-container">
                         <div
-                            className="profile"
+                            className="admin-profile"
                             onClick={() => setIsDropdownOpen(!isDropdownOpen)}
                         >
                             관리자
                         </div>
                         {isDropdownOpen && (
-                            <div className="dropdown-menu">
+                            <div className="admin-dropdown-menu">
                                 <button
                                     onClick={() => {
                                         setIsDropdownOpen(false);
@@ -106,7 +106,7 @@ const AdminMain = () => {
                 </div>
 
                 {/* 요약 카드 */}
-                <section className="stats">
+                <section className="admin-stats">
                     <StatsCard
                         title="총 사용자"
                         value={stats.totalUsers}
@@ -133,25 +133,25 @@ const AdminMain = () => {
                     />
                 </section>
 
-                <section className="charts">
-                    <div className="chart-box" onClick={() => navigate("/adminanalysis")}>
+                <section className="admin-charts">
+                    <div className="admin-chart-box" onClick={() => navigate("/adminanalysis")}>
                         📊 사용자 등록 추이 (클릭 시 이동)
                     </div>
-                    <div className="chart-box" onClick={() => navigate("/adminanalysis")}>
+                    <div className="admin-chart-box" onClick={() => navigate("/adminanalysis")}>
                         📈 사용자 활동 분석 (클릭 시 이동)
                     </div>
                 </section>
 
-                <div className="grid-container popular">
+                <div className="admin-grid-container popular">
                     {/* 인기 가게 */}
-                    <section className="grid-item">
-                        <div className="section-header">
+                    <section className="admin-grid-item">
+                        <div className="admin-section-header">
                             <h3>인기 가게 TOP 5</h3>
-                            <button className="section-btn" onClick={() => navigate("/adminrestaurants")}>
+                            <button className="admin-section-btn" onClick={() => navigate("/adminrestaurants")}>
                                 가게 관리
                             </button>
                         </div>
-                        <div className="table-wrapper">
+                        <div className="admin-table-wrapper">
                             <table>
                                 <thead>
                                     <tr>
@@ -169,18 +169,18 @@ const AdminMain = () => {
                     </section>
 
                     {/* 사용자 관리 */}
-                    <section className="grid-item">
-                        <div className="section-header">
+                    <section className="admin-grid-item">
+                        <div className="admin-section-header">
                             <h3>사용자 관리</h3>
-                            <button className="section-btn" onClick={() => navigate("/adminUser")}>
+                            <button className="admin-section-btn" onClick={() => navigate("/adminUser")}>
                                 사용자 관리
                             </button>
                         </div>
-                        <div className="user-stats">
+                        <div className="admin-user-stats">
                             <p>신규 가입자 (이번 주):</p>
                             <p>활성 사용자 (일간):</p>
                         </div>
-                        <div className="recent-users">
+                        <div className="admin-recent-users">
                             <h4>최근 가입한 사용자</h4>
                             <ul>
                             </ul>
@@ -188,34 +188,34 @@ const AdminMain = () => {
                     </section>
 
                     {/* 콘텐츠 관리 */}
-                    <section className="grid-item">
-                        <div className="section-header">
+                    <section className="admin-grid-item">
+                        <div className="admin-section-header">
                             <h3>콘텐츠 관리</h3>
-                            <button className="section-btn" onClick={() => navigate("/adminContent")}>
+                            <button className="admin-section-btn" onClick={() => navigate("/adminContent")}>
                                 콘텐츠 관리
                             </button>
                         </div>
-                        <div className="content-stats">
+                        <div className="admin-content-stats">
                             <p>대기 중인 리뷰:</p>
                             <p>이번 주에 등록된 사진:</p>
                             <p>신고된 콘텐츠:</p>
                         </div>
-                        <div className="recent-reviews">
+                        <div className="admin-recent-reviews">
                             <h4>최근 리뷰</h4>
                         </div>
                     </section>
 
                     {/* 분석 및 통계 */}
-                    <section className="grid-item">
-                        <div className="section-header">
+                    <section className="admin-grid-item">
+                        <div className="admin-section-header">
                             <h3>분석 및 통계</h3>
-                            <button className="section-btn" onClick={() => navigate("/adminanalysis")}>
+                            <button className="admin-section-btn" onClick={() => navigate("/adminanalysis")}>
                                 자세한 분석
                             </button>
                         </div>
-                        <div className="analysis-charts">
-                            <div className="chart-box">파이 차트 자리</div>
-                            <div className="chart-box">평점 분포 바 차트 자리</div>
+                        <div className="admin-analysis-charts">
+                            <div className="admin-chart-box">파이 차트 자리</div>
+                            <div className="admin-chart-box">평점 분포 바 차트 자리</div>
                         </div>
                     </section>
                 </div>
