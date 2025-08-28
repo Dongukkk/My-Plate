@@ -244,8 +244,8 @@ export default function AdminRestaurant() {
                         <h2 className="admin-title">식당 관리</h2>
                     </div>
                     <div className="admin-actions-bar">
-                        <button className="admin-btn admin-ghost" onClick={() => navigate("/adminMain")}>대시보드로 돌아가기</button>
-                        <button className="admin-btn admin-primary" onClick={() => navigate("/adminrestaurants/new")}>새 레스토랑 추가</button>
+                        <button className="admin-btn admin-ghost" onClick={() => navigate("/adminMain")}>메인으로 돌아가기</button>
+                        <button className="admin-btn admin-primary" onClick={() => navigate("/adminrestaurants/new")}>새로운 식당 추가</button>
                     </div>
                 </div>
 
