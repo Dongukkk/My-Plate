@@ -12,10 +12,9 @@ import RestaurantList from './restaurantList/RestaurantList';
 import Header from './components/Header';
 
 const MainLayout = () => {
+
   const location = useLocation();
-
   const noHeaderFooterRoutes = ['/login', '/signup', '/admin', '/AdminMain', '/AdminUser', '/Adminrestaurants', '/AdminContent', '/Adminanalysis'];
-
   const showHeaderFooter = !noHeaderFooterRoutes.some(route => location.pathname.startsWith(route));
 
   return (

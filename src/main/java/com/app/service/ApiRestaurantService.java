@@ -17,7 +17,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 @Service
-@PropertySource("classpath:/properties/application.properties")
+//@PropertySource("classpath:/properties/application.properties")
 public class ApiRestaurantService {
 
 	@Autowired

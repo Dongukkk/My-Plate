@@ -16,7 +16,7 @@ function RestaurantList() {
         const fetchRestaurants = async () => {
             try {
 
-                const response = await axios.get('http://localhost:8080/api/restaurants/getAllRestaurants');
+                const response = await axios.get('http://localhost:3000/api/restaurants/getAllRestaurants');
 
                 setRestaurants(response.data);
             } catch (e) {
