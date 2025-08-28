@@ -77,11 +77,6 @@ const AdminMain = () => {
             {/* 메인 */}
             <main className="admin-main-content">
                 <div className="admin-topbar">
-                    <div className="admin-search-box">
-                        <input type="text" placeholder="식당, 리뷰 또는 메뉴 검색..." className="admin-search" />
-                        <button className="admin-search-btn">검색</button>
-                    </div>
-
                     <div className="admin-profile-container">
                         <div
                             className="admin-profile"

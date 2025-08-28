@@ -78,41 +78,9 @@ admin-logo {
     margin-bottom: 20px;
 }
 
-/* 검색창 + 버튼 */
-.admin-search-box {
-    display: flex;
-    align-items: center;
-}
-
-.admin-search-box input{
-    padding: 8px;
-}
-
-.admin-search {
-    width: 260px;
-    padding: 8px 12px;
-    border: 1px solid #ccc;
-    border-radius: 6px 0 0 6px;
-    outline: none;
-}
-
-.admin-search-btn {
-    padding: 8px 16px;
-    border: none;
-    background: #e74c3c;
-    color: #fff;
-    font-weight: bold;
-    border-radius: 0 6px 6px 0;
-    cursor: pointer;
-    transition: background 0.2s;
-}
-
-.admin-search-btn:hover {
-    background: #c0392b;
-}
-
 /* 프로필 + 드롭다운 */
 .admin-profile-container {
+    margin-left: auto;
     position: relative;
 }
 
