@@ -1,6 +1,9 @@
 import './App.css';
 import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
 import ErrorPage from './admin/error-page';
+import LoadingPage from "./admin/loading";
+import { LoadingProvider, useLoading } from './admin/loading-context';
+
 import AdminMain from './admin/admin-main';
 import AdminUser from "./admin/admin-user";
 import AdminAnalysis from "./admin/admin-analysis";
@@ -43,8 +46,20 @@ const MainLayout = () => {
 const App = () => {
   return (
     <BrowserRouter>
-      <MainLayout />
+      <LoadingProvider>
+        <MainLayout />
+      </LoadingProvider>
     </BrowserRouter>
+  );
+};
+
+const AppContent = () => {
+  const { isLoading } = useLoading();
+  return (
+    <>
+      {isLoading && <LoadingPage show={isLoading} />}
+      <MainLayout />
+    </>
   );
 };
 
