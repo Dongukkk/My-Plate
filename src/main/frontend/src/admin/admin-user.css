@@ -286,16 +286,6 @@
     background: #66bb6a;
 }
 
-.admin-barchart .admin-bar {
-    fill: #e74c3c;
-    opacity: .85;
-}
-
-.admin-barchart .admin-small {
-    font-size: 11px;
-    fill: #666;
-}
-
 .admin-sums {
     display: grid;
     grid-template-columns: 1fr 1fr;

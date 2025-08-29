@@ -221,7 +221,6 @@ export default function AdminRestaurant() {
 
     return (
         <div className="admin-container">
-            {/* 사이드바 */}
             <aside className="admin-sidebar">
                 <h2 className="admin-logo">
                     <img src={"https://i.imgur.com/tiY7WKl.png"} alt="My Plate Logo" className="admin-logo-img" />

@@ -141,22 +141,6 @@ export default function AdminContent() {
         setPending((prev) => prev.filter((p) => p.id !== id));
     };
 
-    const handleBulkApprove = () => {
-        // TODO: axios.post("/api/admin/content/bulk-approve", { ids: pending.map(p=>p.id) })
-        setApproved((prev) => [
-            ...pending.map((item) => ({
-                id: Date.now() + Math.random(),
-                kind: item.type === "photo" ? "사진" : "리뷰",
-                date: "2023-11-15",
-                like: 0,
-                tag: item.place,
-                text: item.text,
-            })),
-            ...prev,
-        ]);
-        setPending([]);
-    };
-
     const handleIgnoreReport = (id) => {
         // TODO: axios.post("/api/admin/reports/ignore", { id })
         setReports((prev) => prev.filter((r) => r.id !== id));
@@ -225,7 +209,6 @@ export default function AdminContent() {
 
     return (
         <div className="admin-container">
-            {/* 사이드바 */}
             <aside className="admin-sidebar">
                 <h2 className="admin-logo">
                     <img

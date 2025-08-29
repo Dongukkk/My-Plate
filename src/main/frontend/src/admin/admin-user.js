@@ -56,30 +56,6 @@ const LineChart = ({ series, height = 160 }) => {
     );
 };
 
-/* 막대/파이 차트(간단) */
-const BarChart = ({ data, height = 140 }) => {
-    const width = 380;
-    const pad = 16;
-    const maxV = Math.max(...data.map(d => d.value), 1);
-    const barH = (height - pad * 2) / data.length - 8;
-    return (
-        <svg className="admin-barchart" viewBox={`0 0 ${width} ${height}`}>
-            <rect x="0" y="0" width={width} height={height} fill="#fff" rx="10" />
-            {data.map((d, i) => {
-                const w = ((width - pad * 2) * d.value) / maxV;
-                const y = pad + i * (barH + 8);
-                return (
-                    <g key={d.label}>
-                        <rect x={pad} y={y} width={w} height={barH} className="admin-bar" />
-                        <text x={pad} y={y - 4} className="admin-small">{d.label}</text>
-                        <text x={pad + w + 6} y={y + barH - 4} className="admin-small">{d.value}</text>
-                    </g>
-                );
-            })}
-        </svg>
-    );
-};
-
 /* 더미 데이터 */
 const mockUsers = [
     { id: "USR-7845", name: "김민지", email: "minji.kim@example.com", joined: "2023-05-12", status: "활성", avatar: "https://i.pravatar.cc/48?img=1" },

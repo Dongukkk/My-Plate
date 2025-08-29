@@ -54,7 +54,6 @@ const AdminMain = () => {
 
     return (
         <div className="admin-container">
-            {/* 사이드바 */}
             <aside className="admin-sidebar">
                 <h2 className="admin-logo">
                     <img
