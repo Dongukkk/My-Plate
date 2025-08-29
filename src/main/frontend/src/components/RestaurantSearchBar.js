@@ -1,5 +1,8 @@
-import React, { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
+import { useDispatch, useSelector } from 'react-redux';
+import { setSearchTerm, clearSearchTerm } from '../store/store'
+
 import './RestaurantSearchBar.css';
 
 const tags = [
@@ -9,7 +12,9 @@ const tags = [
 const RestaurantSearchBar = () => {
     const navigate = useNavigate();
     const location = useLocation();
-    const [ searchTerm, setSearchTerm ] = useState('');
+    const dispatch = useDispatch();
+    const searchTerm = useSelector((state) => state.search.searchTerm);
+
     const [ allRestaurants, setAllRestaurants ] = useState([]);
     const [ isDropdownVisible, setIsDropdownVisible ] = useState(false);
     const searchBarRef = useRef(null);
@@ -29,9 +34,9 @@ const RestaurantSearchBar = () => {
     }, []);
 
     useEffect(() => {
-        setSearchTerm('');
+        dispatch(clearSearchTerm());
         setIsDropdownVisible(false);
-    }, [ location.pathname ]);
+    }, [ location.pathname, dispatch ]);
 
     useEffect(() => {
         function handleClickOutside(event) {
@@ -46,7 +51,7 @@ const RestaurantSearchBar = () => {
     }, []);
 
     const handleInputChange = (event) => {
-        setSearchTerm(event.target.value);
+        dispatch(setSearchTerm(event.target.value));
         setIsDropdownVisible(true);
     };
 
@@ -58,7 +63,7 @@ const RestaurantSearchBar = () => {
         }
         console.log(`'${suggestion}'으로 검색합니다.`);
 
-        setSearchTerm('');
+        dispatch(setSearchTerm(''));
         setIsDropdownVisible(false);
 
         if (id) {
@@ -85,7 +90,7 @@ const RestaurantSearchBar = () => {
             navigate(`/search?query=${searchTerm}`);
         }
 
-        setSearchTerm('');
+        dispatch(setSearchTerm(''));
         setIsDropdownVisible(false);
     };
     const handleKeyDown = (event) => {
