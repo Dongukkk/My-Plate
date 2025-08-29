@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import './ErrorPage.css'; // 404 페이지 스타일링을 위한 CSS 파일
+import './error-page.css'; // 404 페이지 스타일링을 위한 CSS 파일
 
 const ErrorPage = () => {
     useEffect(() => {
