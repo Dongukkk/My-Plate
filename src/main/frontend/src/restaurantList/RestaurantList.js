@@ -100,13 +100,15 @@ function RestaurantList() {
                     <div className="restaurant-list">
                         <div className="list-header">
                             <h2>레스토랑 목록</h2>
-                            <p>검색 결과: {restaurants.length}개의 레스토랑</p>
-                            <label htmlFor="sort-select">정렬 기준: </label>
-                            <select id="sort-select" value={sort+'_'+direction} onChange={(e)=>{handleSortChange(e.target.value);}}>
-                                <option value="name_ASC">이름 순</option>
-                                <option value="avg_Rating_DESC">평점 순 (높은순)</option>
-                                <option value="avg_Rating_ASC">평점 순 (낮은순)</option>
-                            </select>
+                            <div>
+                                <label htmlFor="sort-select">정렬 기준: </label>
+                                <select id="sort-select" value={sort+'_'+direction} onChange={(e)=>{handleSortChange(e.target.value);}}>
+                                    <option value="name_ASC">이름 순</option>
+                                    <option value="avg_Rating_DESC">평점 순 (높은순)</option>
+                                    <option value="avg_Rating_ASC">평점 순 (낮은순)</option>
+                                </select>
+                            </div>
+                            
                         </div>
                         <div className="restaurant-grid">
                             {restaurants.map(restaurant => (
