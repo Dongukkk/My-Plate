@@ -14,7 +14,7 @@ function Header(){
                 </div>
                 <div style={{display:"inline-flex", alignItems:"center", marginLeft:"10px"}}>
                     <img src="https://cdn.pixabay.com/photo/2025/08/17/10/46/bird-9779577_1280.png" style={{borderRadius:"90%", marginRight:"6px", height:"40px", width:"40px"}} />
-                    <span style={{fontSize:"16px", fontWeight:"bold"}}>김밥천국</span>
+                    <span style={{fontSize:"16px", fontWeight:"bold", color:"white"}}>김밥천국</span>
                 </div>
             </div>
         </header>
