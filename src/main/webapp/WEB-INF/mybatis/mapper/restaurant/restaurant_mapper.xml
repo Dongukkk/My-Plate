@@ -96,6 +96,7 @@
         <if test="sortField != null and sortDirection != null">
         ORDER BY ${sortField} ${sortDirection}
     	</if>
+    	OFFSET #{offset} ROWS FETCH NEXT #{limit} ROWS ONLY
     </select>
 	
 	<select id="getRestaurantById" parameterType="long" resultType="Restaurant">

@@ -11,7 +11,6 @@ import MainPage from './mainpage/MainPage';
 import RestaurantList from './restaurantList/RestaurantList';
 import Header from './components/Header';
 import RestaurantDetail from './restaurantList/RestaurantDetail';
-import KakaoMap from './components/KakaoMap';
 
 const MainLayout = () => {
 

@@ -36,8 +36,11 @@ public class RestaurantRestController {
 	
 	@GetMapping("/api/restaurants/getAllRestaurants")
     public List<RestaurantDTO> getAllRestaurants(@RequestParam(name = "sort", defaultValue = "name") String sort,
-    	    @RequestParam(name = "direction", defaultValue = "ASC") String direction) {
-		List<RestaurantDTO> restList = restaurantService.findAllRestaurants(sort, direction);
+    	    @RequestParam(name = "direction", defaultValue = "ASC") String direction,
+    	    @RequestParam(name = "page", defaultValue = "1") int page,
+            @RequestParam(name = "limit", defaultValue = "12") int limit) {
+		List<RestaurantDTO> restList = restaurantService.findAllRestaurants(sort, direction, page, limit);
+		System.out.println(page);
 		System.out.println(restList);
 		return restList;
 	}
