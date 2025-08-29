@@ -92,9 +92,28 @@
         ADDRESS,
         PHONE
         FROM MP_RESTAURANT
+        <if test="sortField != null and sortDirection != null">
+        ORDER BY ${sortField} ${sortDirection}
+    	</if>
     </select>
 	
-	
+	<select id="getRestaurantById" parameterType="long" resultType="Restaurant">
+		SELECT
+        ID,
+        NAME,
+        DESCRIPTION,
+        CATEGORY,
+        AVG_RATING,
+        RATING_COUNT,
+        SOLO_INDEX,
+        PHOTO_URL,
+        LATITUDE,
+        LONGITUDE,
+        ADDRESS,
+        PHONE
+        FROM MP_RESTAURANT
+        WHERE ID = #{id}
+	</select>
 	
 
 </mapper>

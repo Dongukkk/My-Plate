@@ -10,6 +10,8 @@ import AdminLogin from "./admin/admin-login";
 import MainPage from './mainpage/MainPage';
 import RestaurantList from './restaurantList/RestaurantList';
 import Header from './components/Header';
+import RestaurantDetail from './restaurantList/RestaurantDetail';
+import KakaoMap from './components/KakaoMap';
 
 const MainLayout = () => {
 
@@ -23,6 +25,7 @@ const MainLayout = () => {
       <Routes>
         <Route path="/" element={<MainPage />} />
         <Route path="/RestaurantList" element={<RestaurantList />} />
+        <Route path="/restaurants/detail/:id" element={<RestaurantDetail />} />
 
         <Route path="/admin" element={<AdminLogin />} />
         <Route path="/adminMain" element={<AdminMain />} />

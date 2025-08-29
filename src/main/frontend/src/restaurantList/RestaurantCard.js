@@ -1,11 +1,15 @@
+import { useNavigate } from "react-router-dom";
+
 const RestaurantCard = ({ restaurant }) => {
+  const navigate = useNavigate();
+
   return (
     <div className="restaurant-card">
       <div className="rc-card-image"></div>
       <div className="rc-card-content">
         <h3>{restaurant.restrntNm}</h3>
         <div className="rc-rating-info">
-          ⭐ {restaurant.avgrating} ({restaurant.ratingCount})
+          ⭐ {restaurant.avgRating} ({restaurant.ratingCount})
         </div>
         <div className="rc-description">
             <span>주소 : {restaurant.restrntAddr}</span><br/>
@@ -17,7 +21,12 @@ const RestaurantCard = ({ restaurant }) => {
           
         </div>
         <div className="rc-card-actions">
-          <button className="rc-details-button">상세 보기</button>
+          <button
+            className="rc-details-button" 
+            onClick={() => navigate(`/restaurants/detail/${restaurant.id}`)}
+            >
+            상세 보기
+            </button>
         </div>
       </div>
     </div>

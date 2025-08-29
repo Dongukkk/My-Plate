@@ -5,5 +5,7 @@ import java.util.List;
 import com.app.dto.restaurant.RestaurantDTO;
 
 public interface RestaurantService {
-	List<RestaurantDTO> findAllRestaurants();
+	public List<RestaurantDTO> findAllRestaurants(String sort, String direction);
+	
+	public RestaurantDTO getRestaurantById(Long id);
 }

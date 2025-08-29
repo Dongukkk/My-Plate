@@ -1,6 +1,7 @@
+import { useNavigate } from "react-router-dom";
 import '../mainpage/MainPage.css';
 function MainPage() {
-    
+    const navigate = useNavigate();
 
     return (
         <>
@@ -9,7 +10,7 @@ function MainPage() {
                 <h2>혼자서도 맛있게, 혼밥인</h2>
                 <p>당신을 위한 맞춤형 혼밥 맛집 추천 서비스</p>
                 <div>
-                    <button class="mainpage-btn-orange">맛집 검색하기</button>
+                    <button class="mainpage-btn-orange" onClick={() => navigate(`/restaurantList`)}>맛집 탐색하기</button>
                     <button class="mainpage-btn-white">지도로 보기</button>
                 </div>
                 
