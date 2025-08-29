@@ -1,6 +1,5 @@
 .restaurantDetail-page {
   display: flex;
-  width:100vw;
   min-height: 100vh;
   background-color: var(--background-color);
   font-family: 'Noto Sans KR', sans-serif;

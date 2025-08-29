@@ -101,7 +101,10 @@ function RestaurantDetail() {
             <h3>주소</h3>
             <p>{restaurant.restrntAddr}</p>
             {restaurant.mapLat && restaurant.mapLot && (
-              <KakaoMap lat={restaurant.mapLat} lng={restaurant.mapLot} />
+              <div style={{height:"300px", border:"1px solid black", borderRadius:"5px"}}>
+                <KakaoMap points={[{ lat:restaurant.mapLat, lng:restaurant.mapLot}]} level={1}/>
+              </div>
+              
             )}
             <h3>전화번호</h3>
             <p>{restaurant.restrntInqrTel}</p>

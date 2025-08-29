@@ -12,6 +12,7 @@ import RestaurantList from './restaurantList/RestaurantList';
 import Header from './components/Header';
 import RestaurantDetail from './restaurantList/RestaurantDetail';
 import RestaurantSearchResult from './restaurantList/RestaurantSearchResult';
+import RestaurantMap from './map/RestaurantMap';
 
 const MainLayout = () => {
 
@@ -27,6 +28,7 @@ const MainLayout = () => {
         <Route path="/search" element={<RestaurantSearchResult />} />
         <Route path="/RestaurantList" element={<RestaurantList />} />
         <Route path="/restaurants/detail/:id" element={<RestaurantDetail />} />
+        <Route path="/map" element={<RestaurantMap />} />
 
         <Route path="/admin" element={<AdminLogin />} />
         <Route path="/adminMain" element={<AdminMain />} />

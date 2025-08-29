@@ -25,7 +25,6 @@ const RestaurantSearchBar = () => {
                 const response = await fetch('/api/restaurants/getAllRestaurants?limit=99999');
                 const data = await response.json();
                 setAllRestaurants(data);
-                console.log(allRestaurants[ 0 ]);
             } catch (error) {
                 console.error("데이터를 불러오지 못했습니다:", error);
             }
@@ -101,7 +100,6 @@ const RestaurantSearchBar = () => {
 
     const filteredTags = tags.filter(tag => tag.includes(searchTerm));
     const filteredRestaurants = allRestaurants && allRestaurants.filter(restaurant => restaurant.restrntNm && restaurant.restrntNm.includes(searchTerm));
-    console.log(filteredRestaurants);
     const shouldShowDropdown = isDropdownVisible && searchTerm.length > 0 && (filteredTags.length > 0 || (filteredRestaurants && filteredRestaurants.length > 0));
 
     return (
