@@ -248,42 +248,36 @@ export default function AdminRestaurant() {
                     </div>
                 </div>
 
-                {/* 검색/필터/정렬 */}
-                <div className="admin-controls">
-                    <div className="admin-search">
-                        <input
-                            value={query}
-                            onChange={(e) => setQuery(e.target.value)}
-                            onKeyDown={(e) => e.key === "Enter" && handleSearch()}
-                            placeholder="음식, 식당 또는 메뉴 검색..."
-                            aria-label="식당 검색"
-                        />
-                        <button type="button" className="admin-search-btn" onClick={handleSearch} aria-label="검색" title="검색">
-                            검색
-                        </button>
-                    </div>
-
-                    <select value={category} onChange={(e) => setCategory(e.target.value)} aria-label="카테고리 필터">
-                        {categories.map((c) => (
-                            <option key={c} value={c}>{c === "ALL" ? "모든 카테고리" : c}</option>
-                        ))}
-                    </select>
-
-                    <select value={sort} onChange={(e) => setSort(e.target.value)} aria-label="정렬">
-                        <option value="latest">최신순</option>
-                        <option value="ratingDesc">평점높은순</option>
-                        <option value="busyDesc">혼잡지수높은순</option>
-                        <option value="nameAsc">이름오름차순</option>
-                    </select>
-                </div>
-
                 {/* 목록 */}
                 <div className="admin-card">
-                    <div className="admin-card-head">
-                        <h3>식당 목록</h3>
-                        <span className="admin-muted">총 {totalForPaging}개 · 페이지당 {pageSize} 표시</span>
-                    </div>
+                    <div className="admin-card-head"><h3>식당 목록</h3></div>
 
+                    <div className="admin-controls">
+                        <div className="admin-search">
+                            <input
+                                value={query}
+                                onChange={(e) => setQuery(e.target.value)}
+                                onKeyDown={(e) => e.key === "Enter" && handleSearch()}
+                                placeholder="음식, 식당 또는 메뉴 검색..."
+                                aria-label="식당 검색"
+                            />
+                            <button type="button" className="admin-search-btn" onClick={handleSearch} aria-label="검색" title="검색">
+                                검색
+                            </button>
+                        </div>
+                        <select value={category} onChange={(e) => setCategory(e.target.value)} aria-label="카테고리 필터">
+                            {categories.map((c) => (
+                                <option key={c} value={c}>{c === "ALL" ? "모든 카테고리" : c}</option>
+                            ))}
+                        </select>
+
+                        <select value={sort} onChange={(e) => setSort(e.target.value)} aria-label="정렬">
+                            <option value="latest">최신순</option>
+                            <option value="ratingDesc">평점높은순</option>
+                            <option value="busyDesc">혼잡지수높은순</option>
+                            <option value="nameAsc">이름오름차순</option>
+                        </select>
+                    </div>
                     <div className="admin-table-wrap">
                         <table className="admin-rest-table">
                             <thead>
@@ -318,15 +312,6 @@ export default function AdminRestaurant() {
                                         <td><StatusPill status={r.status} /></td>
                                         <td className="admin-row-actions">
                                             <button className="admin-mini" onClick={() => navigate(`/adminrestaurants/${r.id}/edit`)}>수정</button>
-                                            <button
-                                                className="admin-mini admin-ghost"
-                                                onClick={async () => {
-                                                    // await axios.patch(`/api/admin/restaurants/${r.id}/status`, { status: "비활성" });
-                                                    alert("비활성 처리(샘플)");
-                                                }}
-                                            >
-                                                비활성
-                                            </button>
                                             <button
                                                 className="admin-mini admin-danger"
                                                 onClick={async () => {

@@ -1,6 +1,6 @@
 import './App.css';
 import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
-import ErrorPage from './admin/ErrorPage';
+import ErrorPage from './admin/error-page';
 import AdminMain from './admin/admin-main';
 import AdminUser from "./admin/admin-user";
 import AdminAnalysis from "./admin/admin-analysis";

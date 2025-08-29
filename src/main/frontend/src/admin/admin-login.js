@@ -51,13 +51,11 @@ export default function AdminLogin() {
     return (
         <div className="admin-login">
             <div className="admin-login-wrap">
-                {/* 브랜드 */}
                 <div className="admin-brand">
                     <span className="admin-brand-name">
                         <img
                             src={"https://i.imgur.com/Q5H1oqv.png"}
                             alt="My Plate Logo"
-                            className="admin-logo-img"
                         />
                     </span>
                 </div>

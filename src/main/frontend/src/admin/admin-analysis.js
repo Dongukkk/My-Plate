@@ -26,8 +26,6 @@ export default function AdminAnalysis() {
         { label: "식당 검색", red: 92, teal: 60 },
         { label: "리뷰 작성", red: 70, teal: 45 },
         { label: "즐겨찾기", red: 52, teal: 40 },
-        { label: "예약/핫딜 확인", red: 36, teal: 28 },
-        { label: "맛집리스트 추가", red: 24, teal: 18 },
     ];
 
     const userDist = [

@@ -238,7 +238,7 @@ export default function AdminContent() {
                 {/* 대기중 콘텐츠 */}
                 <section className="admin-section admin-pending">
                     <div className="admin-section-header">
-                        <h3 className="admin-section-title">대기 중인 콘텐츠</h3>
+                        <h3 className="admin-section-title">수정 요청 대기 중인 콘텐츠</h3>
                     </div>
 
                     <div className="admin-desk-wrap">
@@ -336,7 +336,7 @@ export default function AdminContent() {
                                             className="admin-bttn admin-bttn--sm admin-bttn--danger"
                                             onClick={() => handleDeleteReportedContent(r.id)}
                                         >
-                                            콘텐츠 삭제
+                                            콘텐츠 확인
                                         </button>
                                     </div>
                                 </article>

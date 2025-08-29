@@ -121,19 +121,18 @@ admin-logo {
 
 /* ───────── 요약 카드 ───────── */
 .admin-stats {
-    display: flex;
-    gap: 20px;
-    margin-bottom: 20px;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+    margin-bottom: 14px;
 }
 
 .admin-card {
-    flex: 1;
-    background: #fdfdfd;
-    padding: 20px;
-    border-radius: 10px;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    background: #fff;
+    border-radius: 12px;
+    padding: 14px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, .04);
     text-align: center;
-    transition: transform 0.2s;
 }
 
 .admin-card:hover {
@@ -141,10 +140,9 @@ admin-logo {
 }
 
 .admin-value {
-    display: block;
     font-size: 22px;
-    font-weight: bold;
-    margin-top: 5px;
+    font-weight: 800;
+    margin: 6px 0;
 }
 
 .admin-change {

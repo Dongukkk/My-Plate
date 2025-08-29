@@ -91,6 +91,7 @@
     gap: 8px;
     color: #6b7280;
     font-size: 12px;
+    text-align: center;
 }
 
 .admin-kpi-icon {
@@ -102,9 +103,9 @@
 }
 
 .admin-kpi-value {
-    font-size: 28px;
+    font-size: 22px;
     font-weight: 800;
-    margin: 6px 0 4px;
+    margin: 6px 0;
 }
 
 .admin-kpi-foot {
