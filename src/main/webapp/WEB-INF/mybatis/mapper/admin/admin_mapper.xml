@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?> 
+<!DOCTYPE mapper PUBLIC
+		   "-//mybatis.org//DTD Mapper 3.0//EN" 
+		   "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="admin_mapper">
+
+	<select id="findRestaurantList" resultType="AdminRestaurant">
+		SELECT
+		R.ID AS id,
+		R.NAME AS name,
+		R.CATEGORY AS category,
+		R.ADDRESS AS address,
+		NVL(R.SOLO_INDEX, 0) AS solo_index,
+		NVL(R.AVG_RATING, 0) AS avgRating,
+		NVL(R.RATING_COUNT, 0) AS rating_count,
+		R.STATUS AS status
+		FROM
+		MP_RESTAURANT R
+		WHERE R.DELETED_AT IS NULL
+		ORDER BY R.ID
+	</select>
+
+
+	<update id="DeleteAdminRestaurant" parameterType="AdminRestaurant">
+		UPDATE MP_RESTAURANT
+		SET STATUS = 'DELETED',
+		DELETED_AT =
+		SYSTIMESTAMP
+		WHERE ID = #{id}
+	</update>
+
+
+
+
+</mapper>

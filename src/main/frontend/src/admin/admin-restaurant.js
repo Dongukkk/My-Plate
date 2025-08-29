@@ -3,7 +3,8 @@ import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import "./admin-restaurant.css";
 
-const USE_MOCK = true;
+const USE_MOCK = false;
+axios.defaults.baseURL = "http://localhost:8080";
 
 /* 상태 뱃지 */
 const StatusPill = ({ status }) => {
@@ -11,26 +12,36 @@ const StatusPill = ({ status }) => {
     return <span className={`admin-status-pill ${map[status] || "off"}`}>{status}</span>;
 };
 
-/* 복지카드 가용 점표시 */
+/* 복지카드 점표시 (현재 DTO에 없음: 임시 false) */
 const WelfareDot = ({ ok }) => (
     <span className={`admin-welfare-dot ${ok ? "on" : "off"}`} aria-label={ok ? "가능" : "불가"} />
 );
 
 /* 페이지네이션 */
-const Pagination = ({ page, pages, onChange }) => {
-    const nums = Array.from({ length: pages }, (_, i) => i + 1);
+const Pagination = ({ page, pages, onChange, windowSize = 5 }) => {
+    if (!pages || pages <= 1) return null;
+
+    const current = Math.max(1, Math.min(page, pages));
+    const groupIndex = Math.floor((current - 1) / windowSize);
+    const start = groupIndex * windowSize + 1;
+    const end = Math.min(pages, start + windowSize - 1);
+
+    const nums = Array.from({ length: end - start + 1 }, (_, i) => start + i);
+
     return (
         <div className="admin-pg">
-            <button className="admin-pg-item admin-ghost" onClick={() => onChange(Math.max(1, page - 1))}>이전</button>
-            {nums.map((p) => (
-                <button key={p} className={`admin-pg-item ${page === p ? "admin-active" : ""}`} onClick={() => onChange(p)}>
-                    {p}
-                </button>
-            ))}
-            <button className="admin-pg-item admin-ghost" onClick={() => onChange(Math.min(pages, page + 1))}>다음</button>
+            <button className="admin-pg-item admin-ghost" onClick={() => onChange(current - 1)} disabled={current === 1}>이전</button>
+
+            {start > 1 && (<button className="admin-pg-item admin-ghost" onClick={() => onChange(start - 1)} title="이전 구간">…</button>)}
+
+            {nums.map((p) => (<button key={p} className={`admin-pg-item ${current === p ? "admin-active" : ""}`} onClick={() => onChange(p)} aria-current={current === p ? "page" : undefined}>{p}</button>))}
+
+            {end < pages && (<button className="admin-pg-item admin-ghost" onClick={() => onChange(end + 1)} title="다음 구간">…</button>)}
+            <button className="admin-pg-item admin-ghost" onClick={() => onChange(current + 1)} disabled={current === pages}>다음</button>
         </div>
     );
 };
+
 
 /* 파이차트 */
 const PieChart = ({ data }) => {
@@ -84,114 +95,95 @@ const StackedBars = ({ items }) => (
 export default function AdminRestaurant() {
     const navigate = useNavigate();
 
-    /* 검색/필터/정렬/페이지 */
+    const [deletingId, setDeletingId] = useState(null);
+    const onDelete = async (row) => {
+        if (!window.confirm(`${row.name}을(를) 삭제하시겠습니까?`)) return;
+        try {
+            setDeletingId(row.id);
+            await axios.delete(`/api/adminRestaurant/${row.id}`);
+            setRows((prev) => prev.filter((x) => x.id !== row.id));
+            alert("삭제되었습니다.");
+        } catch (e) {
+            console.error(e);
+            const code = e?.response?.status;
+            alert(`삭제 실패${code ? ` (HTTP ${code})` : ""}`);
+        } finally {
+            setDeletingId(null);
+        }
+    };
+
+    // 검색/필터/정렬/페이지
     const [query, setQuery] = useState("");
     const [category, setCategory] = useState("ALL");
     const [sort, setSort] = useState("latest");
     const [page, setPage] = useState(1);
-    const pageSize = 5;
+    const pageSize = 10;
 
-    /* 목록/총건수 */
+    // 목록/제출 대기
     const [rows, setRows] = useState([]);
-    const [serverTotal, setServerTotal] = useState(0);
-
-    /* 제출 대기 목록 */
     const [pending, setPending] = useState([]);
 
-    /* 카테고리 목록 */
+    // 카테고리 옵션
     const categories = useMemo(
         () => ["ALL", "한식", "일식, 라멘", "카페, 브런치", "양식", "중식", "분식", "퓨전, 현대식"],
         []
     );
 
-    /* ---- MOCK 데이터 ---- */
-    useEffect(() => {
-        if (!USE_MOCK) return;
-        setRows([
-            { id: 12345, name: "라면 이자반", category: "일식, 라멘", location: "서울시 강남구 역삼동", busyScore: 9.5, rating: 4.8, ratingCnt: 324, welfare: true, status: "활성" },
-            { id: 12346, name: "카페 폼", category: "카페, 브런치", location: "서울시 서대문구 연희동", busyScore: 9.0, rating: 4.7, ratingCnt: 203, welfare: false, status: "활성" },
-            { id: 12347, name: "김치 향수", category: "한식, 전통", location: "서울시 마포구 연남동", busyScore: 9.0, rating: 4.6, ratingCnt: 187, welfare: true, status: "활성" },
-            { id: 12348, name: "사막만 연쇄 비스트로", category: "양식, 스시", location: "서울시 강남구 청담동", busyScore: 8.5, rating: 4.5, ratingCnt: 328, welfare: false, status: "비활성" },
-            { id: 12349, name: "이반 레이트", category: "퓨전, 현대식", location: "서울시 용산구 이태원동", busyScore: 8.7, rating: 4.5, ratingCnt: 156, welfare: true, status: "수정 필요" },
-        ]);
-        setServerTotal(5);
-        setPending([
-            { id: 9001, name: "타이 오아시스", category: "태국식", location: "서울시 마포구 상수동", creator: "박지은", date: "2023-11-15" },
-            { id: 9002, name: "비스토로 유노", category: "유럽식", location: "서울시 종로구 삼청동", creator: "이수진", date: "2023-11-14" },
-            { id: 9003, name: "루프탑 비스트로", category: "프렌치", location: "서울시 용산구 한남동", creator: "최은서", date: "2023-11-12" },
-        ]);
-    }, []);
-
-    /* ---- 서버 연동 훅 ---- */
+    // 서버 연동: 최초 1회만 호출
     useEffect(() => {
         if (USE_MOCK) return;
         const fetchList = async () => {
-            // API: 목록 조회
-            const res = await axios.get("/api/admin/restaurants", {
-                params: { query, category: category === "ALL" ? "" : category, page, size: pageSize, sort },
-            });
-            setRows(res.data.items);
-            setServerTotal(res.data.total);
+            try {
+                const res = await axios.get("/api/adminRestaurant");
+                setRows(Array.isArray(res.data) ? res.data : []);
+            } catch (e) {
+                console.error("식당 목록 조회 실패:", e);
+                setRows([]);
+            }
         };
         fetchList();
-    }, [query, category, page, sort]);
-
-    useEffect(() => {
-        if (USE_MOCK) return;
-        const fetchPending = async () => {
-            // API: 제출 대기 목록
-            const res = await axios.get("/api/admin/restaurants/pending");
-            setPending(res.data.items);
-        };
-        fetchPending();
     }, []);
 
-    /* 프론트 단 필터 */
+    // 프론트 단 필터
     const filtered = useMemo(() => {
-        if (!USE_MOCK) return rows;
         const term = query.trim().toLowerCase();
         return rows.filter((r) => {
             const passQ =
                 !term ||
-                r.name.toLowerCase().includes(term) ||
-                r.location.toLowerCase().includes(term) ||
-                r.category.toLowerCase().includes(term);
-            const passCat = category === "ALL" || r.category.startsWith(category);
+                r.name?.toLowerCase().includes(term) ||
+                r.address?.toLowerCase().includes(term) ||
+                r.category?.toLowerCase().includes(term);
+            const passCat = category === "ALL" || r.category?.startsWith?.(category);
             return passQ && passCat;
         });
     }, [query, category, rows]);
 
-    const totalForPaging = USE_MOCK ? filtered.length : serverTotal;
+    // 정렬 (클라이언트)
+    const sorted = useMemo(() => {
+        const arr = [...filtered];
+        switch (sort) {
+            case "ratingDesc":
+                arr.sort((a, b) => (Number(b.avgRating) || 0) - (Number(a.avgRating) || 0));
+                break;
+            case "busyDesc":
+                arr.sort((a, b) => (Number(b.solo_index) || 0) - (Number(a.solo_index) || 0));
+                break;
+            case "nameAsc":
+                arr.sort((a, b) => (a.name || "").localeCompare(b.name || ""));
+                break;
+            default:
+                arr.sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0));
+        }
+        return arr;
+    }, [filtered, sort]);
+
+    // 페이지 계산
+    const totalForPaging = sorted.length;
     const pages = Math.max(1, Math.ceil(totalForPaging / pageSize));
-    const view = USE_MOCK ? filtered.slice((page - 1) * pageSize, page * pageSize) : rows;
+    const view = sorted.slice((page - 1) * pageSize, page * pageSize);
+    useEffect(() => setPage(1), [query, category, sort]);
 
-    useEffect(() => setPage(1), [query, category]);
-
-    /* 제출 승인/거부 */
-    const approveOne = async (idx) => {
-        const target = pending[idx];
-        // await axios.post("/api/admin/restaurants/approve", { id: target.id });
-        setPending((list) => list.filter((_, i) => i !== idx));
-        alert(`승인 완료: ${target.name}`);
-    };
-    const rejectOne = async (idx) => {
-        const target = pending[idx];
-        // await axios.post("/api/admin/restaurants/reject", { id: target.id, reason: "" });
-        setPending((list) => list.filter((_, i) => i !== idx));
-        alert(`거부 완료: ${target.name}`);
-    };
-    const approveAll = async () => {
-        // await axios.post("/api/admin/restaurants/bulk-approve");
-        setPending([]);
-        alert("모든 제출을 승인했습니다.");
-    };
-    const rejectAll = async () => {
-        // await axios.post("/api/admin/restaurants/bulk-reject");
-        setPending([]);
-        alert("모든 제출을 거부했습니다.");
-    };
-
-    /* 차트 샘플 데이터 */
+    // 차트 샘플 데이터
     const pieData = useMemo(
         () => [
             { label: "한식", value: 12, color: "#e74c3c" },
@@ -202,7 +194,6 @@ export default function AdminRestaurant() {
         ],
         []
     );
-
     const busyItems = useMemo(
         () => [
             { label: "월", segments: [{ value: 20, title: "여유" }, { value: 40, title: "보통" }, { value: 40, title: "혼잡" }] },
@@ -214,10 +205,7 @@ export default function AdminRestaurant() {
         []
     );
 
-    /* 검색 버튼/엔터 처리 */
-    const handleSearch = () => {
-        setPage(1);
-    };
+    const handleSearch = () => setPage(1);
 
     return (
         <div className="admin-container">
@@ -236,19 +224,15 @@ export default function AdminRestaurant() {
                 </nav>
             </aside>
 
-            {/* 메인 */}
             <main className="admin-rest-page">
                 <div className="admin-top">
-                    <div>
-                        <h2 className="admin-title">식당 관리</h2>
-                    </div>
+                    <div><h2 className="admin-title">식당 관리</h2></div>
                     <div className="admin-actions-bar">
                         <button className="admin-btn admin-ghost" onClick={() => navigate("/adminMain")}>메인으로 돌아가기</button>
                         <button className="admin-btn admin-primary" onClick={() => navigate("/adminrestaurants/new")}>새로운 식당 추가</button>
                     </div>
                 </div>
 
-                {/* 목록 */}
                 <div className="admin-card">
                     <div className="admin-card-head"><h3>식당 목록</h3></div>
 
@@ -274,10 +258,11 @@ export default function AdminRestaurant() {
                         <select value={sort} onChange={(e) => setSort(e.target.value)} aria-label="정렬">
                             <option value="latest">최신순</option>
                             <option value="ratingDesc">평점높은순</option>
-                            <option value="busyDesc">혼잡지수높은순</option>
+                            <option value="busyDesc">혼잡레벨높은순</option>
                             <option value="nameAsc">이름오름차순</option>
                         </select>
                     </div>
+
                     <div className="admin-table-wrap">
                         <table className="admin-rest-table">
                             <thead>
@@ -285,7 +270,7 @@ export default function AdminRestaurant() {
                                     <th>식당 이름</th>
                                     <th>카테고리</th>
                                     <th>위치</th>
-                                    <th>혼잡지수</th>
+                                    <th>혼밥레벨</th>
                                     <th>평점</th>
                                     <th>복지카드</th>
                                     <th>상태</th>
@@ -296,32 +281,19 @@ export default function AdminRestaurant() {
                                 {view.map((r) => (
                                     <tr key={r.id}>
                                         <td>
-                                            <div className="admin-name-col">
-                                                <strong className="admin-link" onClick={() => navigate(`/adminrestaurants/${r.id}`)}>{r.name}</strong>
-                                            </div>
+                                            <div className="admin-name-col"><strong className="admin-link" onClick={() => navigate(`/adminrestaurants/${r.id}`)}>{r.name}</strong></div>
                                         </td>
                                         <td>{r.category}</td>
-                                        <td className="admin-truncate">{r.location}</td>
+                                        <td className="admin-truncate">{r.address}</td>
                                         <td>
-                                            <span className={`admin-busy ${r.busyScore >= 9 ? "admin-high" : r.busyScore >= 8 ? "admin-mid" : ""}`}>
-                                                {r.busyScore.toFixed(1)}
-                                            </span>
+                                            <span className={`admin-busy ${Number(r.solo_index) >= 9 ? "admin-high" : Number(r.solo_index) >= 8 ? "admin-mid" : ""}`}>{Number(r.solo_index).toFixed(1)}</span>
                                         </td>
-                                        <td>{r.rating.toFixed(1)} <span className="admin-muted">({r.ratingCnt})</span></td>
-                                        <td><WelfareDot ok={r.welfare} /></td>
+                                        <td>{Number(r.avgRating).toFixed(1)} <span className="admin-muted">({r.rating_count || 0})</span></td>
+                                        <td><WelfareDot ok={false} /></td>
                                         <td><StatusPill status={r.status} /></td>
                                         <td className="admin-row-actions">
                                             <button className="admin-mini" onClick={() => navigate(`/adminrestaurants/${r.id}/edit`)}>수정</button>
-                                            <button
-                                                className="admin-mini admin-danger"
-                                                onClick={async () => {
-                                                    if (!window.confirm("삭제하시겠습니까?")) return;
-                                                    // await axios.delete(`/api/admin/restaurants/${r.id}`);
-                                                    alert("삭제(샘플)");
-                                                }}
-                                            >
-                                                삭제
-                                            </button>
+                                            <button className="admin-mini admin-danger" disabled={deletingId === r.id} onClick={() => onDelete(r)}>{deletingId === r.id ? "삭제 중..." : "삭제"}</button>
                                         </td>
                                     </tr>
                                 ))}
@@ -335,59 +307,13 @@ export default function AdminRestaurant() {
                     <Pagination page={page} pages={pages} onChange={setPage} />
                 </div>
 
-                {/* 제출 승인 */}
-                <div className="admin-card">
-                    <div className="admin-card-head"><h3>새로운 식당 제출 승인</h3></div>
-                    <div className="admin-table-wrap">
-                        <table className="admin-rest-table">
-                            <thead>
-                                <tr>
-                                    <th>식당 이름</th>
-                                    <th>카테고리</th>
-                                    <th>위치</th>
-                                    <th>제출자</th>
-                                    <th>제출일</th>
-                                    <th>작업</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {pending.map((s, i) => (
-                                    <tr key={s.id}>
-                                        <td><strong>{s.name}</strong></td>
-                                        <td>{s.category}</td>
-                                        <td className="admin-truncate">{s.location}</td>
-                                        <td>{s.creator}</td>
-                                        <td>{s.date}</td>
-                                        <td className="admin-row-actions">
-                                            <button className="admin-mini admin-success" onClick={() => approveOne(i)}>승인</button>
-                                            <button className="admin-mini admin-danger" onClick={() => rejectOne(i)}>거부</button>
-                                            <button className="admin-mini admin-ghost" onClick={() => navigate(`/adminrestaurants/submit/detail/${s.id}`)}>상세</button>
-                                        </td>
-                                    </tr>
-                                ))}
-                                {pending.length === 0 && (
-                                    <tr><td colSpan={6} className="admin-empty">승인 대기 중인 제출이 없습니다.</td></tr>
-                                )}
-                            </tbody>
-                        </table>
-                    </div>
-                    <div className="admin-card-foot">
-                        <div />
-                        <div className="admin-btn-group">
-                            <button className="admin-btn admin-success" onClick={approveAll}>모두 승인</button>
-                            <button className="admin-btn admin-danger" onClick={rejectAll}>모두 거부</button>
-                        </div>
-                    </div>
-                </div>
-
-                {/* 차트 */}
                 <div className="admin-charts-grid">
                     <div className="admin-card">
-                        <div className="admin-card-head"><h3>레스토랑 식당 분포</h3></div>
+                        <div className="admin-card-head"><h3>식당 카테고리 분포</h3></div>
                         <PieChart data={pieData} />
                     </div>
                     <div className="admin-card">
-                        <div className="admin-card-head"><h3>식당 혼잡지수 분포</h3></div>
+                        <div className="admin-card-head"><h3>식당 혼잡레벨 분포</h3></div>
                         <StackedBars items={busyItems} />
                         <div className="admin-bar-legend">
                             <span className="admin-seg admin-s1" /> 여유
