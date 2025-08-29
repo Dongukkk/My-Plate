@@ -29,9 +29,9 @@ const RestaurantSearchBar = () => {
     }, []);
 
     useEffect(() => {
-    setSearchTerm('');
-    setIsDropdownVisible(false);
-  }, [location.pathname]);
+        setSearchTerm('');
+        setIsDropdownVisible(false);
+    }, [ location.pathname ]);
 
     useEffect(() => {
         function handleClickOutside(event) {
@@ -51,6 +51,11 @@ const RestaurantSearchBar = () => {
     };
 
     const handleSuggestionClick = (suggestion, id) => {
+        const trimmedSearchTerm = searchTerm.trim();
+
+        if (trimmedSearchTerm.length === 0) {
+            return;
+        }
         console.log(`'${suggestion}'으로 검색합니다.`);
 
         setSearchTerm('');
@@ -64,15 +69,20 @@ const RestaurantSearchBar = () => {
     };
 
     const handleFinalSearch = () => {
+        const trimmedSearchTerm = searchTerm.trim();
+
+        if (trimmedSearchTerm.length === 0) {
+            return;
+        }
         const tagMatch = tags.find(tag => tag === searchTerm);
         const restaurantMatch = allRestaurants.find(restaurant => restaurant.restrntNm === searchTerm);
 
         if (tagMatch) {
-            navigate(`/search?query=${encodeURIComponent(tagMatch)}`);
+            navigate(`/search?tag=${encodeURIComponent(tagMatch)}`);
         } else if (restaurantMatch) {
             navigate(`/restaurants/detail/${restaurantMatch.id}`);
         } else {
-            navigate('/search/no-results');
+            navigate(`/search?query=${searchTerm}`);
         }
 
         setSearchTerm('');

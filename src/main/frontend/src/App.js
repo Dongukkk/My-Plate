@@ -11,6 +11,7 @@ import MainPage from './mainpage/MainPage';
 import RestaurantList from './restaurantList/RestaurantList';
 import Header from './components/Header';
 import RestaurantDetail from './restaurantList/RestaurantDetail';
+import RestaurantSearchResult from './restaurantList/RestaurantSearchResult';
 
 const MainLayout = () => {
 
@@ -23,6 +24,7 @@ const MainLayout = () => {
       {showHeaderFooter && <Header />}
       <Routes>
         <Route path="/" element={<MainPage />} />
+        <Route path="/search" element={<RestaurantSearchResult />} />
         <Route path="/RestaurantList" element={<RestaurantList />} />
         <Route path="/restaurants/detail/:id" element={<RestaurantDetail />} />
 
