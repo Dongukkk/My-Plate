@@ -92,6 +92,7 @@
         ADDRESS,
         PHONE
         FROM MP_RESTAURANT
+        WHERE NAME IS NOT NULL
         <if test="sortField != null and sortDirection != null">
         ORDER BY ${sortField} ${sortDirection}
     	</if>
