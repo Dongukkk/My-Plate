@@ -333,7 +333,7 @@ export default function AdminRestaurant() {
                         <PieChart data={pieData} />
                     </div>
                     <div className="admin-card">
-                        <div className="admin-card-head"><h3>식당 혼잡레벨 분포</h3></div>
+                        <div className="admin-card-head"><h3>식당 혼밥레벨 분포</h3></div>
                         <StackedBars items={busyItems} />
                         <div className="admin-bar-legend">
                             <span className="admin-seg admin-s1" /> 여유
@@ -359,9 +359,7 @@ export default function AdminRestaurant() {
                                     <label>카테고리<input value={editData.category || ""} onChange={(e) => setEditData(d => ({ ...d, category: e.target.value }))} /></label>
                                     <label>주소<input value={editData.address || ""} onChange={(e) => setEditData(d => ({ ...d, address: e.target.value }))} /></label>
                                     <label>전화<input value={editData.phone || ""} onChange={(e) => setEditData(d => ({ ...d, phone: e.target.value }))} /></label>
-                                    <label>혼밥레벨<input type="number" step="0.1" min="0" max="10" value={editData.solo_index ?? 0} onChange={(e) => setEditData(d => ({ ...d, solo_index: e.target.value }))} /></label>
-                                    <label>평점<input type="number" step="0.1" min="0" max="5" value={editData.avgRating ?? 0} onChange={(e) => setEditData(d => ({ ...d, avgRating: e.target.value }))} /></label>
-                                    <label>리뷰 수<input type="number" min="0" value={editData.rating_count ?? 0} onChange={(e) => setEditData(d => ({ ...d, rating_count: e.target.value }))} /></label>
+                                    <label>사진<input value={editData.photo_url || ""} onChange={(e) => setEditData(d => ({ ...d, photo_url: e.target.value }))} /></label>
                                     <label>상태
                                         <select value={editData.status || "ACTIVE"} onChange={(e) => setEditData(d => ({ ...d, status: e.target.value }))}>
                                             <option value="ACTIVE">ACTIVE</option>
