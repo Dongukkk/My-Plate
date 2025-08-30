@@ -2,12 +2,11 @@ import { useEffect, useRef, useState } from "react";
 import KakaoMap from "../components/KakaoMap";
 import SideBarMenu from "../components/SideBarMenu";
 import "./RestaurantMap.css";
+import { useNavigate } from "react-router-dom";
 
 function RestaurantMap() {
+  const navigate = useNavigate();
   const [ displayedRestaurants, setDisplayedRestaurants ] = useState([]);
-
-  const daejeonCenter = { lat: 36.3504119, lng: 127.3845475 };
-  const allPoints = [ daejeonCenter, ...displayedRestaurants.map(r => ({ lat: r.latitude, lng: r.longitude })) ];
 
   const menus = [
     "돈까스",
@@ -90,15 +89,20 @@ function RestaurantMap() {
             {result && <div className="rm-result">👉 {result} 당첨!</div>}
           </div>
 
-          <div>
+          <div className="rm-restList">
             <h3>식당 리스트</h3>
-            {displayedRestaurants.map((rest) => (
-              <div key={rest.id} className="rm-restaurant-card">
-                <h4>{rest.name}</h4>
-                <p>위도: {rest.latitude}</p>
-                <p>경도: {rest.longitude}</p>
-              </div>
-            ))}
+            {displayedRestaurants.length > 0 ? (
+              displayedRestaurants.map((rest) => (
+                <div key={rest.id} className="rm-restaurant-card" onClick={() => navigate(`/restaurants/detail/${rest.id}`)}>
+                  <h4>{rest.restrntNm}</h4>
+                  <p>⭐ 별점: {rest.avgRating} ({rest.ratingCount})</p>
+                  <p>📍 주소: {rest.restrntAddr}</p>
+                  <p>📞 전화번호: {rest.restrntInqrTel}</p>
+                </div>
+              ))
+            ) : (
+              <p>지도를 움직여 주변 식당을 찾아보세요.</p>
+            )}
           </div>
         </div>
       </div>
