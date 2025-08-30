@@ -45,4 +45,16 @@ public class RestaurantDAOImpl implements RestaurantDAO {
 		return sqlSessionTemplate.selectOne("restaurant_mapper.getRestaurantById", id);
 	}
 
+	@Override
+	public List<RestaurantDTO> findRestaurantsInBounds(double swLat, double swLng, double neLat, double neLng) {
+		Map<String, Object> params = new HashMap<>();
+		
+	    params.put("swLat", swLat);
+	    params.put("swLng", swLng);
+	    params.put("neLat", neLat);
+	    params.put("neLng", neLng);
+	    
+		return sqlSessionTemplate.selectList("restaurant_mapper.findRestaurantsInBounds", params);
+	}
+
 }

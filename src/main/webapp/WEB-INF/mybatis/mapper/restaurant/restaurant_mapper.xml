@@ -117,5 +117,14 @@
         WHERE ID = #{id}
 	</select>
 	
+	<select id="findRestaurantsInBounds" resultType="Restaurant">
+        SELECT ID, NAME, DESCRIPTION, CATEGORY, AVG_RATING, RATING_COUNT,
+            SOLO_INDEX, PHOTO_URL, LATITUDE, LONGITUDE, ADDRESS, PHONE, STATUS
+        FROM MP_RESTAURANT
+        WHERE LATITUDE BETWEEN #{swLat} AND #{neLat}
+        AND LONGITUDE BETWEEN #{swLng} AND #{neLng}
+        AND STATUS = 'ACTIVE'
+    </select>
+	
 
 </mapper>

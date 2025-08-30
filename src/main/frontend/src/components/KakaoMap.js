@@ -1,47 +1,92 @@
-import { useEffect } from "react";
+import { useEffect, useState, useRef } from "react";
+import axios from "axios";
 
 const { kakao } = window;
 
-function KakaoMap({ points = [], showMarker = true, level = 7}) {
+function KakaoMap({
+  isSinglePoint = false,
+  centerLat = 36.3504119,
+  centerLng = 127.3845475,
+  level = 7,
+}) {
+  const mapRef = useRef(null);
+  const [markers, setMarkers] = useState([]);
+
   useEffect(() => {
-    const { kakao } = window;
     if (!kakao || !kakao.maps) return;
 
     const container = document.getElementById("kakao-map");
-
-    const center = points.length > 0 
-      ? new kakao.maps.LatLng(points[0].lat, points[0].lng)
-      : new kakao.maps.LatLng(33.450701, 126.570667); // 기본값 설정
-
+    const center = new kakao.maps.LatLng(centerLat, centerLng);
     const options = {
       center: center,
       level: level,
     };
-    const map = new kakao.maps.Map(container, options);
+    const newMap = new kakao.maps.Map(container, options);
+    mapRef.current = newMap;
 
-    // showMarker가 true일 때만 마커를 생성합니다.
-    if (showMarker) {
-      if (points.length === 1) {
-        // 좌표가 하나일 경우, 해당 좌표에 마커를 표시합니다.
-        new kakao.maps.Marker({
-          position: new kakao.maps.LatLng(points[0].lat, points[0].lng),
-          map: map,
-        });
-      } else {
-        // 좌표가 두 개 이상일 경우, 첫 번째 좌표를 제외하고 마커를 표시합니다.
-        points.forEach((point, index) => {
-          if (index > 0) {
-            new kakao.maps.Marker({
-              position: new kakao.maps.LatLng(point.lat, point.lng),
-              map: map,
-            });
-          }
-        });
-      }
+    if (!isSinglePoint) {
+      fetchMarkers(newMap.getBounds());
+
+      kakao.maps.event.addListener(newMap, "bounds_changed", function () {
+        if (window.debounceTimeout) {
+          clearTimeout(window.debounceTimeout);
+        }
+        window.debounceTimeout = setTimeout(() => {
+          fetchMarkers(newMap.getBounds());
+        }, 500);
+      });
+    } else {
+      new kakao.maps.Marker({
+        position: new kakao.maps.LatLng(centerLat, centerLng),
+        map: newMap,
+      });
     }
-  }, [points, showMarker]);
 
-  return <div id="kakao-map" style={{ width: "100%", height: "100%", marginTop: "10px" }}></div>;
+    return () => {
+      if (newMap) {
+        kakao.maps.event.removeListener(newMap, "bounds_changed", fetchMarkers);
+      }
+    };
+  }, [isSinglePoint, centerLat, centerLng, level]);
+
+  const fetchMarkers = async (bounds) => {
+    markers.forEach((marker) => marker.setMap(null));
+    setMarkers([]);
+
+    const swLat = bounds.getSouthWest().getLat();
+    const swLng = bounds.getSouthWest().getLng();
+    const neLat = bounds.getNorthEast().getLat();
+    const neLng = bounds.getNorthEast().getLng();
+
+    try {
+      const response = await axios.get("/api/restaurants/getRestaurantsInBounds", {
+        params: { swLat, swLng, neLat, neLng },
+      });
+
+      const restaurants = response.data;
+      const sortedRestaurants = restaurants
+        .sort((a, b) => b.reviewCount - a.reviewCount)
+        .slice(0, 100);
+
+      const newMarkers = sortedRestaurants.map((restaurant) => {
+        return new kakao.maps.Marker({
+          position: new kakao.maps.LatLng(restaurant.mapLat, restaurant.mapLot),
+          map: mapRef.current,
+        });
+      });
+
+      setMarkers(newMarkers);
+    } catch (error) {
+      console.error("마커 데이터를 불러오는 중 오류 발생:", error);
+    }
+  };
+
+  return (
+    <div
+      id="kakao-map"
+      style={{ width: "100%", height: "100%", marginTop: "10px" }}
+    ></div>
+  );
 }
 
 export default KakaoMap;

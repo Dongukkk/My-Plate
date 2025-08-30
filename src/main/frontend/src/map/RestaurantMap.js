@@ -4,15 +4,10 @@ import SideBarMenu from "../components/SideBarMenu";
 import "./RestaurantMap.css";
 
 function RestaurantMap() {
+  const [ displayedRestaurants, setDisplayedRestaurants ] = useState([]);
+
   const daejeonCenter = { lat: 36.3504119, lng: 127.3845475 };
-
-  const restaurantPointsFromDB = [
-    { id: 1, name: "한식당 A", lat: 36.3551, lng: 127.3855 },
-    { id: 2, name: "중식당 B", lat: 36.3482, lng: 127.3888 },
-    { id: 3, name: "일식당 C", lat: 36.3524, lng: 127.3812 },
-  ];
-
-  const allPoints = [daejeonCenter, ...restaurantPointsFromDB];
+  const allPoints = [ daejeonCenter, ...displayedRestaurants.map(r => ({ lat: r.latitude, lng: r.longitude })) ];
 
   const menus = [
     "돈까스",
@@ -26,8 +21,8 @@ function RestaurantMap() {
     "샌드위치",
     "닭갈비",
   ];
-  const [isSpinning, setIsSpinning] = useState(false);
-  const [result, setResult] = useState("");
+  const [ isSpinning, setIsSpinning ] = useState(false);
+  const [ result, setResult ] = useState("");
   const slotWrapperRef = useRef(null);
 
   useEffect(() => {
@@ -40,7 +35,7 @@ function RestaurantMap() {
         wrapper.appendChild(item);
       });
     }
-  }, [menus]);
+  }, [ menus ]);
 
   const spin = () => {
     if (isSpinning) return;
@@ -48,7 +43,7 @@ function RestaurantMap() {
 
     const totalItems = menus.length;
     const randomIndex = Math.floor(Math.random() * totalItems);
-    const selectedMenu = menus[randomIndex];
+    const selectedMenu = menus[ randomIndex ];
 
     // 슬롯 이동 높이 (아이템당 60px)
     const offset = -(randomIndex * 60);
@@ -65,6 +60,10 @@ function RestaurantMap() {
     }, 2600);
   };
 
+  const handleRestaurantUpdate = (restaurants) => {
+    setDisplayedRestaurants(restaurants);
+  };
+
   return (
     <div className="rm-restaurantMap-page">
       <SideBarMenu />
@@ -72,7 +71,10 @@ function RestaurantMap() {
         <div className="rm-left">
           <h2>주변 식당</h2>
           <div className="rm-map-container">
-            <KakaoMap points={allPoints} />
+            <KakaoMap
+              isSinglePoint={false}
+              onRestaurantsUpdate={handleRestaurantUpdate}
+            />
           </div>
         </div>
 
@@ -90,11 +92,11 @@ function RestaurantMap() {
 
           <div>
             <h3>식당 리스트</h3>
-            {restaurantPointsFromDB.map((rest) => (
+            {displayedRestaurants.map((rest) => (
               <div key={rest.id} className="rm-restaurant-card">
                 <h4>{rest.name}</h4>
-                <p>위도: {rest.lat}</p>
-                <p>경도: {rest.lng}</p>
+                <p>위도: {rest.latitude}</p>
+                <p>경도: {rest.longitude}</p>
               </div>
             ))}
           </div>

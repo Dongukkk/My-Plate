@@ -1,6 +1,8 @@
 package com.app.service.restaurant.impl;
 
+import java.util.Comparator;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -24,6 +26,18 @@ public class RestaurantServiceImpl implements RestaurantService{
 	@Override
 	public RestaurantDTO getRestaurantById(Long id) {
 		return restaurantDAO.getRestaurantById(id);
+	}
+
+	@Override
+	public List<RestaurantDTO> findRestaurantsInBounds(double swLat, double swLng, double neLat, double neLng) {
+		List<RestaurantDTO> restaurants = restaurantDAO.findRestaurantsInBounds(swLat, swLng, neLat, neLng);
+		return restaurants.stream()
+                .sorted(Comparator.comparing(
+                    r -> r.getRatingCount() != null ? r.getRatingCount() : 0, 
+                    Comparator.reverseOrder()
+                ))
+                .limit(100)
+                .collect(Collectors.toList());
 	}
 
 }
