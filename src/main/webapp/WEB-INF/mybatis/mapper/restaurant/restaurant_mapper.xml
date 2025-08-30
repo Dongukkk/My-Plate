@@ -92,9 +92,11 @@
         ADDRESS,
         PHONE
         FROM MP_RESTAURANT
+        WHERE NAME IS NOT NULL
         <if test="sortField != null and sortDirection != null">
         ORDER BY ${sortField} ${sortDirection}
     	</if>
+    	OFFSET #{offset} ROWS FETCH NEXT #{limit} ROWS ONLY
     </select>
 	
 	<select id="getRestaurantById" parameterType="long" resultType="Restaurant">
@@ -114,6 +116,15 @@
         FROM MP_RESTAURANT
         WHERE ID = #{id}
 	</select>
+	
+	<select id="findRestaurantsInBounds" resultType="Restaurant">
+        SELECT ID, NAME, DESCRIPTION, CATEGORY, AVG_RATING, RATING_COUNT,
+            SOLO_INDEX, PHOTO_URL, LATITUDE, LONGITUDE, ADDRESS, PHONE, STATUS
+        FROM MP_RESTAURANT
+        WHERE LATITUDE BETWEEN #{swLat} AND #{neLat}
+        AND LONGITUDE BETWEEN #{swLng} AND #{neLng}
+        AND STATUS = 'ACTIVE'
+    </select>
 	
 
 </mapper>

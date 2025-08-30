@@ -1,30 +1,48 @@
 import RestaurantCard from './RestaurantCard';
 import axios from 'axios';
-import { useState, useEffect } from 'react';
-import '../restaurantList/RestaurantList.css'; // CSS 파일 불러오기
+import { useState, useEffect, useRef } from 'react';
+import '../restaurantList/RestaurantList.css';
 
 import SideBarMenu from '../components/SideBarMenu';
 
 function RestaurantList() {
-    const [ restaurants, setRestaurants ] = useState([]);
-
-    const [ loading, setLoading ] = useState(true);
-
-    const [ error, setError ] = useState(null);
-
+    const [restaurants, setRestaurants] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
     const [sort, setSort] = useState('name');
     const [direction, setDirection] = useState('ASC');
 
+    const [page, setPage] = useState(1);
+    const [hasMore, setHasMore] = useState(true);
+    const loadingRef = useRef(null);
+
+
+    useEffect(() => {
+        setRestaurants([]);
+        setPage(1);
+        setHasMore(true);
+        setLoading(true);
+    }, [sort, direction]);
 
     useEffect(() => {
         const fetchRestaurants = async () => {
+            if (!hasMore && page > 1) {
+                setLoading(false);
+                return;
+            }
+
             setLoading(true);
             setError(null);
             try {
                 const response = await axios.get(
-                    `http://localhost:3000/api/restaurants/getAllRestaurants?sort=${sort}&direction=${direction}`
+                    `http://localhost:3000/api/restaurants/getAllRestaurants?sort=${sort}&direction=${direction}&page=${page}&limit=12`
                 );
-                setRestaurants(response.data);
+                
+                setRestaurants(prevRestaurants => [...prevRestaurants, ...response.data]);
+                
+                if (response.data.length < 10) {
+                    setHasMore(false);
+                }
             } catch (e) {
                 setError(e);
             } finally {
@@ -33,10 +51,30 @@ function RestaurantList() {
         };
 
         fetchRestaurants();
-    }, [sort, direction]);
+    }, [page, sort, direction]);
+
+    useEffect(() => {
+        if (!loadingRef.current) return;
+        
+        const observer = new IntersectionObserver(
+            (entries) => {
+                if (entries[0].isIntersecting && !loading && hasMore) {
+                    setPage(prevPage => prevPage + 1);
+                }
+            },
+            { threshold: 1 }
+        );
+
+        observer.observe(loadingRef.current);
+
+        return () => {
+            if (loadingRef.current) {
+                observer.unobserve(loadingRef.current);
+            }
+        };
+    }, [loading, hasMore]);
 
     const handleSortChange = (newSort) => {
-        console.log(newSort);
         if (newSort === "name_ASC") {
             setSort('name')
             setDirection('ASC');
@@ -49,41 +87,43 @@ function RestaurantList() {
         }
     };
 
-    if (loading) {
-        return <div>로딩 중...</div>;
-    }
-
     if (error) {
         return <div>오류가 발생했습니다: {error.message}</div>;
     }
+
 
     return (
         <div className="restaurantList-page">
             <SideBarMenu />
             <div className="rl-container">
                 <main className='restaurant-list-main'>
-                    
                     <div className="restaurant-list">
                         <div className="list-header">
                             <h2>레스토랑 목록</h2>
-                            <p>검색 결과: {restaurants.length}개의 레스토랑</p>
-                            <label htmlFor="sort-select">정렬 기준: </label>
-                            <select id="sort-select" value={sort+'_'+direction} onChange={(e)=>{handleSortChange(e.target.value);}}>
-                                <option value="name_ASC">이름 순</option>
-                                <option value="avg_Rating_DESC">평점 순 (높은순)</option>
-                                <option value="avg_Rating_ASC">평점 순 (낮은순)</option>
-                            </select>
+                            <div>
+                                <label htmlFor="sort-select">정렬 기준: </label>
+                                <select id="sort-select" value={sort+'_'+direction} onChange={(e)=>{handleSortChange(e.target.value);}}>
+                                    <option value="name_ASC">이름 순</option>
+                                    <option value="avg_Rating_DESC">평점 순 (높은순)</option>
+                                    <option value="avg_Rating_ASC">평점 순 (낮은순)</option>
+                                </select>
+                            </div>
+                            
                         </div>
                         <div className="restaurant-grid">
                             {restaurants.map(restaurant => (
                                 <RestaurantCard key={restaurant.id} restaurant={restaurant} />
                             ))}
                         </div>
+                        
+                        <div ref={loadingRef} style={{ textAlign: 'center', marginTop: '20px' }}>
+                            {loading && <div>로딩 중...</div>}
+                            {!hasMore && !loading && <div>더 이상 레스토랑이 없습니다.</div>}
+                        </div>
                     </div>
                 </main>
             </div>
         </div>
-        
     );
 };
 

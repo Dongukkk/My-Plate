@@ -3,6 +3,7 @@ package com.app.controller.restaurant;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -36,8 +37,11 @@ public class RestaurantRestController {
 	
 	@GetMapping("/api/restaurants/getAllRestaurants")
     public List<RestaurantDTO> getAllRestaurants(@RequestParam(name = "sort", defaultValue = "name") String sort,
-    	    @RequestParam(name = "direction", defaultValue = "ASC") String direction) {
-		List<RestaurantDTO> restList = restaurantService.findAllRestaurants(sort, direction);
+    	    @RequestParam(name = "direction", defaultValue = "ASC") String direction,
+    	    @RequestParam(name = "page", defaultValue = "1") int page,
+            @RequestParam(name = "limit", defaultValue = "99999") int limit) {
+		List<RestaurantDTO> restList = restaurantService.findAllRestaurants(sort, direction, page, limit);
+		System.out.println(page);
 		System.out.println(restList);
 		return restList;
 	}
@@ -45,5 +49,17 @@ public class RestaurantRestController {
 	@GetMapping("/api/restaurants/{id}")
 	public RestaurantDTO getRestaurantDetail(@PathVariable Long id) {
         return restaurantService.getRestaurantById(id);
+    }
+	
+	@GetMapping("/api/restaurants/getRestaurantsInBounds")
+    public ResponseEntity<List<RestaurantDTO>> getRestaurantsInBounds(
+            @RequestParam("swLat") double swLat,
+            @RequestParam("swLng") double swLng,
+            @RequestParam("neLat") double neLat,
+            @RequestParam("neLng") double neLng) {
+
+        List<RestaurantDTO> restaurants = restaurantService.findRestaurantsInBounds(swLat, swLng, neLat, neLng);
+        System.out.println(restaurants);
+        return ResponseEntity.ok(restaurants);
     }
 }
