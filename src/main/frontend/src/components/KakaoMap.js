@@ -51,11 +51,11 @@ function KakaoMap({
         });
 
         const infoContent = `
-          <div style="padding:10px; font-size:12px; line-height:1.5; min-width:180px; max-width:250px; white-space:normal; word-break:break-all;">
+          <div style=" padding:10px; font-size:12px; line-height:1.5; min-width:180px; max-width:250px; white-space:normal; word-break:break-all;">
             <div style="font-size:16px;font-weight:bold;margin-bottom:5px;">${restaurant.restrntNm}</div>
-            <p style="margin:0;">⭐ 별점: ${restaurant.avgRating ?? "정보 없음"} (${restaurant.ratingCount})</p>
+            <p style="margin:0;">⭐ ${restaurant.avgRating ?? "정보 없음"} (${restaurant.ratingCount})</p>
             <p style="margin:0;">📍 ${restaurant.restrntAddr ?? "정보 없음"}</p>
-            <p style="margin:0;">📞 전화번호: ${restaurant.restrntInqrTel ?? "정보 없음"}</p>
+            <p style="margin:0;">📞 ${restaurant.restrntInqrTel ?? "정보 없음"}</p>
           </div>
         `;
 
