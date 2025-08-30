@@ -488,3 +488,182 @@
 .admin-s3 {
     background: #f6b1a6;
 }
+
+
+
+
+/* =========================
+    Modal (Edit Restaurant)
+   ========================= */
+.admin-modal-backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, .45);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1100;
+    animation: admin-fade-in .18s ease-out;
+}
+
+.admin-modal {
+    width: min(720px, 92vw);
+    max-height: 90vh;
+    background: #fff;
+    border-radius: 16px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, .25);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    animation: admin-pop-in .18s ease-out;
+}
+
+.admin-modal-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    padding: 16px 20px;
+    border-bottom: 1px solid #eee;
+}
+
+.admin-modal-head h3 {
+    margin: 0;
+    font-size: 18px;
+    font-weight: 700;
+}
+
+.admin-close {
+    appearance: none;
+    background: transparent;
+    border: 0;
+    padding: 6px 10px;
+    font-size: 20px;
+    line-height: 1;
+    border-radius: 8px;
+    cursor: pointer;
+}
+
+.admin-close:hover {
+    background: #f3f4f6;
+}
+
+.admin-close:disabled {
+    opacity: .5;
+    cursor: not-allowed;
+}
+
+.admin-modal-body {
+    padding: 16px 20px;
+    overflow: auto;
+    /* 내용이 길면 스크롤 */
+}
+
+.admin-modal-foot {
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+    padding: 12px 20px;
+    border-top: 1px solid #eee;
+    background: #fff;
+}
+
+/* ====== Form Grid ====== */
+.admin-form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+}
+
+.admin-form-grid label {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    font-size: 13px;
+    font-weight: 600;
+    color: #333;
+}
+
+.admin-form-grid input,
+.admin-form-grid select,
+.admin-form-grid textarea {
+    font: inherit;
+    color: #111;
+    background: #fff;
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    padding: 10px 12px;
+    outline: none;
+    transition: border-color .15s ease, box-shadow .15s ease, background-color .15s ease;
+}
+
+.admin-form-grid input:focus,
+.admin-form-grid select:focus,
+.admin-form-grid textarea:focus {
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, .18);
+}
+
+.admin-form-grid .col-span-2 {
+    grid-column: span 2;
+}
+
+.admin-form-grid .is-error {
+    border-color: #ef4444;
+    box-shadow: 0 0 0 3px rgba(239, 68, 68, .15);
+}
+
+/* ====== Buttons in modal (기존 admin-btn 스타일과 조화) ====== */
+.admin-btn {
+    appearance: none;
+    border: 0;
+    border-radius: 12px;
+    padding: 10px 14px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.admin-btn:disabled {
+    opacity: .6;
+    cursor: not-allowed;
+}
+
+.admin-btn.admin-ghost {
+    background: #f3f4f6;
+}
+
+.admin-btn.admin-ghost:hover {
+    background: #e5e7eb;
+}
+
+.admin-btn.admin-primary {
+    background: #ef4444;
+    color: #fff;
+}
+
+.admin-btn.admin-primary:hover {
+    background: #ef4444;
+}
+
+/* ====== Animations ====== */
+@keyframes admin-fade-in {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes admin-pop-in {
+    from {
+        transform: translateY(8px) scale(.985);
+        opacity: .0;
+    }
+
+    to {
+        transform: translateY(0) scale(1);
+        opacity: 1;
+    }
+}

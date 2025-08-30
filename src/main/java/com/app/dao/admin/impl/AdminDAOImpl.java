@@ -24,8 +24,17 @@ public class AdminDAOImpl implements AdminDAO {
 	public List<AdminRestaurantDTO> findRestaurantList() {
 		List<AdminRestaurantDTO> adminRestaurantList = sqlSessionTemplate.selectList(AM + "findRestaurantList");
 		return adminRestaurantList;
-
 	}
+	
+	@Override
+    public AdminRestaurantDTO findRestaurantById(long id) {
+        return sqlSessionTemplate.selectOne(AM + "findRestaurantById", id);
+    }
+
+    @Override
+    public int modifyAdminRestaurant(AdminRestaurantDTO dto) {
+        return sqlSessionTemplate.update(AM + "modifyAdminRestaurant", dto);
+    }
 	
 	@Override
 	public int DeleteAdminRestaurant(long id) {

@@ -17,31 +17,27 @@ const WelfareDot = ({ ok }) => (
     <span className={`admin-welfare-dot ${ok ? "on" : "off"}`} aria-label={ok ? "가능" : "불가"} />
 );
 
-/* 페이지네이션 */
+/* 페이지네이션: 5개씩 윈도우 */
 const Pagination = ({ page, pages, onChange, windowSize = 5 }) => {
     if (!pages || pages <= 1) return null;
-
     const current = Math.max(1, Math.min(page, pages));
     const groupIndex = Math.floor((current - 1) / windowSize);
     const start = groupIndex * windowSize + 1;
     const end = Math.min(pages, start + windowSize - 1);
-
     const nums = Array.from({ length: end - start + 1 }, (_, i) => start + i);
 
     return (
         <div className="admin-pg">
             <button className="admin-pg-item admin-ghost" onClick={() => onChange(current - 1)} disabled={current === 1}>이전</button>
-
             {start > 1 && (<button className="admin-pg-item admin-ghost" onClick={() => onChange(start - 1)} title="이전 구간">…</button>)}
-
-            {nums.map((p) => (<button key={p} className={`admin-pg-item ${current === p ? "admin-active" : ""}`} onClick={() => onChange(p)} aria-current={current === p ? "page" : undefined}>{p}</button>))}
-
+            {nums.map((p) => (
+                <button key={p} className={`admin-pg-item ${current === p ? "admin-active" : ""}`} onClick={() => onChange(p)} aria-current={current === p ? "page" : undefined}>{p}</button>
+            ))}
             {end < pages && (<button className="admin-pg-item admin-ghost" onClick={() => onChange(end + 1)} title="다음 구간">…</button>)}
             <button className="admin-pg-item admin-ghost" onClick={() => onChange(current + 1)} disabled={current === pages}>다음</button>
         </div>
     );
 };
-
 
 /* 파이차트 */
 const PieChart = ({ data }) => {
@@ -95,6 +91,7 @@ const StackedBars = ({ items }) => (
 export default function AdminRestaurant() {
     const navigate = useNavigate();
 
+    /* 삭제 */
     const [deletingId, setDeletingId] = useState(null);
     const onDelete = async (row) => {
         if (!window.confirm(`${row.name}을(를) 삭제하시겠습니까?`)) return;
@@ -105,34 +102,82 @@ export default function AdminRestaurant() {
             alert("삭제되었습니다.");
         } catch (e) {
             console.error(e);
-            const code = e?.response?.status;
-            alert(`삭제 실패${code ? ` (HTTP ${code})` : ""}`);
+            alert(`삭제 실패${e?.response?.status ? ` (HTTP ${e.response.status})` : ""}`);
         } finally {
             setDeletingId(null);
         }
     };
 
-    // 검색/필터/정렬/페이지
+    /* 모달 수정 */
+    const [editOpen, setEditOpen] = useState(false);
+    const [editData, setEditData] = useState(null);
+    const [editLoading, setEditLoading] = useState(false);
+    const [saving, setSaving] = useState(false);
+    const toNum = (v, def = 0) => {
+        const n = parseFloat(v);
+        return Number.isFinite(n) ? n : def;
+    };
+
+    const openEdit = async (id) => {
+        try {
+            setEditOpen(true);
+            setEditLoading(true);
+            const { data } = await axios.get(`/api/adminRestaurant/${id}`);
+            setEditData(data);
+        } catch (e) {
+            console.error(e);
+            alert("상세 조회 실패");
+            setEditOpen(false);
+        } finally {
+            setEditLoading(false);
+        }
+    };
+    const closeEdit = () => {
+        if (saving) return;
+        setEditOpen(false);
+        setEditData(null);
+    };
+    const saveEdit = async () => {
+        if (!editData) return;
+        try {
+            setSaving(true);
+            const payload = {
+                ...editData,
+                avgRating: toNum(editData.avgRating, 0),
+                rating_count: Math.max(0, Math.floor(toNum(editData.rating_count, 0))),
+                solo_index: toNum(editData.solo_index, 0),
+            };
+            await axios.post(`/api/adminRestaurant/${editData.id}`, payload);
+            setRows((prev) => prev.map((x) => (x.id === editData.id ? { ...x, ...payload } : x)));
+            setEditOpen(false);
+            setEditData(null);
+            alert("저장되었습니다.");
+        } catch (e) {
+            console.error(e);
+            alert(`저장 실패${e?.response?.status ? ` (HTTP ${e.response.status})` : ""}`);
+        } finally {
+            setSaving(false);
+        }
+    };
+
+    /* 검색/필터/정렬/페이지 */
     const [query, setQuery] = useState("");
     const [category, setCategory] = useState("ALL");
     const [sort, setSort] = useState("latest");
     const [page, setPage] = useState(1);
     const pageSize = 10;
 
-    // 목록/제출 대기
+    /* 목록 */
     const [rows, setRows] = useState([]);
-    const [pending, setPending] = useState([]);
 
-    // 카테고리 옵션
     const categories = useMemo(
         () => ["ALL", "한식", "일식, 라멘", "카페, 브런치", "양식", "중식", "분식", "퓨전, 현대식"],
         []
     );
 
-    // 서버 연동: 최초 1회만 호출
     useEffect(() => {
         if (USE_MOCK) return;
-        const fetchList = async () => {
+        (async () => {
             try {
                 const res = await axios.get("/api/adminRestaurant");
                 setRows(Array.isArray(res.data) ? res.data : []);
@@ -140,11 +185,9 @@ export default function AdminRestaurant() {
                 console.error("식당 목록 조회 실패:", e);
                 setRows([]);
             }
-        };
-        fetchList();
+        })();
     }, []);
 
-    // 프론트 단 필터
     const filtered = useMemo(() => {
         const term = query.trim().toLowerCase();
         return rows.filter((r) => {
@@ -158,7 +201,6 @@ export default function AdminRestaurant() {
         });
     }, [query, category, rows]);
 
-    // 정렬 (클라이언트)
     const sorted = useMemo(() => {
         const arr = [...filtered];
         switch (sort) {
@@ -177,13 +219,11 @@ export default function AdminRestaurant() {
         return arr;
     }, [filtered, sort]);
 
-    // 페이지 계산
     const totalForPaging = sorted.length;
     const pages = Math.max(1, Math.ceil(totalForPaging / pageSize));
     const view = sorted.slice((page - 1) * pageSize, page * pageSize);
     useEffect(() => setPage(1), [query, category, sort]);
 
-    // 차트 샘플 데이터
     const pieData = useMemo(
         () => [
             { label: "한식", value: 12, color: "#e74c3c" },
@@ -238,23 +278,10 @@ export default function AdminRestaurant() {
 
                     <div className="admin-controls">
                         <div className="admin-search">
-                            <input
-                                value={query}
-                                onChange={(e) => setQuery(e.target.value)}
-                                onKeyDown={(e) => e.key === "Enter" && handleSearch()}
-                                placeholder="음식, 식당 또는 메뉴 검색..."
-                                aria-label="식당 검색"
-                            />
-                            <button type="button" className="admin-search-btn" onClick={handleSearch} aria-label="검색" title="검색">
-                                검색
-                            </button>
+                            <input value={query} onChange={(e) => setQuery(e.target.value)} onKeyDown={(e) => e.key === "Enter" && handleSearch()} placeholder="음식, 식당 또는 메뉴 검색..." aria-label="식당 검색"/>
+                            <button type="button" className="admin-search-btn" onClick={handleSearch} aria-label="검색" title="검색">검색</button>
                         </div>
-                        <select value={category} onChange={(e) => setCategory(e.target.value)} aria-label="카테고리 필터">
-                            {categories.map((c) => (
-                                <option key={c} value={c}>{c === "ALL" ? "모든 카테고리" : c}</option>
-                            ))}
-                        </select>
-
+                        <select value={category} onChange={(e) => setCategory(e.target.value)} aria-label="카테고리 필터">{categories.map((c) => (<option key={c} value={c}>{c === "ALL" ? "모든 카테고리" : c}</option>))}</select>
                         <select value={sort} onChange={(e) => setSort(e.target.value)} aria-label="정렬">
                             <option value="latest">최신순</option>
                             <option value="ratingDesc">평점높은순</option>
@@ -280,30 +307,23 @@ export default function AdminRestaurant() {
                             <tbody>
                                 {view.map((r) => (
                                     <tr key={r.id}>
-                                        <td>
-                                            <div className="admin-name-col"><strong className="admin-link" onClick={() => navigate(`/adminrestaurants/${r.id}`)}>{r.name}</strong></div>
-                                        </td>
+                                        <td><div className="admin-name-col"><strong className="admin-link" onClick={() => navigate(`/adminrestaurants/${r.id}`)}>{r.name}</strong></div></td>
                                         <td>{r.category}</td>
                                         <td className="admin-truncate">{r.address}</td>
-                                        <td>
-                                            <span className={`admin-busy ${Number(r.solo_index) >= 9 ? "admin-high" : Number(r.solo_index) >= 8 ? "admin-mid" : ""}`}>{Number(r.solo_index).toFixed(1)}</span>
-                                        </td>
+                                        <td><span className={`admin-busy ${Number(r.solo_index) >= 9 ? "admin-high" : Number(r.solo_index) >= 8 ? "admin-mid" : ""}`}>{Number(r.solo_index).toFixed(1)}</span></td>
                                         <td>{Number(r.avgRating).toFixed(1)} <span className="admin-muted">({r.rating_count || 0})</span></td>
                                         <td><WelfareDot ok={false} /></td>
                                         <td><StatusPill status={r.status} /></td>
                                         <td className="admin-row-actions">
-                                            <button className="admin-mini" onClick={() => navigate(`/adminrestaurants/${r.id}/edit`)}>수정</button>
+                                            <button className="admin-mini" onClick={() => openEdit(r.id)}>수정</button>
                                             <button className="admin-mini admin-danger" disabled={deletingId === r.id} onClick={() => onDelete(r)}>{deletingId === r.id ? "삭제 중..." : "삭제"}</button>
                                         </td>
                                     </tr>
                                 ))}
-                                {view.length === 0 && (
-                                    <tr><td colSpan={8} className="admin-empty">조건에 맞는 레스토랑이 없습니다.</td></tr>
-                                )}
+                                {view.length === 0 && (<tr><td colSpan={8} className="admin-empty">조건에 맞는 레스토랑이 없습니다.</td></tr>)}
                             </tbody>
                         </table>
                     </div>
-
                     <Pagination page={page} pages={pages} onChange={setPage} />
                 </div>
 
@@ -323,6 +343,45 @@ export default function AdminRestaurant() {
                     </div>
                 </div>
             </main>
+
+            {/* 편집 모달 */}
+            {editOpen && (
+                <div className="admin-modal-backdrop" onClick={closeEdit}>
+                    <div className="admin-modal" onClick={(e) => e.stopPropagation()}>
+                        <div className="admin-modal-head">
+                            <h3>식당 수정</h3>
+                            <button className="admin-close" onClick={closeEdit} disabled={saving}>×</button>
+                        </div>
+
+                        <div className="admin-modal-body">{editLoading ? (<div style={{ padding: 20 }}>불러오는 중...</div>) : editData && (
+                                <div className="admin-form-grid">
+                                    <label>이름<input value={editData.name || ""} onChange={(e) => setEditData(d => ({ ...d, name: e.target.value }))} /></label>
+                                    <label>카테고리<input value={editData.category || ""} onChange={(e) => setEditData(d => ({ ...d, category: e.target.value }))} /></label>
+                                    <label>주소<input value={editData.address || ""} onChange={(e) => setEditData(d => ({ ...d, address: e.target.value }))} /></label>
+                                    <label>전화<input value={editData.phone || ""} onChange={(e) => setEditData(d => ({ ...d, phone: e.target.value }))} /></label>
+                                    <label>혼밥레벨<input type="number" step="0.1" min="0" max="10" value={editData.solo_index ?? 0} onChange={(e) => setEditData(d => ({ ...d, solo_index: e.target.value }))} /></label>
+                                    <label>평점<input type="number" step="0.1" min="0" max="5" value={editData.avgRating ?? 0} onChange={(e) => setEditData(d => ({ ...d, avgRating: e.target.value }))} /></label>
+                                    <label>리뷰 수<input type="number" min="0" value={editData.rating_count ?? 0} onChange={(e) => setEditData(d => ({ ...d, rating_count: e.target.value }))} /></label>
+                                    <label>상태
+                                        <select value={editData.status || "ACTIVE"} onChange={(e) => setEditData(d => ({ ...d, status: e.target.value }))}>
+                                            <option value="ACTIVE">ACTIVE</option>
+                                            <option value="INACTIVE">INACTIVE</option>
+                                            <option value="NEEDS_FIX">NEEDS_FIX</option>
+                                            <option value="DELETED">DELETED</option>
+                                        </select>
+                                    </label>
+                                    <label className="col-span-2">설명<textarea rows={3} value={editData.description || ""} onChange={(e) => setEditData(d => ({ ...d, description: e.target.value }))} /></label>
+                                </div>
+                            )}
+                        </div>
+
+                        <div className="admin-modal-foot">
+                            <button className="admin-btn admin-ghost" onClick={closeEdit} disabled={saving}>취소</button>
+                            <button className="admin-btn admin-primary" onClick={saveEdit} disabled={saving || editLoading}>{saving ? "저장 중..." : "저장"}</button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 }

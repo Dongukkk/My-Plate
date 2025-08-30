@@ -8,6 +8,9 @@ public interface AdminService {
 	
 	List <AdminRestaurantDTO> findRestaurantList();
 	
+	AdminRestaurantDTO findRestaurantById(long id);
+	int modifyAdminRestaurant(AdminRestaurantDTO dto);
+	
 	int DeleteAdminRestaurant(long id);
 
 }

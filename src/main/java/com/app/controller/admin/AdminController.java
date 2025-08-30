@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
@@ -22,16 +23,28 @@ public class AdminController {
 	@Autowired
 	AdminService adminService;
 
+	/* 식당 조회 */
 	@GetMapping("/api/adminRestaurant")
 	public List<AdminRestaurantDTO> registerRestaurantList() {
-		
 		return adminService.findRestaurantList();
 	}
 	
+	/* 식당 수정 */
+    @GetMapping("/api/adminRestaurant/{id}")
+    public AdminRestaurantDTO detail(@PathVariable long id) {
+        return adminService.findRestaurantById(id);
+    }
+    @PostMapping("/api/adminRestaurant/{id}")
+    public ResponseEntity<Void> updateByPost(@PathVariable long id, @RequestBody AdminRestaurantDTO dto) {
+        dto.setId((long) id);
+        int n = adminService.modifyAdminRestaurant(dto);
+        return (n == 1) ? ResponseEntity.ok().build()
+                        : ResponseEntity.notFound().build();
+    }
 	
+    /* 식당 소프트 삭제 */
 	@DeleteMapping("/api/adminRestaurant/{id}")
 	public int registerDeleteRestaurant(@PathVariable long id) {
-		
 		return adminService.DeleteAdminRestaurant(id);
 	}
 	

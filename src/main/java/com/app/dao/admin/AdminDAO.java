@@ -8,6 +8,8 @@ public interface AdminDAO {
 
 	List <AdminRestaurantDTO> findRestaurantList();
 	
+	AdminRestaurantDTO findRestaurantById(long id);
+	int modifyAdminRestaurant(AdminRestaurantDTO dto);
 	
 	int DeleteAdminRestaurant(long id);
 	

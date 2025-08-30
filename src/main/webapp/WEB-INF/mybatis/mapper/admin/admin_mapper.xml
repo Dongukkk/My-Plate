@@ -20,7 +20,39 @@
 		WHERE R.DELETED_AT IS NULL
 		ORDER BY R.ID
 	</select>
+	
+	<select id="findRestaurantById" parameterType="long" resultType="AdminRestaurant">
+		SELECT
+			ID AS id,
+			NAME AS name,
+			DESCRIPTION AS description,
+			CATEGORY AS category,
+			AVG_RATING AS avgRating,
+			RATING_COUNT AS rating_count,
+			SOLO_INDEX AS solo_index,
+			PHOTO_URL AS photo_url,
+			ADDRESS AS address,
+			PHONE AS phone,
+			STATUS AS status
+		FROM MP_RESTAURANT
+		WHERE ID = #{id}
+		AND DELETED_AT IS NULL
+	</select>
 
+	<update id="modifyAdminRestaurant" parameterType="AdminRestaurant">
+		UPDATE MP_RESTAURANT
+		SET NAME = #{name}, 
+		DESCRIPTION = #{description}, CATEGORY = #{category}, 
+		AVG_RATING = #{avgRating}, 
+		RATING_COUNT = #{rating_count}, 
+		SOLO_INDEX = #{solo_index}, 
+		PHOTO_URL = #{photo_url}, 
+		ADDRESS = #{address}, 
+		PHONE = #{phone}, 
+		STATUS = #{status}, 
+		UPDATED_AT = SYSTIMESTAMP  
+		WHERE ID = #{id} 
+	</update>
 
 	<update id="DeleteAdminRestaurant" parameterType="AdminRestaurant">
 		UPDATE MP_RESTAURANT

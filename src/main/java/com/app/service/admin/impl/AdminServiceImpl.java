@@ -20,14 +20,27 @@ public class AdminServiceImpl implements AdminService {
 	public List<AdminRestaurantDTO> findRestaurantList() {
 		
 		List<AdminRestaurantDTO> findRestaurantList = adminDAO.findRestaurantList();
-		
 		return findRestaurantList;
 	}
+	
+    @Override
+    public AdminRestaurantDTO findRestaurantById(long id) {
+        return adminDAO.findRestaurantById(id);
+    }
+
+    @Override
+    public int modifyAdminRestaurant(AdminRestaurantDTO dto) {
+        if (dto == null) return 0;
+        if (dto.getId() == 0) {
+            throw new IllegalArgumentException("수정 대상 ID가 비어 있습니다.");
+        }
+        int affected = adminDAO.modifyAdminRestaurant(dto);
+        return affected;
+    }
 	
 
 	@Override
 	public int DeleteAdminRestaurant(long id) {
-		
 		return adminDAO.DeleteAdminRestaurant(id);
 	}
 
