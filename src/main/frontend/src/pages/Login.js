@@ -42,6 +42,25 @@ export default function Login() {
     }
   };
 
+     // 구글 OAuth 
+  const goGoogle = async () => {
+    try {
+      setMsg('구글 로그인으로 이동합니다...');
+      // 백엔드가 동의화면 URL을 만들어 줌
+      const { data } = await api.get('/oauth/google/url');
+      if (!data?.url) {
+        setMsg('구글 로그인 URL 생성 실패');
+        return;
+      }
+
+      window.location.href = data.url;
+
+        } catch (e) {
+      console.error(e);
+      setMsg('구글 로그인 시작 중 오류가 발생했습니다.');
+    }
+  };
+
   return (
     <AuthLayout imageSrc="/login-hero.jpg" title="My Plate">
       <h2 className="login-title">로그인</h2>
@@ -89,7 +108,7 @@ export default function Login() {
       <div className="login-row login-gap8">
         <button className="login-btnGhost" type="button">카카오</button>
         <button className="login-btnGhost" type="button">네이버</button>
-        <button className="login-btnGhost" type="button">구글</button>
+        <button className="login-btnGhost" type="button" onClick={goGoogle}>구글</button>
       </div>
 
       <div className="login-foot">

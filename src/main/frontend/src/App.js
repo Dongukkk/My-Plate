@@ -8,6 +8,7 @@ import ProtectedRoute from './routes/ProtectedRoute';
 import Forbidden from './pages/Forbidden';
 import Forgot from './pages/Forgot';
 import Reset from './pages/Reset';
+import GoogleCallback from './pages/GoogleCallback';
 
 export default function App() {
   return (
@@ -34,6 +35,9 @@ export default function App() {
         <Route path="*" element={<Navigate to="/login" replace />} />
 
         <Route path='/reset' element={<Reset />} />
+
+        {/* 구글 */}
+        <Route path="/oauth/google/callback" element={<GoogleCallback />} />
 
       </Routes>
     </BrowserRouter>
