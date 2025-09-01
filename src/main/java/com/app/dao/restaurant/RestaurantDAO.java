@@ -9,7 +9,7 @@ import com.app.dto.restaurant.RestaurantTagDTO;
 public interface RestaurantDAO {
 	public int saveApiRestaurant(RestaurantDTO restaurant);
 	
-	public List<RestaurantDTO> findAllRestaurants(String sort, String direction, int page, int limit);
+	public List<RestaurantDTO> findAllRestaurants(String sort, String direction, String tag, int page, int limit);
 	
 	public RestaurantDTO getRestaurantById(Long id);
 	

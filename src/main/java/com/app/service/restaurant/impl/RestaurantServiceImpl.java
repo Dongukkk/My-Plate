@@ -20,9 +20,9 @@ public class RestaurantServiceImpl implements RestaurantService{
 	
 	
 	@Override
-	public List<RestaurantDTO> findAllRestaurants(String sort, String direction, int page, int limit) {
+	public List<RestaurantDTO> findAllRestaurants(String sort, String direction, String tag, int page, int limit) {
 		
-		return restaurantDAO.findAllRestaurants(sort, direction, page, limit);
+		return restaurantDAO.findAllRestaurants(sort, direction, tag, page, limit);
 	}
 
 	@Override

@@ -15,15 +15,42 @@ function RestaurantSearchResult() {
     const [error, setError] = useState(null);
     const [sort, setSort] = useState('name');
     const [direction, setDirection] = useState('ASC');
+    const [selectedTag, setSelectedTag] = useState(null);
 
-    // ⭐ API에서 모든 데이터를 한 번에 가져오는 useEffect
+    const filterRestaurants = (restaurants, searchQuery, tag) => {
+        return restaurants.filter(restaurant => {
+            const matchesQuery = restaurant.restrntNm?.includes(searchQuery);
+            const matchesTag = tag ? restaurant.tags?.some(t => t.tag === tag) : true;
+            return matchesQuery && matchesTag;
+        });
+    };
+
+    const handleTagClick = (tag) => {
+        setSelectedTag(prevTag => (prevTag === tag ? null : tag));
+    };
+
     useEffect(() => {
         const fetchAllRestaurants = async () => {
             try {
                 const response = await axios.get(
                     `http://localhost:3000/api/restaurants/getAllRestaurants?sort=${sort}&direction=${direction}&limit=99999`
                 );
-                setAllRestaurants(response.data);
+
+                let restaurants = response.data;
+
+                const restaurantsWithTags = await Promise.all(
+                    restaurants.map(async (rest) => {
+                        try {
+                            const tagResp = await axios.get(
+                                `http://localhost:3000/api/restaurants/${rest.id}/tags`
+                            );
+                            return { ...rest, tags: tagResp.data};
+                        } catch {
+                            return { ...rest, tags: []};
+                        }
+                    })
+                );
+                setAllRestaurants(restaurantsWithTags);
                 setLoading(false);
             } catch (e) {
                 setError(e);
@@ -34,20 +61,16 @@ function RestaurantSearchResult() {
         fetchAllRestaurants();
     }, [sort, direction]);
 
-    // ⭐ 검색어(query) 또는 전체 식당 목록(allRestaurants)이 변경될 때마다 필터링
     useEffect(() => {
         if (!allRestaurants || allRestaurants.length === 0) {
             setFilteredRestaurants([]);
             return;
         }
 
-        const newFilteredRestaurants = allRestaurants.filter(restaurant =>
-            restaurant.restrntNm.includes(query)
-        );
+        const newFilteredRestaurants = filterRestaurants(allRestaurants, query, selectedTag);
         setFilteredRestaurants(newFilteredRestaurants);
-    }, [query, allRestaurants]);
+    }, [query, allRestaurants, selectedTag]);
 
-    // ⭐ 정렬 기준 변경 핸들러
     const handleSortChange = (newSort) => {
         if (newSort === "name_ASC") {
             setSort('name');
@@ -89,7 +112,7 @@ function RestaurantSearchResult() {
                         <div className="restaurant-grid">
                             {filteredRestaurants.length > 0 ? (
                                 filteredRestaurants.map(restaurant => (
-                                    <RestaurantCard key={restaurant.id} restaurant={restaurant} />
+                                    <RestaurantCard key={restaurant.id} restaurant={restaurant} selectedTag={selectedTag} onTagClick={handleTagClick}/>
                                 ))
                             ) : (
                                 <div>'{query}'에 대한 검색 결과가 없습니다.</div>

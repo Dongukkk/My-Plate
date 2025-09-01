@@ -72,6 +72,23 @@ body {
     min-width: 250px;
 }
 
+.rc-tag-badge {
+    cursor: pointer;
+    background-color: #f0f0f0;
+    color: #333;
+    padding: 2px 8px;
+    border-radius: 12px;
+    font-size: 12px;
+    margin-right: 4px;
+    margin-bottom: 4px;
+}
+
+.rc-tag-badge.active-tag {
+    background-color: #ff5722; 
+    color: white;
+    font-weight: bold;
+}
+
 .rc-card-image {
     background-color: #e0e0e0; /* 임시 이미지 플레이스홀더 */
     height: 180px;

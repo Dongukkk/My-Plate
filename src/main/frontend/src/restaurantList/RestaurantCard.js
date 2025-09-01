@@ -1,6 +1,6 @@
 import { useNavigate } from "react-router-dom";
 
-const RestaurantCard = ({ restaurant }) => {
+const RestaurantCard = ({ restaurant, selectedTag, onTagClick }) => {
   const navigate = useNavigate();
 
   return (
@@ -12,16 +12,10 @@ const RestaurantCard = ({ restaurant }) => {
           {restaurant.tags && restaurant.tags.map((t, idx) => (
             <span 
               key={idx} 
-              className="rc-tag-badge"
-              style={{
-                display: "inline-block",
-                backgroundColor: "#f0f0f0",
-                color: "#333",
-                padding: "2px 8px",
-                borderRadius: "6px",
-                fontSize: "12px",
-                marginRight: "4px",
-                marginBottom: "4px"
+              className={`rc-tag-badge ${selectedTag === t.tag ? 'active-tag' : ''}`}
+              onClick={(e) => {
+                e.stopPropagation();
+                onTagClick(t.tag);
               }}
             >
               #{t.tag}

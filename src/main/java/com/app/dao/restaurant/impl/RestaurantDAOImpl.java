@@ -27,13 +27,14 @@ public class RestaurantDAOImpl implements RestaurantDAO {
 	}
 
 	@Override
-	public List<RestaurantDTO> findAllRestaurants(String sort, String direction, int page, int limit) {
+	public List<RestaurantDTO> findAllRestaurants(String sort, String direction, String tag, int page, int limit) {
 		Map<String, Object> params = new HashMap<>();
 		
 		int offset = (page - 1) * limit;
 		
 	    params.put("sortField", sort);
 	    params.put("sortDirection", direction);
+	    params.put("tag", tag);
 	    params.put("limit", limit);
 	    params.put("offset", offset);
 	    

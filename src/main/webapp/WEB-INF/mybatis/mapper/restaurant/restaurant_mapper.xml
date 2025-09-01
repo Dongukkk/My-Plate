@@ -79,20 +79,24 @@
 	
 	<select id="findAllRestaurants" resultType="Restaurant">
         SELECT
-        ID,
-        NAME,
-        DESCRIPTION,
-        CATEGORY,
-        AVG_RATING,
-        RATING_COUNT,
-        SOLO_INDEX,
-        PHOTO_URL,
-        LATITUDE,
-        LONGITUDE,
-        ADDRESS,
-        PHONE
-        FROM MP_RESTAURANT
-        WHERE NAME IS NOT NULL
+	        r.ID,
+	        r.NAME,
+	        r.DESCRIPTION,
+	        r.CATEGORY,
+	        r.AVG_RATING,
+	        r.RATING_COUNT,
+	        r.SOLO_INDEX,
+	        r.PHOTO_URL,
+	        r.LATITUDE,
+	        r.LONGITUDE,
+	        r.ADDRESS,
+	        r.PHONE
+	    FROM MP_RESTAURANT r
+	    <if test="tag != null and tag != ''">
+	        JOIN MP_RESTAURANT_TAG t ON r.ID = t.RESTAURANT_ID
+	        JOIN MP_CODE_TAG c ON t.TAG_CODE = c.CODE
+	        WHERE c.TAG = #{tag}
+	    </if>
         <if test="sortField != null and sortDirection != null">
         ORDER BY ${sortField} ${sortDirection}
     	</if>

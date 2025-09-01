@@ -14,6 +14,7 @@ function RestaurantList() {
 
     const [page, setPage] = useState(1);
     const [hasMore, setHasMore] = useState(true);
+    const [selectedTag, setSelectedTag] = useState(null);
     const loadingRef = useRef(null);
 
     //식당 목록 불러오기
@@ -22,7 +23,7 @@ function RestaurantList() {
         setPage(1);
         setHasMore(true);
         setLoading(true);
-    }, [sort, direction]);
+    }, [sort, direction, selectedTag]);
 
     useEffect(() => {
         const fetchRestaurants = async () => {
@@ -35,7 +36,7 @@ function RestaurantList() {
             setError(null);
             try {
                 const response = await axios.get(
-                    `http://localhost:3000/api/restaurants/getAllRestaurants?sort=${sort}&direction=${direction}&page=${page}&limit=12`
+                    `http://localhost:3000/api/restaurants/getAllRestaurants?sort=${sort}&direction=${direction}&page=${page}&limit=12${selectedTag ? `&tag=${selectedTag}` : ''}`
                 );
 
                 let newRestaurants = response.data;
@@ -47,15 +48,15 @@ function RestaurantList() {
                             const tagResp = await axios.get(
                                 `http://localhost:3000/api/restaurants/${rest.id}/tags`
                             );
-                            return { ...rest, tags: tagResp.data };
+                            return { ...rest, tags: tagResp.data};
                         } catch (e) {
-                            return { ...rest, tags: [] }; // 오류 시 빈 배열
+                            return { ...rest, tags: []};
                         }
                     })
                 );
                 setRestaurants(prev => [...prev, ...restaurantWithTags]);
                 
-                if (response.data.length < 10) {
+                if (response.data.length < 12) {
                     setHasMore(false);
                 }
             } catch (e) {
@@ -66,7 +67,7 @@ function RestaurantList() {
         };
 
         fetchRestaurants();
-    }, [page, sort, direction]);
+    }, [page, sort, direction, selectedTag]);
 
     useEffect(() => {
         if (!loadingRef.current) return;
@@ -102,6 +103,10 @@ function RestaurantList() {
         }
     };
 
+    const handleTagClick = (tag) => {
+        setSelectedTag(prevTag => (prevTag === tag ? null : tag));
+    };
+
     if (error) {
         return <div>오류가 발생했습니다: {error.message}</div>;
     }
@@ -127,7 +132,7 @@ function RestaurantList() {
                         </div>
                         <div className="restaurant-grid">
                             {restaurants.map(restaurant => (
-                                <RestaurantCard key={restaurant.id} restaurant={restaurant} />
+                                <RestaurantCard key={restaurant.id} restaurant={restaurant} selectedTag={selectedTag} onTagClick={handleTagClick}/>
                             ))}
                         </div>
                         
