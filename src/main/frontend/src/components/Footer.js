@@ -41,7 +41,7 @@ export default function Footer() {
                 <div className="footer-bottom">
                     <div className="footer-company">
                         <p>
-                            회사명 (주) 마이플레이트 | 주소 충청남도 천안시 동남구 대흥동 134 | 대표 김동욱 | 사업자등록번호 041-56-11122
+                            회사명 (주) 마이플레이트 | 주소 충청남도 천안시 동남구 대흥동 134 | 사업자등록번호 041-56-11122
                             | 대표번호 041-561-1122 | 이메일 support@example.com
                         </p>
                         <p>© 2025 Myplate.kr Inc.</p>
