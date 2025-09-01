@@ -10,6 +10,8 @@ import AdminAnalysis from "./admin/admin-analysis";
 import AdminContent from "./admin/admin-content";
 import AdminRestaurant from "./admin/admin-restaurant";
 import AdminLogin from "./admin/admin-login";
+import TermsPage from "./admin/terms-page";
+
 import MainPage from './mainpage/MainPage';
 import RestaurantList from './restaurantList/RestaurantList';
 import Header from './components/Header';
@@ -40,6 +42,7 @@ const MainLayout = () => {
         <Route path="/adminContent" element={<AdminContent />} />
         <Route path="/adminanalysis" element={<AdminAnalysis />} />
 
+        <Route path="/termsOfUse" element={<TermsPage />} />
         <Route path="*" element={<ErrorPage />} />
       </Routes>
     </>
