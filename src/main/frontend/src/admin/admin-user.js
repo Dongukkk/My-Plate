@@ -154,7 +154,7 @@ export default function AdminUser() {
             try {
                 const res = await axios.get("/api/adminUser", { signal: ac.signal });
                 const items = Array.isArray(res.data) ? res.data : (res.data?.items || []);
-                const mapped = items.map(toViewUser).filter(u => u.role !== "ADM"); // ADM 숨김(프론트 안전망)
+                const mapped = items.map(toViewUser).filter(u => u.role !== "ADM");
                 setUsers(mapped);
 
                 // (추가 API 준비 시)
@@ -228,7 +228,7 @@ export default function AdminUser() {
         ];
     }, [users, period]);
 
-    /* 수정 모달 열기: 단건 조회로 최신값 로드 */
+    /* 수정 모달 */
     const openEdit = async (rowOrId) => {
         const id = typeof rowOrId === "object" ? rowOrId?.id : rowOrId;
         if (!id) { alert("수정할 사용자 ID를 찾지 못했어요."); return; }
@@ -440,7 +440,7 @@ export default function AdminUser() {
                 <div className="admin-grid">
                     <section className="admin-panel">
                         <div className="admin-panel-head">
-                            <h3>사용자 신고 및 피드백</h3>
+                            <h3>사용자 신고</h3>
                             <div className="admin-actions">
                                 <select className="admin-select" value={reportType} onChange={(e) => { setReportType(e.target.value); setReportPage(1); }}>
                                     <option>모든 유형</option>
