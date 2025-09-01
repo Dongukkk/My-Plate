@@ -125,6 +125,17 @@
         AND LONGITUDE BETWEEN #{swLng} AND #{neLng}
         AND STATUS = 'ACTIVE'
     </select>
-	
+    
+    <select id="getTagsByRestaurantId" resultType="RestaurantTag">
+        SELECT 
+            t.restaurant_id AS restaurantId, 
+            c.tag AS tag
+        FROM 
+            mp_code_tag c, 
+            mp_restaurant_tag t
+        WHERE 
+            c.code = t.tag_code
+            AND t.restaurant_id = #{restaurantId}
+    </select>
 
 </mapper>

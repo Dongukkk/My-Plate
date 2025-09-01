@@ -10,6 +10,7 @@ import org.springframework.stereotype.Repository;
 
 import com.app.dao.restaurant.RestaurantDAO;
 import com.app.dto.restaurant.RestaurantDTO;
+import com.app.dto.restaurant.RestaurantTagDTO;
 
 @Repository
 public class RestaurantDAOImpl implements RestaurantDAO {
@@ -55,6 +56,11 @@ public class RestaurantDAOImpl implements RestaurantDAO {
 	    params.put("neLng", neLng);
 	    
 		return sqlSessionTemplate.selectList("restaurant_mapper.findRestaurantsInBounds", params);
+	}
+
+	@Override
+	public List<RestaurantTagDTO> getTagsByRestaurantId(int restaurantId) {
+		return sqlSessionTemplate.selectList("restaurant_mapper.getTagsByRestaurantId", restaurantId);
 	}
 
 }

@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 
 import com.app.dao.restaurant.RestaurantDAO;
 import com.app.dto.restaurant.RestaurantDTO;
+import com.app.dto.restaurant.RestaurantTagDTO;
 import com.app.service.restaurant.RestaurantService;
 
 @Service
@@ -16,6 +17,7 @@ public class RestaurantServiceImpl implements RestaurantService{
 
 	@Autowired
 	RestaurantDAO restaurantDAO;
+	
 	
 	@Override
 	public List<RestaurantDTO> findAllRestaurants(String sort, String direction, int page, int limit) {
@@ -40,4 +42,8 @@ public class RestaurantServiceImpl implements RestaurantService{
                 .collect(Collectors.toList());
 	}
 
+	@Override
+    public List<RestaurantTagDTO> getTagsByRestaurantId(int restaurantId) {
+        return restaurantDAO.getTagsByRestaurantId(restaurantId);
+    }
 }

@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.app.dto.restaurant.RestaurantDTO;
+import com.app.dto.restaurant.RestaurantTagDTO;
 import com.app.service.ApiRestaurantService;
 import com.app.service.restaurant.RestaurantService;
 
@@ -61,5 +62,10 @@ public class RestaurantRestController {
         List<RestaurantDTO> restaurants = restaurantService.findRestaurantsInBounds(swLat, swLng, neLat, neLng);
         System.out.println(restaurants);
         return ResponseEntity.ok(restaurants);
+    }
+	
+	@GetMapping("/api/restaurants/{id}/tags")
+    public List<RestaurantTagDTO> getRestaurantTags(@PathVariable("id") int restaurantId) {
+        return restaurantService.getTagsByRestaurantId(restaurantId);
     }
 }

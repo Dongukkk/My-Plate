@@ -16,7 +16,7 @@ function RestaurantList() {
     const [hasMore, setHasMore] = useState(true);
     const loadingRef = useRef(null);
 
-
+    //식당 목록 불러오기
     useEffect(() => {
         setRestaurants([]);
         setPage(1);
@@ -37,8 +37,23 @@ function RestaurantList() {
                 const response = await axios.get(
                     `http://localhost:3000/api/restaurants/getAllRestaurants?sort=${sort}&direction=${direction}&page=${page}&limit=12`
                 );
-                
-                setRestaurants(prevRestaurants => [...prevRestaurants, ...response.data]);
+
+                let newRestaurants = response.data;
+
+                // 각 식당별 태그 API 호출
+                const restaurantWithTags = await Promise.all(
+                    newRestaurants.map(async (rest) => {
+                        try {
+                            const tagResp = await axios.get(
+                                `http://localhost:3000/api/restaurants/${rest.id}/tags`
+                            );
+                            return { ...rest, tags: tagResp.data };
+                        } catch (e) {
+                            return { ...rest, tags: [] }; // 오류 시 빈 배열
+                        }
+                    })
+                );
+                setRestaurants(prev => [...prev, ...restaurantWithTags]);
                 
                 if (response.data.length < 10) {
                     setHasMore(false);
