@@ -9,7 +9,6 @@ import SideBarMenu from '../components/SideBarMenu';
 function RestaurantList() {
     const navigate = useNavigate();
     const [restaurants, setRestaurants] = useState([]);
-    const [filteredRestaurants, setFilteredRestaurants] = useState([]); 
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [sort, setSort] = useState('name');
@@ -20,59 +19,35 @@ function RestaurantList() {
     const [selectedTags, setSelectedTags] = useState([]);
     const loadingRef = useRef(null);
 
-    const filterRestaurants = (allRestaurants, tagsToFilter) => {
-        if (tagsToFilter.length === 0) {
-            return allRestaurants;
-        }
-
-        return allRestaurants.filter(restaurant => 
-            tagsToFilter.every(tag => 
-                restaurant.tags?.some(t => t.tag === tag)
-            )
-        );
-    };
-
-
-    useEffect(() => {
-        setRestaurants([]);
-        setPage(1);
-        setHasMore(true);
-        setLoading(true);
-    }, [sort, direction, selectedTags]);
-
+    // ✅ 하나의 useEffect로 모든 로직을 통합하여 효율성 극대화
     useEffect(() => {
         const fetchRestaurants = async () => {
-            if (!hasMore && page > 1) {
-                setLoading(false);
-                return;
+            // 정렬, 방향, 태그가 변경되면 페이지를 1로 초기화
+            if (page === 1) {
+                setRestaurants([]);
             }
-
+            
             setLoading(true);
             setError(null);
+            
             try {
+                const tagsQuery = selectedTags.length > 0 ? `&tag=${selectedTags.join(',')}` : '';
+
                 const response = await axios.get(
-                    `http://localhost:3000/api/restaurants/getAllRestaurants?sort=${sort}&direction=${direction}&page=${page}&limit=12`
+                    `http://localhost:3000/api/restaurants/getAllRestaurants?sort=${sort}&direction=${direction}&page=${page}&limit=12${tagsQuery}`
                 );
 
-                let newRestaurants = response.data;
+                const newRestaurants = response.data;
 
-                const restaurantsWithTags = await Promise.all(
-                    newRestaurants.map(async (rest) => {
-                        try {
-                            const tagResp = await axios.get(
-                                `http://localhost:3000/api/restaurants/${rest.id}/tags`
-                            );
-                            return { ...rest, tags: tagResp.data};
-                        } catch (e) {
-                            return { ...rest, tags: []};
-                        }
-                    })
-                );
-
-                setRestaurants(prev => [...prev, ...restaurantsWithTags]);
+                setRestaurants(prev => {
+                    // 페이지가 1일 경우 새로운 데이터로 교체, 아닐 경우 기존 데이터에 추가
+                    return page === 1 ? newRestaurants : [...prev, ...newRestaurants];
+                });
                 
                 if (response.data.length < 12) {
                     setHasMore(false);
+                } else {
+                    setHasMore(true);
                 }
             } catch (e) {
                 setError(e);
@@ -80,15 +55,11 @@ function RestaurantList() {
                 setLoading(false);
             }
         };
+
         fetchRestaurants();
-    }, [page, sort, direction]);
+    }, [page, sort, direction, selectedTags]);
 
-    useEffect(() => {
-        const newFilteredRestaurants = filterRestaurants(restaurants, selectedTags);
-        setFilteredRestaurants(newFilteredRestaurants);
-    }, [restaurants, selectedTags]);
-
-
+    // ✅ 인피니트 스크롤 로직 유지
     useEffect(() => {
         if (!loadingRef.current) return;
         
@@ -121,6 +92,7 @@ function RestaurantList() {
             setSort('avg_Rating');
             setDirection('ASC');
         }
+        setPage(1); // 정렬 변경 시 페이지 초기화
     };
 
     const handleTagClick = (tag) => {
@@ -129,6 +101,7 @@ function RestaurantList() {
             : [...selectedTags, tag];
 
         setSelectedTags(newSelectedTags);
+        setPage(1); // 태그 변경 시 페이지 초기화
     };
 
     if (error) {
@@ -137,7 +110,7 @@ function RestaurantList() {
 
     return (
         <div className="restaurantList-page">
-            <SideBarMenu />
+            <SideBarMenu handleTagClick={handleTagClick} selectedTags={selectedTags} />
             <div className="rl-container">
                 <main className='restaurant-list-main'>
                     <div className="restaurant-list">
@@ -153,7 +126,7 @@ function RestaurantList() {
                             </div>
                         </div>
                         <div className="restaurant-grid">
-                            {filteredRestaurants.map(restaurant => ( 
+                            {restaurants.map(restaurant => (
                                 <RestaurantCard key={restaurant.id} restaurant={restaurant} selectedTags={selectedTags} onTagClick={handleTagClick}/>
                             ))}
                         </div>

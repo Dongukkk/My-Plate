@@ -78,33 +78,53 @@
 	</insert>
 	
 	<select id="findAllRestaurants" resultType="Restaurant">
-        SELECT
-	        r.ID,
-	        r.NAME,
-	        r.DESCRIPTION,
-	        r.CATEGORY,
-	        r.AVG_RATING,
-	        r.RATING_COUNT,
-	        r.SOLO_INDEX,
-	        r.PHOTO_URL,
-	        r.LATITUDE,
-	        r.LONGITUDE,
-	        r.ADDRESS,
-	        r.PHONE
-	    FROM MP_RESTAURANT r
-	    <if test="tag != null and tag != ''">
-	        JOIN MP_RESTAURANT_TAG t ON r.ID = t.RESTAURANT_ID
-	        JOIN MP_CODE_TAG c ON t.TAG_CODE = c.CODE
-	        WHERE c.TAG = #{tag} AND DELETED_AT IS NULL
-	    </if>
-	    <if test="tag == null or tag == ''">
-        	WHERE DELETED_AT IS NULL
-    	</if>
-        <if test="sortField != null and sortDirection != null">
-        ORDER BY ${sortField} ${sortDirection}
-    	</if>
-    	OFFSET #{offset} ROWS FETCH NEXT #{limit} ROWS ONLY
-    </select>
+	    SELECT
+        r.ID,
+        r.NAME,
+        r.DESCRIPTION,
+        r.CATEGORY,
+        r.AVG_RATING,
+        r.RATING_COUNT,
+        r.SOLO_INDEX,
+        r.PHOTO_URL,
+        r.LATITUDE,
+        r.LONGITUDE,
+        r.ADDRESS,
+        r.PHONE
+    FROM MP_RESTAURANT r
+    <where>
+        r.DELETED_AT IS NULL
+        <if test="query != null and query != ''">
+             AND r.NAME LIKE '%' || #{query} || '%'
+        </if>
+        <if test="tags != null and !tags.isEmpty()">
+            AND r.ID IN (
+                SELECT RESTAURANT_ID
+                FROM MP_RESTAURANT_TAG
+                WHERE TAG_CODE IN (
+                    SELECT CODE FROM MP_CODE_TAG WHERE TAG IN
+                    <foreach item="tag" collection="tags" open="(" separator="," close=")">
+                        #{tag}
+                    </foreach>
+                )
+                GROUP BY RESTAURANT_ID
+                HAVING COUNT(DISTINCT TAG_CODE) = #{tagCount}
+            )
+        </if>
+    </where>
+    <if test="sort != null and direction != null">
+        ORDER BY
+        <choose>
+            <when test="sort == 'name'">r.NAME</when>
+            <when test="sort == 'avg_Rating'">r.AVG_RATING</when>
+            <otherwise>r.NAME</otherwise>
+        </choose>
+        <if test="direction == 'DESC'">DESC</if>
+        <if test="direction == 'ASC'">ASC</if>
+    </if>
+    OFFSET #{offset} ROWS FETCH NEXT #{limit} ROWS ONLY
+	</select>
+
 	
 	<select id="getRestaurantById" parameterType="long" resultType="Restaurant">
 		SELECT

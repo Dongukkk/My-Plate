@@ -1,6 +1,7 @@
 package com.app.dto.restaurant;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -44,4 +45,6 @@ public class RestaurantDTO {
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
     private LocalDateTime deletedAt;
+    
+    private List<RestaurantTagDTO> tags;
 }

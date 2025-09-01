@@ -6,11 +6,11 @@ import com.app.dto.restaurant.RestaurantDTO;
 import com.app.dto.restaurant.RestaurantTagDTO;
 
 public interface RestaurantService {
-	public List<RestaurantDTO> findAllRestaurants(String sort, String direction, String tag, int page, int limit);
+	public List<RestaurantDTO> findAllRestaurants(String sort, String direction, String tag, String query, int page, int limit);
 	
 	public RestaurantDTO getRestaurantById(Long id);
 	
 	public List<RestaurantDTO> findRestaurantsInBounds(double swLat, double swLng, double neLat, double neLng);
 
-	List<RestaurantTagDTO> getTagsByRestaurantId(int restaurantId);
+	List<RestaurantTagDTO> getTagsByRestaurantId(long restaurantId);
 }

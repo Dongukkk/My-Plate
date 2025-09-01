@@ -9,84 +9,57 @@ import '../restaurantList/RestaurantList.css';
 function RestaurantSearchResult() {
     const location = useLocation();
     const navigate = useNavigate();
-    const query = new URLSearchParams(location.search).get('query');
-    const tagsParam = new URLSearchParams(location.search).get('tag');
-
-    const [ allRestaurants, setAllRestaurants ] = useState([]);
+    
     const [ filteredRestaurants, setFilteredRestaurants ] = useState([]);
     const [ loading, setLoading ] = useState(true);
     const [ error, setError ] = useState(null);
     const [ sort, setSort ] = useState('name');
     const [ direction, setDirection ] = useState('ASC');
     const [ selectedTags, setSelectedTags ] = useState([]);
+    
+    // ✅ URL 파라미터에서 직접 태그와 검색어 가져오기
+    const query = new URLSearchParams(location.search).get('query') || '';
+    const tagsParam = new URLSearchParams(location.search).get('tag');
 
-    const filterRestaurants = (restaurants, searchQuery, tagsToFilter) => {
-        return restaurants.filter(restaurant => {
-            const matchesQuery = searchQuery ? restaurant.restrntNm?.includes(searchQuery) : true;
-
-            const matchesTags = tagsToFilter.length > 0
-                ? tagsToFilter.every(tag => restaurant.tags?.some(t => t.tag === tag))
-                : true;
-
-            return matchesQuery && matchesTags;
-        });
-    };
-
-    const handleTagClick = (tag) => {
-        const newSelectedTags = selectedTags.includes(tag)
-            ? selectedTags.filter(t => t !== tag)
-            : [ ...selectedTags, tag ];
-        setSelectedTags(newSelectedTags);
-        const newTagsParam = newSelectedTags.length > 0
-            ? `&tag=${newSelectedTags.map(t => encodeURIComponent(t)).join(',')}`
-            : '';
-
-        const newQueryParam = query ? `query=${encodeURIComponent(query)}` : '';
-
-        navigate(`/search?${newQueryParam}${newTagsParam}`);
-    };
-
+    // ✅ 하나의 useEffect로 데이터 가져오기 및 상태 업데이트 통합
     useEffect(() => {
-        const fetchAllRestaurants = async () => {
-            try {
-                const response = await axios.get(
-                    `http://localhost:3000/api/restaurants/getAllRestaurants?sort=${sort}&direction=${direction}&limit=99999`
-                );
+        setLoading(true);
+        setError(null);
 
-                const restaurantsWithTags = await Promise.all(
-                    response.data.map(async (rest) => {
-                        try {
-                            const tagResp = await axios.get(
-                                `http://localhost:3000/api/restaurants/${rest.id}/tags`
-                            );
-                            return { ...rest, tags: tagResp.data };
-                        } catch {
-                            return { ...rest, tags: [] };
-                        }
-                    })
+        // URL의 tagsParam을 기반으로 초기 태그 상태 설정
+        const initialTags = tagsParam ? tagsParam.split(',') : [];
+        setSelectedTags(initialTags);
+        
+        const fetchFilteredRestaurants = async () => {
+            try {
+                // ✅ 백엔드 API에 검색어와 태그를 직접 전달
+                const response = await axios.get(
+                    `http://localhost:3000/api/restaurants/getAllRestaurants?sort=${sort}&direction=${direction}&query=${encodeURIComponent(query)}&tag=${initialTags.join(',')}&limit=99999`
                 );
-                setAllRestaurants(restaurantsWithTags);
+                
+                setFilteredRestaurants(response.data);
                 setLoading(false);
             } catch (e) {
                 setError(e);
                 setLoading(false);
             }
         };
-        fetchAllRestaurants();
-    }, [ sort, direction ]);
 
-    useEffect(() => {
-        const initialTags = tagsParam ? tagsParam.split(',') : [];
-        setSelectedTags(initialTags);
+        fetchFilteredRestaurants();
+    }, [query, tagsParam, sort, direction]);
 
-        if (!allRestaurants || allRestaurants.length === 0) {
-            setFilteredRestaurants([]);
-            return;
-        }
-
-        const newFilteredRestaurants = filterRestaurants(allRestaurants, query, initialTags);
-        setFilteredRestaurants(newFilteredRestaurants);
-    }, [ query, allRestaurants, tagsParam ]);
+    const handleTagClick = (tag) => {
+        const newSelectedTags = selectedTags.includes(tag)
+            ? selectedTags.filter(t => t !== tag)
+            : [ ...selectedTags, tag ];
+        
+        // ✅ URL을 업데이트하여 useEffect가 다시 실행되도록 유도
+        const newTagsParam = newSelectedTags.length > 0 ? newSelectedTags.join(',') : '';
+        const newQueryParam = query ? `query=${encodeURIComponent(query)}` : '';
+        const separator = newQueryParam && newTagsParam ? '&' : '';
+        
+        navigate(`/search?${newQueryParam}${separator}tag=${newTagsParam}`);
+    };
 
     const handleSortChange = (newSort) => {
         if (newSort === "name_ASC") {
@@ -101,14 +74,6 @@ function RestaurantSearchResult() {
         }
     };
 
-    if (loading) {
-        return <div>로딩 중...</div>;
-    }
-
-    if (error) {
-        return <div>오류가 발생했습니다: {error.message}</div>;
-    }
-
     const getHeaderText = () => {
         const tagsText = selectedTags.length > 0 ? `#${selectedTags.join(', #')}` : '';
         if (query && tagsText) {
@@ -122,9 +87,17 @@ function RestaurantSearchResult() {
         }
     };
 
+    if (loading) {
+        return <div>로딩 중...</div>;
+    }
+
+    if (error) {
+        return <div>오류가 발생했습니다: {error.message}</div>;
+    }
+
     return (
         <div className="restaurantList-page">
-            <SideBarMenu />
+            <SideBarMenu onTagClick={handleTagClick} selectedTags={selectedTags} />
             <div className="rl-container">
                 <main className='restaurant-list-main'>
                     <div className="restaurant-list">

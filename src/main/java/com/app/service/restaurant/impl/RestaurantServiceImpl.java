@@ -20,9 +20,14 @@ public class RestaurantServiceImpl implements RestaurantService{
 	
 	
 	@Override
-	public List<RestaurantDTO> findAllRestaurants(String sort, String direction, String tag, int page, int limit) {
+	public List<RestaurantDTO> findAllRestaurants(String sort, String direction, String tag, String query, int page, int limit) {
+		List<RestaurantDTO> restList = restaurantDAO.findAllRestaurants(sort, direction, tag, query, page, limit);
 		
-		return restaurantDAO.findAllRestaurants(sort, direction, tag, page, limit);
+		for(RestaurantDTO dto:restList) {
+			dto.setTags(getTagsByRestaurantId(dto.getId()));
+		}
+		return restList;
+		
 	}
 
 	@Override
@@ -43,7 +48,7 @@ public class RestaurantServiceImpl implements RestaurantService{
 	}
 
 	@Override
-    public List<RestaurantTagDTO> getTagsByRestaurantId(int restaurantId) {
+    public List<RestaurantTagDTO> getTagsByRestaurantId(long restaurantId) {
         return restaurantDAO.getTagsByRestaurantId(restaurantId);
     }
 }
