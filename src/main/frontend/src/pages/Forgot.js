@@ -26,7 +26,7 @@ export default function Forgot() {
 
     try {
       // 백엔드 준비되면 이 URL을 백 규약에 맞게 바꿔줘
-      const r = await api.post('/password-reset/request', { email: email.trim() });
+      await api.post('/users/forgot-password', { email });
 
       // 보통 200/204면 성공
       setOk(true);

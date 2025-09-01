@@ -7,6 +7,7 @@ import AdminPage from './pages/AdminPage';
 import ProtectedRoute from './routes/ProtectedRoute';
 import Forbidden from './pages/Forbidden';
 import Forgot from './pages/Forgot';
+import Reset from './pages/Reset';
 
 export default function App() {
   return (
@@ -31,6 +32,9 @@ export default function App() {
 
         {/* 기본 */}
         <Route path="*" element={<Navigate to="/login" replace />} />
+
+        <Route path='/reset' element={<Reset />} />
+
       </Routes>
     </BrowserRouter>
   );
