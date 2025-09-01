@@ -15,6 +15,7 @@ import TermsPage from "./admin/terms-page";
 import MainPage from './mainpage/MainPage';
 import RestaurantList from './restaurantList/RestaurantList';
 import Header from './components/Header';
+import Footer from './components/Footer';
 import RestaurantDetail from './restaurantList/RestaurantDetail';
 import RestaurantSearchResult from './restaurantList/RestaurantSearchResult';
 import RestaurantMap from './map/RestaurantMap';
@@ -45,6 +46,7 @@ const MainLayout = () => {
         <Route path="/termsOfUse" element={<TermsPage />} />
         <Route path="*" element={<ErrorPage />} />
       </Routes>
+      {showHeaderFooter && <Footer />}
     </>
   );
 };
