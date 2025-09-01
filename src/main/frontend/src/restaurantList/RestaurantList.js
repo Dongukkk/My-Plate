@@ -1,12 +1,15 @@
 import RestaurantCard from './RestaurantCard';
 import axios from 'axios';
 import { useState, useEffect, useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
 import '../restaurantList/RestaurantList.css';
 
 import SideBarMenu from '../components/SideBarMenu';
 
 function RestaurantList() {
+    const navigate = useNavigate();
     const [restaurants, setRestaurants] = useState([]);
+    const [filteredRestaurants, setFilteredRestaurants] = useState([]); 
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [sort, setSort] = useState('name');
@@ -14,16 +17,28 @@ function RestaurantList() {
 
     const [page, setPage] = useState(1);
     const [hasMore, setHasMore] = useState(true);
-    const [selectedTag, setSelectedTag] = useState(null);
+    const [selectedTags, setSelectedTags] = useState([]);
     const loadingRef = useRef(null);
 
-    //식당 목록 불러오기
+    const filterRestaurants = (allRestaurants, tagsToFilter) => {
+        if (tagsToFilter.length === 0) {
+            return allRestaurants;
+        }
+
+        return allRestaurants.filter(restaurant => 
+            tagsToFilter.every(tag => 
+                restaurant.tags?.some(t => t.tag === tag)
+            )
+        );
+    };
+
+
     useEffect(() => {
         setRestaurants([]);
         setPage(1);
         setHasMore(true);
         setLoading(true);
-    }, [sort, direction, selectedTag]);
+    }, [sort, direction, selectedTags]);
 
     useEffect(() => {
         const fetchRestaurants = async () => {
@@ -36,13 +51,12 @@ function RestaurantList() {
             setError(null);
             try {
                 const response = await axios.get(
-                    `http://localhost:3000/api/restaurants/getAllRestaurants?sort=${sort}&direction=${direction}&page=${page}&limit=12${selectedTag ? `&tag=${selectedTag}` : ''}`
+                    `http://localhost:3000/api/restaurants/getAllRestaurants?sort=${sort}&direction=${direction}&page=${page}&limit=12`
                 );
 
                 let newRestaurants = response.data;
 
-                // 각 식당별 태그 API 호출
-                const restaurantWithTags = await Promise.all(
+                const restaurantsWithTags = await Promise.all(
                     newRestaurants.map(async (rest) => {
                         try {
                             const tagResp = await axios.get(
@@ -54,8 +68,8 @@ function RestaurantList() {
                         }
                     })
                 );
-                console.log(newRestaurants);
-                setRestaurants(prev => [...prev, ...restaurantWithTags]);
+
+                setRestaurants(prev => [...prev, ...restaurantsWithTags]);
                 
                 if (response.data.length < 12) {
                     setHasMore(false);
@@ -66,9 +80,14 @@ function RestaurantList() {
                 setLoading(false);
             }
         };
-
         fetchRestaurants();
-    }, [page, sort, direction, selectedTag]);
+    }, [page, sort, direction]);
+
+    useEffect(() => {
+        const newFilteredRestaurants = filterRestaurants(restaurants, selectedTags);
+        setFilteredRestaurants(newFilteredRestaurants);
+    }, [restaurants, selectedTags]);
+
 
     useEffect(() => {
         if (!loadingRef.current) return;
@@ -105,13 +124,16 @@ function RestaurantList() {
     };
 
     const handleTagClick = (tag) => {
-        setSelectedTag(prevTag => (prevTag === tag ? null : tag));
+        const newSelectedTags = selectedTags.includes(tag)
+            ? selectedTags.filter(t => t !== tag)
+            : [...selectedTags, tag];
+
+        setSelectedTags(newSelectedTags);
     };
 
     if (error) {
         return <div>오류가 발생했습니다: {error.message}</div>;
     }
-
 
     return (
         <div className="restaurantList-page">
@@ -129,11 +151,10 @@ function RestaurantList() {
                                     <option value="avg_Rating_ASC">평점 순 (낮은순)</option>
                                 </select>
                             </div>
-                            
                         </div>
                         <div className="restaurant-grid">
-                            {restaurants.map(restaurant => (
-                                <RestaurantCard key={restaurant.id} restaurant={restaurant} selectedTag={selectedTag} onTagClick={handleTagClick}/>
+                            {filteredRestaurants.map(restaurant => ( 
+                                <RestaurantCard key={restaurant.id} restaurant={restaurant} selectedTags={selectedTags} onTagClick={handleTagClick}/>
                             ))}
                         </div>
                         
