@@ -95,8 +95,11 @@
 	    <if test="tag != null and tag != ''">
 	        JOIN MP_RESTAURANT_TAG t ON r.ID = t.RESTAURANT_ID
 	        JOIN MP_CODE_TAG c ON t.TAG_CODE = c.CODE
-	        WHERE c.TAG = #{tag}
+	        WHERE c.TAG = #{tag} AND DELETED_AT IS NULL
 	    </if>
+	    <if test="tag == null or tag == ''">
+        	WHERE DELETED_AT IS NULL
+    	</if>
         <if test="sortField != null and sortDirection != null">
         ORDER BY ${sortField} ${sortDirection}
     	</if>
