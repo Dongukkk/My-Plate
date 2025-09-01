@@ -17,9 +17,12 @@
 }
 
 .rd-repr-image {
-    width: 100%;
+    width: 100%; 
     height: 300px;
-    background-color: #95c8ff;
+    background-size: cover; 
+    background-position: center;
+    border-radius: 8px;
+    flex-shrink: 0;
 }
 
 .rd-info{

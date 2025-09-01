@@ -54,6 +54,7 @@ function RestaurantList() {
                         }
                     })
                 );
+                console.log(newRestaurants);
                 setRestaurants(prev => [...prev, ...restaurantWithTags]);
                 
                 if (response.data.length < 12) {

@@ -1,15 +1,15 @@
 import { useNavigate } from "react-router-dom";
 
-const DEFAULT_IMAGE_URL = "/images/restaurant/BASIC_RESTAURANT_IMAGE.jpg";
+export const DEFAULT_IMAGE_URL = "/images/restaurant/BASIC_RESTAURANT_IMAGE.jpg";
 
 const RestaurantCard = ({ restaurant, selectedTag, onTagClick }) => {
   const navigate = useNavigate();
 
-  const imageUrl = restaurant.photoUrl || DEFAULT_IMAGE_URL;
+  const sampleImageUrl = restaurant.photoUrl || DEFAULT_IMAGE_URL;
 
   return (
     <div className="restaurant-card">
-      <div className="rc-card-image" style={{ backgroundImage: `url(${imageUrl})` }}></div>
+      <div className="rc-card-image" style={{ backgroundImage: `url(${sampleImageUrl})` }}></div>
       <div className="rc-card-content">
         <h3>{restaurant.restrntNm}</h3>
         <div className="rc-tags-container" style={{ marginBottom: "8px" }}>
