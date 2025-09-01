@@ -65,5 +65,15 @@ public class AdminDAOImpl implements AdminDAO {
         return sqlSessionTemplate.update(AM + "DeleteAdminUser", p);
 	}
 
+	@Override
+	public AdminUserDTO findUserById(long id) {
+		return sqlSessionTemplate.selectOne(AM + "findUserById", id);
+	}
+
+	@Override
+	public int modifyAdminUser(AdminUserDTO dto) {
+		 return sqlSessionTemplate.update(AM + "modifyAdminUser", dto);
+	}
+
 
 }

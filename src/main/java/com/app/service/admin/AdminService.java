@@ -17,5 +17,7 @@ public interface AdminService {
 	//사용자관리
 	List <AdminUserDTO> findUserList();
 	int DeleteAdminUser(long id);
-
+	AdminUserDTO findUserById(long id);
+	int modifyAdminUser(AdminUserDTO dto);
+	
 }

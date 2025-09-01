@@ -31,7 +31,7 @@ public class AdminController {
 	
 	/* 식당 수정 */
     @GetMapping("/api/adminRestaurant/{id}")
-    public AdminRestaurantDTO detail(@PathVariable long id) {
+    public AdminRestaurantDTO findRestaurantById(@PathVariable long id) {
         return adminService.findRestaurantById(id);
     }
     @PostMapping("/api/adminRestaurant/{id}")
@@ -67,5 +67,18 @@ public class AdminController {
 	public int registerDeleteUser(@PathVariable long id) {
 		return adminService.DeleteAdminUser(id);
 	}
+	
+	/* 사용자 수정 */
+    @GetMapping("/api/adminUser/{id}")
+    public AdminUserDTO findUserById(@PathVariable long id) {
+        return adminService.findUserById(id);
+    }
+    @PostMapping("/api/adminUser/{id}")
+    public ResponseEntity<Void> updateByPost(@PathVariable long id, @RequestBody AdminUserDTO dto) {
+        dto.setId(id);
+        int n = adminService.modifyAdminUser(dto);
+        return (n == 1) ? ResponseEntity.ok().build()
+                        : ResponseEntity.notFound().build();
+    }
 	
 }

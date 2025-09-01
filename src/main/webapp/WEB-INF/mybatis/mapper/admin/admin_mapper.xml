@@ -99,8 +99,32 @@
 		WHERE ID = #{id}
 	</update>
 	
-	
-	
+	<select id="findUserById" parameterType="long" resultType="AdminUser">
+		  SELECT
+		    U.ID           AS id,
+		    U.EMAIL        AS email,
+		    U.USERNAME     AS username,
+		    U.ADDRESS      AS address,
+		    U.PHONE_NUMBER AS phoneNumber,
+		    U.ROLE         AS role,
+		    U.STATUS       AS status
+		  FROM MP_USER U
+		WHERE U.ID = #{id}
+		AND LEAVE_DATE IS NULL
+		AND U.ROLE != 'ADM'
+	</select>
+
+	<update id="modifyAdminUser" parameterType="AdminUser">
+		UPDATE MP_USER
+		SET USERNAME = #{username},
+		ADDRESS = #{address},
+		PHONE_NUMBER = #{phoneNumber},
+		STATUS = #{status},
+		UPDATED_AT = SYSTIMESTAMP
+		WHERE ID = #{id}
+		AND LEAVE_DATE IS NULL
+	</update>
+		
 
 
 
