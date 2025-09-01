@@ -18,4 +18,9 @@ public class UserController {
         UserResponse res = userService.register(req);
         return ResponseEntity.ok(res); 
     }
+    
+    //비밀번호 재설정 링크 요청
+    
+    
+    
 }

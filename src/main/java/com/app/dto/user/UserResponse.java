@@ -5,13 +5,15 @@ public class UserResponse {
 	private Long id;
 	private String email;
 	private String name;
+	private String role;
 	
 	public UserResponse() { }
 	
-	public UserResponse(Long id, String email, String name) {
+	public UserResponse(Long id, String email, String name, String role) {
         this.id = id;
         this.email = email;
         this.name = name;
+        this.role = role;
     }
 
     public Long getId() { return id; }
@@ -22,4 +24,8 @@ public class UserResponse {
 
     public String getName() { return name; }
     public void setName(String name) { this.name = name; }
+
+	public String getRole() { return role; }
+	public void setRole(String role) { this.role = role; }    
+    
 }

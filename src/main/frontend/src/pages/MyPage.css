@@ -1,0 +1,104 @@
+.myp-wrap {
+  min-height: 100vh;
+  background: #fafafa;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+}
+
+.myp-card {
+  width: 100%;
+  max-width: 640px;
+  background: #fff;
+  border: 1px solid #eee;
+  border-radius: 16px;
+  box-shadow: 0 12px 40px rgba(0,0,0,.06);
+  overflow: hidden;
+}
+
+/* header */
+.myp-header {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 16px;
+  padding: 20px 20px;
+  background: linear-gradient(180deg, #fff, #fff 60%, #fafafa);
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.myp-avatar {
+  width: 60px;
+  height: 60px;
+  border-radius: 999px;
+  background: #ef5350;
+  color: #fff;
+  font-weight: 800;
+  display: grid;
+  place-items: center;
+  letter-spacing: .5px;
+}
+
+.myp-id { display: flex; flex-direction: column; gap: 4px; }
+.myp-name { font-size: 20px; font-weight: 700; }
+.myp-email { color: #666; font-size: 13.5px; }
+
+.myp-badge {
+  font-size: 12px;
+  font-weight: 700;
+  border-radius: 999px;
+  padding: 6px 10px;
+  border: 1px solid #eee;
+}
+.myp-badge.is-admin {
+  color: #fff; background: #ef5350; border-color: #ef5350;
+}
+.myp-badge.is-user {
+  color: #3949ab; background: #e8eaf6; border-color: #e8eaf6;
+}
+
+/* body */
+.myp-body { padding: 20px; display: grid; gap: 10px; }
+.myp-row { display: flex; justify-content: space-between; gap: 12px; }
+.myp-key { color: #666; font-size: 13px; }
+.myp-val { font-weight: 600; }
+
+/* actions */
+.myp-actions {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 10px;
+  padding: 16px 20px 20px;
+  border-top: 1px solid #f0f0f0;
+  background: #fff;
+}
+
+.myp-link {
+  border: 1px solid #e5e7eb;
+  background: #fff;
+  padding: 10px 12px;
+  border-radius: 10px;
+  font-weight: 600;
+  text-decoration: none;
+  color: #333;
+}
+
+.myp-logout {
+  background: #ef5350;
+  color: #fff;
+  border: none;
+  padding: 10px 14px;
+  border-radius: 10px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.myp-loading, .myp-error {
+  background: #fff;
+  border: 1px solid #eee;
+  border-radius: 12px;
+  padding: 18px 20px;
+  box-shadow: 0 12px 40px rgba(0,0,0,.06);
+}
+.myp-error { color: #e53935; }
