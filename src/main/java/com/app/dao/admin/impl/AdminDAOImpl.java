@@ -37,6 +37,11 @@ public class AdminDAOImpl implements AdminDAO {
     }
 	
 	@Override
+	public int saveAdminRestaurant(AdminRestaurantDTO dto) {
+		return sqlSessionTemplate.insert(AM + "saveAdminRestaurant", dto);
+	}
+    
+	@Override
 	public int DeleteAdminRestaurant(long id) {
 		AdminRestaurantDTO p = new AdminRestaurantDTO();
         p.setId((long) id);

@@ -11,6 +11,8 @@ public interface AdminDAO {
 	AdminRestaurantDTO findRestaurantById(long id);
 	int modifyAdminRestaurant(AdminRestaurantDTO dto);
 	
+	int saveAdminRestaurant(AdminRestaurantDTO dto);
+	
 	int DeleteAdminRestaurant(long id);
 	
 }

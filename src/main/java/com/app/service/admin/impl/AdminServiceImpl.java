@@ -4,7 +4,6 @@ import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import com.app.dao.admin.AdminDAO;
 import com.app.dto.admin.AdminRestaurantDTO;
@@ -38,12 +37,15 @@ public class AdminServiceImpl implements AdminService {
         return affected;
     }
 	
+	@Override
+	public int saveAdminRestaurant(AdminRestaurantDTO dto) {
+		return adminDAO.saveAdminRestaurant(dto);
+	}
 
 	@Override
 	public int DeleteAdminRestaurant(long id) {
 		return adminDAO.DeleteAdminRestaurant(id);
 	}
-
 	
 	
 	

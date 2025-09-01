@@ -42,10 +42,8 @@
 	<update id="modifyAdminRestaurant" parameterType="AdminRestaurant">
 		UPDATE MP_RESTAURANT
 		SET NAME = #{name}, 
-		DESCRIPTION = #{description}, CATEGORY = #{category}, 
-		AVG_RATING = #{avgRating}, 
-		RATING_COUNT = #{rating_count}, 
-		SOLO_INDEX = #{solo_index}, 
+		DESCRIPTION = #{description}, 
+		CATEGORY = #{category}, 
 		PHOTO_URL = #{photo_url}, 
 		ADDRESS = #{address}, 
 		PHONE = #{phone}, 
@@ -53,14 +51,49 @@
 		UPDATED_AT = SYSTIMESTAMP  
 		WHERE ID = #{id} 
 	</update>
+	
+	<insert id="saveAdminRestaurant" parameterType="AdminRestaurant">
+		<selectKey keyProperty="id" resultType="long" order="BEFORE">SELECT MP_RESTAURANT_SEQ.NEXTVAL FROM DUAL</selectKey>
+		INSERT INTO MP_RESTAURANT (ID, NAME, DESCRIPTION, CATEGORY, PHOTO_URL, ADDRESS, PHONE, STATUS, CREATED_AT, UPDATED_AT) VALUES (
+		MP_RESTAURANT_SEQ.NEXTVAL,
+		#{name},
+		#{description},
+		#{category},
+		#{photo_url},
+		#{address},
+		#{phone},
+		#{status},
+		SYSTIMESTAMP,
+		SYSTIMESTAMP
+		)
+	</insert>
 
 	<update id="DeleteAdminRestaurant" parameterType="AdminRestaurant">
 		UPDATE MP_RESTAURANT
 		SET STATUS = 'DELETED',
-		DELETED_AT =
-		SYSTIMESTAMP
+		DELETED_AT = SYSTIMESTAMP
 		WHERE ID = #{id}
 	</update>
+	
+	
+	<select id="findUserList" resultType="AdminUser">
+		SELECT
+		R.ID AS id,
+		R.NAME AS name,
+		R.CATEGORY AS category,
+		R.ADDRESS AS address,
+		NVL(R.SOLO_INDEX, 0) AS solo_index,
+		NVL(R.AVG_RATING, 0) AS avgRating,
+		NVL(R.RATING_COUNT, 0) AS rating_count,
+		R.STATUS AS status
+		FROM
+		MP_RESTAURANT R
+		WHERE R.DELETED_AT IS NULL
+		ORDER BY R.ID
+	</select>
+	
+	
+	
 
 
 

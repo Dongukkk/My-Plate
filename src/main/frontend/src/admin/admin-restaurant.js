@@ -1,9 +1,9 @@
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
+import PrettyAlert from "./pretty-alert";
 import "./admin-restaurant.css";
 
-const USE_MOCK = false;
 axios.defaults.baseURL = "http://localhost:8080";
 
 /* 상태 뱃지 */
@@ -90,6 +90,9 @@ const StackedBars = ({ items }) => (
 
 export default function AdminRestaurant() {
     const navigate = useNavigate();
+    const [alertOpen, setAlertOpen] = useState(false);
+    const [alertMsg, setAlertMsg] = useState("");
+    const notify = (msg) => { setAlertMsg(msg); setAlertOpen(true); };
 
     /* 삭제 */
     const [deletingId, setDeletingId] = useState(null);
@@ -99,10 +102,10 @@ export default function AdminRestaurant() {
             setDeletingId(row.id);
             await axios.delete(`/api/adminRestaurant/${row.id}`);
             setRows((prev) => prev.filter((x) => x.id !== row.id));
-            alert("삭제되었습니다.");
+            notify("삭제되었습니다.");
         } catch (e) {
             console.error(e);
-            alert(`삭제 실패${e?.response?.status ? ` (HTTP ${e.response.status})` : ""}`);
+            notify(`삭제 실패${e?.response?.status ? ` (HTTP ${e.response.status})` : ""}`);
         } finally {
             setDeletingId(null);
         }
@@ -113,10 +116,16 @@ export default function AdminRestaurant() {
     const [editData, setEditData] = useState(null);
     const [editLoading, setEditLoading] = useState(false);
     const [saving, setSaving] = useState(false);
-    const toNum = (v, def = 0) => {
-        const n = parseFloat(v);
-        return Number.isFinite(n) ? n : def;
-    };
+
+    const buildUpdatePayload = (d) => ({
+        name: d.name?.trim() ?? "",
+        category: d.category ?? "",
+        address: d.address ?? "",
+        phone: d.phone ?? "",
+        photo_url: d.photo_url ?? "",
+        description: d.description ?? "",
+        status: d.status ?? "ACTIVE",
+    });
 
     const openEdit = async (id) => {
         try {
@@ -126,7 +135,7 @@ export default function AdminRestaurant() {
             setEditData(data);
         } catch (e) {
             console.error(e);
-            alert("상세 조회 실패");
+            notify("상세 조회 실패");
             setEditOpen(false);
         } finally {
             setEditLoading(false);
@@ -141,22 +150,83 @@ export default function AdminRestaurant() {
         if (!editData) return;
         try {
             setSaving(true);
-            const payload = {
-                ...editData,
-                avgRating: toNum(editData.avgRating, 0),
-                rating_count: Math.max(0, Math.floor(toNum(editData.rating_count, 0))),
-                solo_index: toNum(editData.solo_index, 0),
-            };
-            await axios.post(`/api/adminRestaurant/${editData.id}`, payload);
+            const payload = buildUpdatePayload(editData);
+            const url = `/api/adminRestaurant/${editData.id}`;
+            await axios.post(url, payload);
             setRows((prev) => prev.map((x) => (x.id === editData.id ? { ...x, ...payload } : x)));
             setEditOpen(false);
             setEditData(null);
-            alert("저장되었습니다.");
+            notify("저장되었습니다.");
         } catch (e) {
             console.error(e);
-            alert(`저장 실패${e?.response?.status ? ` (HTTP ${e.response.status})` : ""}`);
+            notify(`저장 실패${e?.response?.status ? ` (HTTP ${e.response.status})` : ""}`);
         } finally {
             setSaving(false);
+        }
+    };
+
+    /* ── 새 식당 추가 모달 상태 ── */
+    const [createOpen, setCreateOpen] = useState(false);
+    const [createData, setCreateData] = useState({
+        name: "",
+        category: "",
+        address: "",
+        phone: "",
+        photo_url: "",
+        description: "",
+        status: "ACTIVE",
+    });
+    const [creating, setCreating] = useState(false);
+
+    /* 목록 재조회 (등록 실패/확인용) */
+    const reloadList = async () => {
+        try {
+            const res = await axios.get("/api/adminRestaurant");
+            setRows(Array.isArray(res.data) ? res.data : []);
+        } catch (e) {
+            console.error("목록 재조회 실패:", e);
+        }
+    };
+
+    /* 모달 열기/닫기 */
+    const openCreate = () => {
+        setCreateData({
+            name: "",
+            category: "",
+            address: "",
+            phone: "",
+            photo_url: "",
+            description: "",
+            status: "ACTIVE",
+        });
+        setCreateOpen(true);
+    };
+    const closeCreate = () => {
+        if (creating) return;
+        setCreateOpen(false);
+    };
+
+    /* 저장 */
+    const saveCreate = async () => {
+        if (!createData.name?.trim() || !createData.category?.trim() || !createData.address?.trim()) {
+            notify("이름, 카테고리, 주소는 필수입니다.");
+            return;
+        }
+        try {
+            setCreating(true);
+            const payload = {
+                ...createData,
+                phone: (createData.phone || "").trim() || "미등록",};
+            await axios.post("/api/adminRestaurant", payload);
+            await reloadList();
+            setCreateOpen(false);
+            notify("등록되었습니다.");
+        } catch (e) {
+            console.error(e);
+            notify(`등록 실패${e?.response?.status ? ` (HTTP ${e.response.status})` : ""}`);
+            await reloadList();
+        } finally {
+            setCreating(false);
         }
     };
 
@@ -169,14 +239,12 @@ export default function AdminRestaurant() {
 
     /* 목록 */
     const [rows, setRows] = useState([]);
-
     const categories = useMemo(
         () => ["ALL", "한식", "일식, 라멘", "카페, 브런치", "양식", "중식", "분식", "퓨전, 현대식"],
         []
     );
 
     useEffect(() => {
-        if (USE_MOCK) return;
         (async () => {
             try {
                 const res = await axios.get("/api/adminRestaurant");
@@ -269,7 +337,7 @@ export default function AdminRestaurant() {
                     <div><h2 className="admin-title">식당 관리</h2></div>
                     <div className="admin-actions-bar">
                         <button className="admin-btn admin-ghost" onClick={() => navigate("/adminMain")}>메인으로 돌아가기</button>
-                        <button className="admin-btn admin-primary" onClick={() => navigate("/adminrestaurants/new")}>새로운 식당 추가</button>
+                        <button className="admin-btn admin-primary" onClick={openCreate}>새로운 식당 추가</button>
                     </div>
                 </div>
 
@@ -292,18 +360,7 @@ export default function AdminRestaurant() {
 
                     <div className="admin-table-wrap">
                         <table className="admin-rest-table">
-                            <thead>
-                                <tr>
-                                    <th>식당 이름</th>
-                                    <th>카테고리</th>
-                                    <th>위치</th>
-                                    <th>혼밥레벨</th>
-                                    <th>평점</th>
-                                    <th>복지카드</th>
-                                    <th>상태</th>
-                                    <th>작업</th>
-                                </tr>
-                            </thead>
+                            <thead><tr><th>식당 이름</th><th>카테고리</th><th>위치</th><th>혼밥레벨</th><th>평점</th><th>복지카드</th><th>상태</th><th>작업</th></tr></thead>
                             <tbody>
                                 {view.map((r) => (
                                     <tr key={r.id}>
@@ -359,7 +416,7 @@ export default function AdminRestaurant() {
                                     <label>카테고리<input value={editData.category || ""} onChange={(e) => setEditData(d => ({ ...d, category: e.target.value }))} /></label>
                                     <label>주소<input value={editData.address || ""} onChange={(e) => setEditData(d => ({ ...d, address: e.target.value }))} /></label>
                                     <label>전화<input value={editData.phone || ""} onChange={(e) => setEditData(d => ({ ...d, phone: e.target.value }))} /></label>
-                                    <label>사진<input value={editData.photo_url || ""} onChange={(e) => setEditData(d => ({ ...d, photo_url: e.target.value }))} /></label>
+                                    <label>사진 URL<input value={editData.photo_url || ""} onChange={(e) => setEditData(d => ({ ...d, photo_url: e.target.value }))} /></label>
                                     <label>상태
                                         <select value={editData.status || "ACTIVE"} onChange={(e) => setEditData(d => ({ ...d, status: e.target.value }))}>
                                             <option value="ACTIVE">ACTIVE</option>
@@ -380,6 +437,39 @@ export default function AdminRestaurant() {
                     </div>
                 </div>
             )}
+
+            {/* 새 식당 추가 모달 */}
+            {createOpen && (
+                <div className="admin-modal-backdrop" onClick={closeCreate}>
+                    <div className="admin-modal" onClick={(e) => e.stopPropagation()}>
+                        <div className="admin-modal-head"><h3>새 식당 추가</h3><button className="admin-close" onClick={closeCreate} disabled={creating}>×</button></div>
+
+                        <div className="admin-modal-body">
+                            <div className="admin-form-grid">
+                                <label>이름*<input value={createData.name} onChange={(e) => setCreateData(d => ({ ...d, name: e.target.value }))} placeholder="예) 김밥천국" /></label>
+                                <label>카테고리*<input value={createData.category} onChange={(e) => setCreateData(d => ({ ...d, category: e.target.value }))} placeholder="예) 한식"/></label>
+                                <label className="col-span-2">주소*<input value={createData.address} onChange={(e) => setCreateData(d => ({ ...d, address: e.target.value }))} placeholder="예) 서울시 마포구 ..."/></label>
+                                <label>전화<input value={createData.phone} onChange={(e) => setCreateData(d => ({ ...d, phone: e.target.value }))}/></label>
+                                <label>사진 URL<input value={createData.photo_url} onChange={(e) => setCreateData(d => ({ ...d, photo_url: e.target.value }))} placeholder="https://..."/></label>
+                                <label className="col-span-2">설명<textarea rows={3} value={createData.description} onChange={(e) => setCreateData(d => ({ ...d, description: e.target.value }))} placeholder="간단한 소개를 적어주세요"/></label>
+                                <label>상태
+                                    <select value={createData.status} onChange={(e) => setCreateData(d => ({ ...d, status: e.target.value }))}>
+                                        <option value="ACTIVE">ACTIVE</option>
+                                        <option value="INACTIVE">INACTIVE</option>
+                                        <option value="NEEDS_FIX">NEEDS_FIX</option>
+                                    </select>
+                                </label>
+                            </div>
+                        </div>
+
+                        <div className="admin-modal-foot">
+                            <button className="admin-btn admin-ghost" onClick={closeCreate} disabled={creating}>취소</button>
+                            <button className="admin-btn admin-primary" onClick={saveCreate} disabled={creating || !createData.name?.trim() || !createData.category?.trim() || !createData.address?.trim()} title="이름/카테고리/주소는 필수">{creating ? "저장 중..." : "저장"}</button>
+                        </div>
+                    </div>
+                </div>
+            )}
+            <PrettyAlert open={alertOpen} message={alertMsg} onClose={() => setAlertOpen(false)}/>
         </div>
     );
 }
