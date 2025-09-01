@@ -8,6 +8,7 @@ import org.springframework.stereotype.Repository;
 
 import com.app.dao.admin.AdminDAO;
 import com.app.dto.admin.AdminRestaurantDTO;
+import com.app.dto.admin.AdminUserDTO;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -20,6 +21,7 @@ public class AdminDAOImpl implements AdminDAO {
 	@Autowired
 	SqlSessionTemplate sqlSessionTemplate;
 	
+	//식당 관리
 	@Override
 	public List<AdminRestaurantDTO> findRestaurantList() {
 		List<AdminRestaurantDTO> adminRestaurantList = sqlSessionTemplate.selectList(AM + "findRestaurantList");
@@ -46,6 +48,21 @@ public class AdminDAOImpl implements AdminDAO {
 		AdminRestaurantDTO p = new AdminRestaurantDTO();
         p.setId((long) id);
         return sqlSessionTemplate.update(AM + "DeleteAdminRestaurant", p);
+	}
+
+	
+	//사용자 관리
+	@Override
+	public List<AdminUserDTO> findUserList() {
+		List<AdminUserDTO> findUserList = sqlSessionTemplate.selectList(AM + "findUserList");
+		return findUserList;
+	}
+
+	@Override
+	public int DeleteAdminUser(long id) {
+		AdminUserDTO p = new AdminUserDTO();
+        p.setId((long) id);
+        return sqlSessionTemplate.update(AM + "DeleteAdminUser", p);
 	}
 
 

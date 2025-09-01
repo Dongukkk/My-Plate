@@ -5,6 +5,7 @@
 
 <mapper namespace="admin_mapper">
 
+	<!-- 식당 관리 -->
 	<select id="findRestaurantList" resultType="AdminRestaurant">
 		SELECT
 		R.ID AS id,
@@ -76,21 +77,27 @@
 	</update>
 	
 	
+	<!-- 사용자 관리 -->
 	<select id="findUserList" resultType="AdminUser">
 		SELECT
-		R.ID AS id,
-		R.NAME AS name,
-		R.CATEGORY AS category,
-		R.ADDRESS AS address,
-		NVL(R.SOLO_INDEX, 0) AS solo_index,
-		NVL(R.AVG_RATING, 0) AS avgRating,
-		NVL(R.RATING_COUNT, 0) AS rating_count,
-		R.STATUS AS status
-		FROM
-		MP_RESTAURANT R
-		WHERE R.DELETED_AT IS NULL
-		ORDER BY R.ID
+		U.ID AS id,
+		U.EMAIL AS email,
+		U.USERNAME AS username,
+		U.ADDRESS AS address,
+		U.PHONE_NUMBER AS phoneNumber,
+		U.ROLE AS role,
+		U.STATUS AS status
+		FROM MP_USER U
+		WHERE U.ROLE != 'ADM'
+		ORDER BY U.ID
 	</select>
+
+	<update id="DeleteAdminUser" parameterType="AdminUser">
+		UPDATE MP_USER
+		SET STATUS = 'DELETED',
+		leave_date = SYSTIMESTAMP
+		WHERE ID = #{id}
+	</update>
 	
 	
 	

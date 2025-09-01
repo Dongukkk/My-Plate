@@ -13,6 +13,7 @@
 		<typeAlias type="com.app.dto.restaurant.RestaurantDTO" alias="Restaurant" />
 		
 		<typeAlias type="com.app.dto.admin.AdminRestaurantDTO" alias="AdminRestaurant" />
+		<typeAlias type="com.app.dto.admin.AdminUserDTO" alias="AdminUser" />
 	</typeAliases>
 
 

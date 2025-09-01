@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 
 import com.app.dao.admin.AdminDAO;
 import com.app.dto.admin.AdminRestaurantDTO;
+import com.app.dto.admin.AdminUserDTO;
 import com.app.service.admin.AdminService;
 
 @Service
@@ -15,9 +16,9 @@ public class AdminServiceImpl implements AdminService {
 	@Autowired
 	AdminDAO adminDAO;
 
+	//식당 관리
 	@Override
 	public List<AdminRestaurantDTO> findRestaurantList() {
-		
 		List<AdminRestaurantDTO> findRestaurantList = adminDAO.findRestaurantList();
 		return findRestaurantList;
 	}
@@ -45,6 +46,19 @@ public class AdminServiceImpl implements AdminService {
 	@Override
 	public int DeleteAdminRestaurant(long id) {
 		return adminDAO.DeleteAdminRestaurant(id);
+	}
+
+	
+	//사용자 관리
+	@Override
+	public List<AdminUserDTO> findUserList() {
+		List<AdminUserDTO> findUserList = adminDAO.findUserList();
+		return findUserList;
+	}
+
+	@Override
+	public int DeleteAdminUser(long id) {
+		return adminDAO.DeleteAdminUser(id);
 	}
 	
 	

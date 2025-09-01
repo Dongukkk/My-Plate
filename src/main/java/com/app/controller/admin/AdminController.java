@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.app.dto.admin.AdminRestaurantDTO;
+import com.app.dto.admin.AdminUserDTO;
 import com.app.service.admin.AdminService;
 
 @CrossOrigin(origins = "http://localhost:3000")
@@ -52,6 +53,19 @@ public class AdminController {
 	@DeleteMapping("/api/adminRestaurant/{id}")
 	public int registerDeleteRestaurant(@PathVariable long id) {
 		return adminService.DeleteAdminRestaurant(id);
+	}
+	
+	
+	/* 사용자 조회 */
+	@GetMapping("/api/adminUser")
+	public List<AdminUserDTO> registerUserList() {
+		return adminService.findUserList();
+	}
+	
+    /* 사용자 소프트 삭제 */
+	@DeleteMapping("/api/adminUser/{id}")
+	public int registerDeleteUser(@PathVariable long id) {
+		return adminService.DeleteAdminUser(id);
 	}
 	
 }
