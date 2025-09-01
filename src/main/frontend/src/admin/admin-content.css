@@ -384,3 +384,69 @@
     color: #e74c3c;
     font-weight: 800;
 }
+
+
+
+
+/* 모달: 오버레이 */
+.admin-modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(17, 24, 39, 0.55);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 999;
+    /* 사이드바/헤더보다 위 */
+}
+
+/* 모달: 박스 */
+.admin-modal {
+    width: min(980px, 92vw);
+    max-height: 84vh;
+    background: #fff;
+    border-radius: 14px;
+    box-shadow: 0 12px 28px rgba(0, 0, 0, 0.22);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+/* 모달: 헤더 */
+.admin-modal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 18px;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.admin-modal-header h3 {
+    margin: 0;
+    font-size: 18px;
+}
+
+.admin-modal-close {
+    border: none;
+    background: transparent;
+    font-size: 22px;
+    line-height: 1;
+    cursor: pointer;
+}
+
+/* 모달: 본문 */
+.admin-modal-body {
+    padding: 16px;
+    overflow: auto;
+}
+
+/* 모달 전용 그리드(더 촘촘하게) */
+.admin-approved-grid--modal {
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 12px;
+}
+
+/* 바디 스크롤 잠금 */
+.admin-no-scroll {
+    overflow: hidden;
+}

@@ -83,7 +83,7 @@ export default function AdminContent() {
         { id: 203, kind: "공감수", date: "2023-11-09", like: 18, tag: "김지 한수" },
     ]);
 
-    // ===== 통계 값 =====
+    // 통계 값
     const stats = useMemo(() => {
         const todayReviews = 24;
         const todayPhotos = 37;
@@ -92,7 +92,7 @@ export default function AdminContent() {
         return { todayReviews, todayPhotos, pendingCount, reportCount };
     }, [pending.length, reports.length]);
 
-    // ===== 차트용 데이터 =====
+    // 차트용 데이터
     const trend = useMemo(
         () => [12, 13, 11, 14, 16, 15, 18, 20, 19, 22, 23, 25],
         []
@@ -104,7 +104,7 @@ export default function AdminContent() {
         return { photo, review, other };
     }, [pending]);
 
-    // ===== 필터링/정렬 =====
+    // 필터링/정렬
     const filteredPending = useMemo(() => {
         let rows = [...pending];
         if (filterType !== "all") rows = rows.filter((r) => r.type === filterType);
@@ -127,7 +127,6 @@ export default function AdminContent() {
     // ===== 작업 핸들러 =====
     const handleApprove = (id) => {
         const item = pending.find((p) => p.id === id);
-        // TODO: axios.post("/api/admin/content/approve", { id })
         setPending((prev) => prev.filter((p) => p.id !== id));
         if (item)
             setApproved((prev) => [
@@ -137,16 +136,13 @@ export default function AdminContent() {
     };
 
     const handleReject = (id) => {
-        // TODO: axios.post("/api/admin/content/reject", { id })
         setPending((prev) => prev.filter((p) => p.id !== id));
     };
 
     const handleIgnoreReport = (id) => {
-        // TODO: axios.post("/api/admin/reports/ignore", { id })
         setReports((prev) => prev.filter((r) => r.id !== id));
     };
     const handleDeleteReportedContent = (id) => {
-        // TODO: axios.post("/api/admin/reports/delete-content", { id })
         setReports((prev) => prev.filter((r) => r.id !== id));
     };
 
@@ -155,17 +151,14 @@ export default function AdminContent() {
     const pieRef = useRef(null);
 
     useEffect(() => {
-        // line
         const canvas = lineRef.current;
         if (!canvas) return;
         const ctx = canvas.getContext("2d");
         const w = (canvas.width = canvas.clientWidth);
         const h = (canvas.height = canvas.clientHeight);
-        ctx.clearRect(0, 0, w, h);
-
+            ctx.clearRect(0, 0, w, h);
         const max = Math.max(...trend) || 1;
         const stepX = w / (trend.length - 1 || 1);
-
         const drawSeries = (offset = 0, color = "#e74c3c") => {
             ctx.beginPath();
             trend.forEach((v, i) => {
@@ -189,8 +182,7 @@ export default function AdminContent() {
         const ctx = canvas.getContext("2d");
         const w = (canvas.width = canvas.clientWidth);
         const h = (canvas.height = canvas.clientHeight);
-        ctx.clearRect(0, 0, w, h);
-
+            ctx.clearRect(0, 0, w, h);
         const data = [typeDist.photo, typeDist.review, typeDist.other];
         const colors = ["#e74c3c", "#3c9ae7", "#f6ad55"];
         const total = data.reduce((a, b) => a + b, 0) || 1;
@@ -207,16 +199,33 @@ export default function AdminContent() {
         });
     }, [typeDist]);
 
+    // 최근 승인된 콘텐츠
+    const [isApprovedModalOpen, setApprovedModalOpen] = useState(false);
+    const approvedPreview = useMemo(() => approved.slice(0, 3), [approved]);
+
+    // ESC로 모달 닫기
+    useEffect(() => {
+        const onKeyDown = (e) => {
+            if (e.key === "Escape") setApprovedModalOpen(false);
+        };
+        window.addEventListener("keydown", onKeyDown);
+        return () => window.removeEventListener("keydown", onKeyDown);
+    }, []);
+
+    // 모달 시 바디 스크롤 잠금
+    useEffect(() => {
+        if (isApprovedModalOpen) {
+            document.body.classList.add("admin-no-scroll");
+        } else {
+            document.body.classList.remove("admin-no-scroll");
+        }
+        return () => document.body.classList.remove("admin-no-scroll");
+    }, [isApprovedModalOpen]);
+
     return (
         <div className="admin-container">
             <aside className="admin-sidebar">
-                <h2 className="admin-logo">
-                    <img
-                        src={"https://i.imgur.com/tiY7WKl.png"}
-                        alt="My Plate Logo"
-                        className="admin-logo-img"
-                    />
-                </h2>
+                <h2 className="admin-logo"><img src={"https://i.imgur.com/tiY7WKl.png"} alt="My Plate Logo" className="admin-logo-img"/></h2>
                 <nav>
                     <ul>
                         <li onClick={() => navigate("/adminMain")}>홈</li>
@@ -229,76 +238,36 @@ export default function AdminContent() {
             </aside>
             <div className="admin-content-page">
                 {/* 상단 */}
-                <div className="admin-content-header">
-                    <div>
-                        <h2 className="admin-content-title">콘텐츠 관리</h2>
-                    </div>
-                </div>
+                <div className="admin-content-header"><div><h2 className="admin-content-title">콘텐츠 관리</h2></div></div>
 
                 {/* 대기중 콘텐츠 */}
                 <section className="admin-section admin-pending">
-                    <div className="admin-section-header">
-                        <h3 className="admin-section-title">수정 요청 대기 중인 콘텐츠</h3>
-                    </div>
-
+                    <div className="admin-section-header"><h3 className="admin-section-title">수정 요청 대기 중인 콘텐츠</h3></div>
                     <div className="admin-desk-wrap">
                         <table className="admin-desk admin-pending-desk">
-                            <thead>
-                                <tr>
+                            <thead><tr>
                                     <th className="admin-col-type">유형</th>
                                     <th className="admin-col-content">콘텐츠</th>
                                     <th className="admin-col-user">사용자</th>
                                     <th className="admin-col-place">식당</th>
                                     <th className="admin-col-date">제출일</th>
                                     <th className="admin-col-actions">작업</th>
-                                </tr>
-                            </thead>
+                                </tr></thead>
                             <tbody>
                                 {filteredPending.map((row) => (
                                     <tr key={row.id}>
-                                        <td>
-                                            <span
-                                                className={
-                                                    "admin-chip " +
-                                                    (row.type === "photo"
-                                                        ? "admin-chip--photo"
-                                                        : "admin-chip--review")
-                                                }
-                                            >
-                                                {row.type === "photo" ? "사진" : "리뷰"}
-                                            </span>
-                                        </td>
+                                        <td><span className={ "admin-chip " + (row.type === "photo" ? "admin-chip--photo" : "admin-chip--review")}>{row.type === "photo" ? "사진" : "리뷰"}</span></td>
                                         <td className="admin-ellipsis">{row.text}</td>
                                         <td>{row.user}</td>
                                         <td className="admin-ellipsis">{row.place}</td>
                                         <td>{row.date}</td>
-                                        <td>
-                                            <div className="admin-actions">
-                                                <button
-                                                    className="admin-bttn admin-bttn--xs admin-bttn--primary"
-                                                    onClick={() => handleApprove(row.id)}
-                                                    title="승인"
-                                                >
-                                                    승인
-                                                </button>
-                                                <button
-                                                    className="admin-bttn admin-bttn--xs admin-bttn--ghost"
-                                                    onClick={() => handleReject(row.id)}
-                                                    title="보류/삭제"
-                                                >
-                                                    보류
-                                                </button>
-                                            </div>
-                                        </td>
+                                        <td><div className="admin-actions">
+                                                <button className="admin-bttn admin-bttn--xs admin-bttn--primary" onClick={() => handleApprove(row.id)} title="확인">확인</button>
+                                                <button className="admin-bttn admin-bttn--xs admin-bttn--ghost" onClick={() => handleReject(row.id)} title="거절">거절</button>
+                                            </div></td>
                                     </tr>
                                 ))}
-                                {filteredPending.length === 0 && (
-                                    <tr>
-                                        <td colSpan={6} className="admin-empty">
-                                            대기 중인 콘텐츠가 없습니다.
-                                        </td>
-                                    </tr>
-                                )}
+                                {filteredPending.length === 0 && (<tr><td colSpan={6} className="admin-empty">대기 중인 콘텐츠가 없습니다.</td></tr>)}
                             </tbody>
                         </table>
                     </div>
@@ -307,43 +276,24 @@ export default function AdminContent() {
                 <div className="admin-page-grid">
                     {/* 신고된 콘텐츠 */}
                     <section className="admin-section admin-reports">
-                        <div className="admin-section-header">
-                            <h3 className="admin-section-title">신고된 콘텐츠</h3>
-                        </div>
-
+                        <div className="admin-section-header"><h3 className="admin-section-title">신고된 콘텐츠</h3></div>
                         <div className="admin-report-list">
                             {reports.map((r) => (
                                 <article key={r.id} className="admin-report-card">
                                     <div className="admin-report-top">
-                                        <div className="admin-report-title">
-                                            <span className="admin-flag"></span> {r.title}
-                                        </div>
+                                        <div className="admin-report-title"><span className="admin-flag"></span> {r.title}</div>
                                         <div className="admin-report-date">{r.date}</div>
                                     </div>
                                     <p className="admin-report-reason">{r.reason}</p>
-                                    <div className="admin-report-target">
-                                        <b>대상</b>: {r.targetUser} · {r.targetPlace}
-                                    </div>
+                                    <div className="admin-report-target"><b>대상</b>: {r.targetUser} · {r.targetPlace}</div>
                                     <div className="admin-report-excerpt">{r.targetExcerpt}</div>
                                     <div className="admin-report-actions">
-                                        <button
-                                            className="admin-bttn admin-bttn--sm admin-bttn--ghost"
-                                            onClick={() => handleIgnoreReport(r.id)}
-                                        >
-                                            무시
-                                        </button>
-                                        <button
-                                            className="admin-bttn admin-bttn--sm admin-bttn--danger"
-                                            onClick={() => handleDeleteReportedContent(r.id)}
-                                        >
-                                            콘텐츠 확인
-                                        </button>
+                                        <button className="admin-bttn admin-bttn--sm admin-bttn--ghost" onClick={() => handleIgnoreReport(r.id)}> 무시</button>
+                                        <button className="admin-bttn admin-bttn--sm admin-bttn--danger" onClick={() => handleDeleteReportedContent(r.id)}>콘텐츠 확인</button>
                                     </div>
                                 </article>
                             ))}
-                            {reports.length === 0 && (
-                                <div className="admin-empty">신고된 항목이 없습니다.</div>
-                            )}
+                            {reports.length === 0 && (<div className="admin-empty">신고된 항목이 없습니다.</div>)}
                         </div>
                     </section>
 
@@ -351,11 +301,10 @@ export default function AdminContent() {
                     <section className="admin-section admin-approved">
                         <div className="admin-section-header">
                             <h3 className="admin-section-title">최근 승인된 콘텐츠</h3>
-                            <button className="admin-view">모두 보기</button>
+                            <button className="admin-view" onClick={() => setApprovedModalOpen(true)}>모두 보기</button>
                         </div>
-
                         <div className="admin-approved-grid">
-                            {approved.map((c) => (
+                            {approvedPreview.map((c) => (
                                 <div key={c.id} className="admin-approved-card">
                                     <div className="admin-approved-top">
                                         <div className="admin-approved-kind">{c.kind}</div>
@@ -365,9 +314,6 @@ export default function AdminContent() {
                                     <div className="admin-approved-bottom">
                                         <span className="admin-approved-tag">{c.tag}</span>
                                         <span className="admin-approved-like">❤ {c.like}</span>
-                                        {typeof c.rating === "number" && (
-                                            <span className="admin-approved-rating">★ {c.rating}</span>
-                                        )}
                                     </div>
                                 </div>
                             ))}
@@ -375,6 +321,39 @@ export default function AdminContent() {
                     </section>
                 </div>
             </div>
+
+            {/* ===== 모달: 최근 승인 전체 보기 ===== */}
+            {isApprovedModalOpen && (
+                <div className="admin-modal-overlay" onClick={(e) => {
+                        if (e.target.classList.contains("admin-modal-overlay")) {
+                            setApprovedModalOpen(false);}}}
+                        role="dialog" aria-modal="true" aria-labelledby="approvedModalTitle">
+                    <div className="admin-modal">
+                        <div className="admin-modal-header">
+                            <h3 id="approvedModalTitle">최근 승인된 콘텐츠 전체 보기</h3>
+                            <button className="admin-modal-close" onClick={() => setApprovedModalOpen(false)} aria-label="닫기">×</button>
+                        </div>
+                        <div className="admin-modal-body">
+                            <div className="admin-approved-grid admin-approved-grid--modal">
+                                {approved.map((c) => (
+                                    <div key={c.id} className="admin-approved-card">
+                                        <div className="admin-approved-top">
+                                            <div className="admin-approved-kind">{c.kind}</div>
+                                            <div className="admin-approved-date">{c.date}</div>
+                                        </div>
+                                        {c.text && (<p className="admin-approved-text">{c.text}</p>)}
+                                        <div className="admin-approved-bottom">
+                                            <span className="admin-approved-tag">{c.tag}</span>
+                                            <span className="admin-approved-like">❤ {c.like}</span>
+                                        </div>
+                                    </div>
+                                ))}
+                                {approved.length === 0 && (<div className="admin-empty">승인된 콘텐츠가 없습니다.</div>)}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 }
