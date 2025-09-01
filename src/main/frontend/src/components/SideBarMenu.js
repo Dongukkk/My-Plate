@@ -13,7 +13,7 @@ function SideBarMenu(){
                             <span className="main-side-bar-text">홈</span>
                         </Link>
                     </li>
-                    <li className={`main-menu-item ${location.pathname === '/restaurantList' ? 'active' : ''}`}>
+                    <li className={`main-menu-item ${location.pathname === '/restaurantList' || location.pathname.startsWith('/search') ? 'active' : ''}`}>
                         <Link to="/restaurantList">
                             <span className="main-side-bar-text">식당 목록</span>
                         </Link>
