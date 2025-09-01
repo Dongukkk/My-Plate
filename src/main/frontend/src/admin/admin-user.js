@@ -1,4 +1,3 @@
-// src/pages/admin-user.js
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
@@ -63,9 +62,7 @@ const Pager = ({ page, total, onPage }) => {
     return (
         <div className="admin-pager">
             <button disabled={page <= 1} onClick={() => onPage(page - 1)}>이전</button>
-            {pages.map((p) => (
-                <button key={p} className={p === page ? "on" : ""} onClick={() => onPage(p)}>{p}</button>
-            ))}
+            {pages.map((p) => (<button key={p} className={p === page ? "on" : ""} onClick={() => onPage(p)}>{p}</button>))}
             <button disabled={page >= max} onClick={() => onPage(page + 1)}>다음</button>
         </div>
     );
@@ -85,11 +82,7 @@ const LineChart = ({ series, height = 160 }) => {
     return (
         <svg className="admin-linechart" viewBox={`0 0 ${width} ${height}`} aria-hidden>
             <rect x="0" y="0" width={width} height={height} fill="#fff" rx="10" />
-            <g opacity="0.2">
-                {[0, 1, 2, 3].map((i) => (
-                    <line key={i} x1={padding} x2={width - padding} y1={padding + i * ((height - padding * 2) / 3)} y2={padding + i * ((height - padding * 2) / 3)} />
-                ))}
-            </g>
+            <g opacity="0.2">{[0, 1, 2, 3].map((i) => (<line key={i} x1={padding} x2={width - padding} y1={padding + i * ((height - padding * 2) / 3)} y2={padding + i * ((height - padding * 2) / 3)} />))}</g>
             {series.map((s, idx) => {
                 const d = s.data.map((v, i) => `${i === 0 ? "M" : "L"} ${x(i)} ${y(v)}`).join(" ");
                 return <path key={idx} d={d} fill="none" stroke={s.color} strokeWidth="2.5" strokeLinejoin="round" strokeLinecap="round" />;
@@ -182,20 +175,14 @@ export default function AdminUser() {
         const today = new Date();
         const start = new Date(today);
         start.setDate(today.getDate() - (periodDays - 1));
-
         const dayKeys = [];
-        for (let d = new Date(start); d <= today; d.setDate(d.getDate() + 1)) {
-            dayKeys.push(d.toISOString().slice(0, 10));
-        }
-
+        for (let d = new Date(start); d <= today; d.setDate(d.getDate() + 1)) {dayKeys.push(d.toISOString().slice(0, 10));}
         const joinedDates = users
             .map(u => u.joined && u.joined !== "-" ? u.joined : null)
             .filter(Boolean)
             .filter(s => /^\d{4}-\d{2}-\d{2}$/.test(s));
-
         const newByDay = Object.fromEntries(dayKeys.map(k => [k, 0]));
-        joinedDates.forEach(j => { if (newByDay[j] != null) newByDay[j] += 1; });
-
+            joinedDates.forEach(j => { if (newByDay[j] != null) newByDay[j] += 1; });
         const activeByDay = {};
         let cumulative = 0;
         dayKeys.forEach(k => {
@@ -203,10 +190,8 @@ export default function AdminUser() {
             const activeRatio = users.length ? (users.filter(u => u.status === "활성").length / users.length) : 0.5;
             activeByDay[k] = Math.round(cumulative * activeRatio);
         });
-
         const reviewByDay = {};
-        dayKeys.forEach(k => { reviewByDay[k] = Math.round((newByDay[k] || 0) * 0.6); });
-
+            dayKeys.forEach(k => { reviewByDay[k] = Math.round((newByDay[k] || 0) * 0.6); });
         const compress = (arr) => {
             const points = 10;
             if (arr.length <= points) return arr;
@@ -222,7 +207,6 @@ export default function AdminUser() {
         const reviewArr = compress(dayKeys.map(k => reviewByDay[k]));
         const allZero = [...newArr, ...activeArr, ...reviewArr].every(v => v === 0);
         const safe = (arr, base = 1) => allZero ? arr.map((_, i) => base + (i % 3)) : arr;
-
         return [
             { name: "신규 가입", color: "#ef5350", data: safe(newArr, 1) },
             { name: "활성 사용자", color: "#42a5f5", data: safe(activeArr, 3) },
@@ -316,9 +300,7 @@ export default function AdminUser() {
                     <div className="admin-card">
                         <div className="admin-card-title">활성 사용자</div>
                         <div className="admin-card-value">{cards.active.toLocaleString()}</div>
-                        <div className={`admin-card-diff ${cards.diffs.active >= 0 ? "up" : "down"}`}>
-                            지난 주 대비 {cards.diffs.active >= 0 ? "+" : ""}{cards.diffs.active}%
-                        </div>
+                        <div className={`admin-card-diff ${cards.diffs.active >= 0 ? "up" : "down"}`}>지난 주 대비 {cards.diffs.active >= 0 ? "+" : ""}{cards.diffs.active}%</div>
                     </div>
                     <div className="admin-card">
                         <div className="admin-card-title">신규 가입</div>
@@ -335,20 +317,10 @@ export default function AdminUser() {
                 {/* 목록 & 활동 */}
                 <div className="admin-grid">
                     <section className="admin-panel">
-                        <div className="admin-panel-head">
-                            <h3>사용자 목록</h3>
+                        <div className="admin-panel-head"><h3>사용자 목록</h3>
                             <div className="admin-actions">
-                                <input
-                                    className="admin-input"
-                                    placeholder="사용자 검색…"
-                                    value={query}
-                                    onChange={(e) => { setQuery(e.target.value); setPage(1); }}
-                                />
-                                <select
-                                    className="admin-select"
-                                    value={statusFilter}
-                                    onChange={(e) => { setStatusFilter(e.target.value); setPage(1); }}
-                                >
+                                <input className="admin-input" placeholder="사용자 검색…" value={query}onChange={(e) => { setQuery(e.target.value); setPage(1); }} />
+                                <select className="admin-select" value={statusFilter} onChange={(e) => { setStatusFilter(e.target.value); setPage(1); }}>
                                     <option>전체</option>
                                     <option>활성</option>
                                     <option>수정 필요</option>
@@ -380,31 +352,19 @@ export default function AdminUser() {
                                         <td><StatusPill status={u.status} /></td>
                                         <td className="admin-ops">
                                             <button onClick={() => openEdit(u)} className="admin-link">수정</button>
-                                            <button
-                                                onClick={() => handleDelete(u)}
-                                                className="admin-link danger"
-                                                disabled={deletingId === u.id}
-                                            >
-                                                {deletingId === u.id ? "삭제 중…" : "삭제"}
-                                            </button>
+                                            <button onClick={() => handleDelete(u)} className="admin-link danger" disabled={deletingId === u.id}>{deletingId === u.id ? "삭제 중…" : "삭제"}</button>
                                         </td>
                                     </tr>
                                 ))}
-                                {pagedUsers.length === 0 && !loading && (
-                                    <tr><td colSpan={7} className="admin-empty">검색 결과가 없습니다.</td></tr>
-                                )}
+                                {pagedUsers.length === 0 && !loading && (<tr><td colSpan={7} className="admin-empty">검색 결과가 없습니다.</td></tr>)}
                             </tbody>
                         </table>
-
-                        <div className="admin-foot right">
-                            <Pager page={page} total={userPages} onPage={setPage} />
-                        </div>
+                        <div className="admin-foot right"><Pager page={page} total={userPages} onPage={setPage} /></div>
                     </section>
 
                     {/* 사용자 활동 차트 */}
                     <aside className="admin-panel">
-                        <div className="admin-panel-head">
-                            <h3>사용자 활동</h3>
+                        <div className="admin-panel-head"><h3>사용자 활동</h3>
                             <select className="admin-select slim" value={period} onChange={(e) => setPeriod(e.target.value)}>
                                 <option>최근 7일</option>
                                 <option>최근 30일</option>
@@ -424,8 +384,7 @@ export default function AdminUser() {
                 {/* 신고/피드백 & 사이드 피드백 */}
                 <div className="admin-grid">
                     <section className="admin-panel">
-                        <div className="admin-panel-head">
-                            <h3>사용자 신고 및 피드백</h3>
+                        <div className="admin-panel-head"><h3>사용자 신고 및 피드백</h3>
                             <div className="admin-actions">
                                 <select className="admin-select" value={reportType} onChange={(e) => { setReportType(e.target.value); setReportPage(1); }}>
                                     <option>모든 유형</option>
@@ -444,8 +403,7 @@ export default function AdminUser() {
                         </div>
 
                         <table className="admin-table">
-                            <thead>
-                                <tr>
+                            <thead><tr>
                                     <th>신고 ID</th>
                                     <th>유형</th>
                                     <th>신고자</th>
@@ -453,8 +411,7 @@ export default function AdminUser() {
                                     <th>날짜</th>
                                     <th>상태</th>
                                     <th>작업</th>
-                                </tr>
-                            </thead>
+                                </tr></thead>
                             <tbody>
                                 {reportView.map(r => (
                                     <tr key={r.id}>
@@ -463,24 +420,17 @@ export default function AdminUser() {
                                         <td>{r.reporter}</td>
                                         <td>{r.target}</td>
                                         <td>{r.date}</td>
-                                        <td>
-                                            <StatusPill status={r.status === "대기" ? "수정 필요" : (r.status === "완료" ? "활성" : "비활성")} />
-                                        </td>
+                                        <td><StatusPill status={r.status === "대기" ? "수정 필요" : (r.status === "완료" ? "활성" : "비활성")} /></td>
                                         <td className="admin-ops">
                                             <button className="admin-link">내용</button>
                                             <button className="admin-link">관리</button>
                                         </td>
                                     </tr>
                                 ))}
-                                {reportView.length === 0 && (
-                                    <tr><td colSpan={7} className="admin-empty">신고 데이터가 없습니다.</td></tr>
-                                )}
+                                {reportView.length === 0 && (<tr><td colSpan={7} className="admin-empty">신고 데이터가 없습니다.</td></tr>)}
                             </tbody>
                         </table>
-
-                        <div className="admin-foot right">
-                            <Pager page={reportPage} total={reportPages} onPage={setReportPage} />
-                        </div>
+                        <div className="admin-foot right"><Pager page={reportPage} total={reportPages} onPage={setReportPage} /></div>
                     </section>
 
                     {/* 사용자 피드백 리스트 */}
