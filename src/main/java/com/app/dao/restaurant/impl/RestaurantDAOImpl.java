@@ -13,6 +13,7 @@ import org.springframework.stereotype.Repository;
 import com.app.dao.restaurant.RestaurantDAO;
 import com.app.dto.restaurant.RestaurantDTO;
 import com.app.dto.restaurant.RestaurantTagDTO;
+import com.app.dto.restaurant.TagCodeDTO;
 
 @Repository
 public class RestaurantDAOImpl implements RestaurantDAO {
@@ -74,6 +75,11 @@ public class RestaurantDAOImpl implements RestaurantDAO {
 	@Override
 	public List<RestaurantTagDTO> getTagsByRestaurantId(long restaurantId) {
 		return sqlSessionTemplate.selectList("restaurant_mapper.getTagsByRestaurantId", restaurantId);
+	}
+
+	@Override
+	public List<TagCodeDTO> getAllTagCodes() {
+		return sqlSessionTemplate.selectList("restaurant_mapper.getAllTagCodes");
 	}
 
 }

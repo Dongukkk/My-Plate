@@ -164,5 +164,9 @@
             c.code = t.tag_code
             AND t.restaurant_id = #{restaurantId}
     </select>
+    
+    <select id="getAllTagCodes" resultType="TagCode">
+    	SELECT * FROM MP_CODE_TAG
+    </select>
 
 </mapper>

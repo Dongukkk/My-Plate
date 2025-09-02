@@ -17,22 +17,18 @@ function RestaurantSearchResult() {
     const [ direction, setDirection ] = useState('ASC');
     const [ selectedTags, setSelectedTags ] = useState([]);
     
-    // ✅ URL 파라미터에서 직접 태그와 검색어 가져오기
     const query = new URLSearchParams(location.search).get('query') || '';
     const tagsParam = new URLSearchParams(location.search).get('tag');
 
-    // ✅ 하나의 useEffect로 데이터 가져오기 및 상태 업데이트 통합
     useEffect(() => {
         setLoading(true);
         setError(null);
 
-        // URL의 tagsParam을 기반으로 초기 태그 상태 설정
         const initialTags = tagsParam ? tagsParam.split(',') : [];
         setSelectedTags(initialTags);
         
         const fetchFilteredRestaurants = async () => {
             try {
-                // ✅ 백엔드 API에 검색어와 태그를 직접 전달
                 const response = await axios.get(
                     `http://localhost:3000/api/restaurants/getAllRestaurants?sort=${sort}&direction=${direction}&query=${encodeURIComponent(query)}&tag=${initialTags.join(',')}&limit=99999`
                 );
@@ -53,7 +49,6 @@ function RestaurantSearchResult() {
             ? selectedTags.filter(t => t !== tag)
             : [ ...selectedTags, tag ];
         
-        // ✅ URL을 업데이트하여 useEffect가 다시 실행되도록 유도
         const newTagsParam = newSelectedTags.length > 0 ? newSelectedTags.join(',') : '';
         const newQueryParam = query ? `query=${encodeURIComponent(query)}` : '';
         const separator = newQueryParam && newTagsParam ? '&' : '';

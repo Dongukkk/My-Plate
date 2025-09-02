@@ -5,15 +5,13 @@ import { setSearchTerm, clearSearchTerm } from '../store/store'
 
 import './RestaurantSearchBar.css';
 
-const tags = [
-    '한식', '중식', '양식', '일식', '복지카드', '아시안', '카페'
-];
 
 const RestaurantSearchBar = () => {
     const navigate = useNavigate();
     const location = useLocation();
     const dispatch = useDispatch();
     const searchTerm = useSelector((state) => state.search.searchTerm);
+    const [allTags, setAllTags] = useState([]);
 
     const [ allRestaurants, setAllRestaurants ] = useState([]);
     const [ isDropdownVisible, setIsDropdownVisible ] = useState(false);
@@ -29,7 +27,19 @@ const RestaurantSearchBar = () => {
                 console.error("데이터를 불러오지 못했습니다:", error);
             }
         };
+
+        const fetchAllTags = async() =>{
+            try {
+                const response = await fetch('/api/restaurants/tagCodes');
+                const data = await response.json();
+                const tagsOnly = data.map(item => item.tag);
+                setAllTags(tagsOnly);
+            } catch (error) {
+                console.error("데이터를 불러오지 못했습니다:", error);
+            }
+        }
         fetchAllRestaurants();
+        fetchAllTags();
     }, []);
 
     useEffect(() => {
@@ -57,7 +67,7 @@ const RestaurantSearchBar = () => {
     const handleSuggestionClick = (suggestion, id) => {
         const trimmedSearchTerm = searchTerm.trim();
 
-        const tagMatch = tags.find(tag => tag === suggestion);
+        const tagMatch = allTags.find(tag => tag === suggestion);
 
         if (trimmedSearchTerm.length === 0) {
             return;
@@ -82,7 +92,7 @@ const RestaurantSearchBar = () => {
         if (trimmedSearchTerm.length === 0) {
             return;
         }
-        const tagMatch = tags.find(tag => tag === searchTerm);
+        const tagMatch = allTags.find(tag => tag === searchTerm);
         const restaurantMatch = allRestaurants.find(restaurant => restaurant.restrntNm === searchTerm);
 
         if (tagMatch) {
@@ -102,7 +112,7 @@ const RestaurantSearchBar = () => {
         }
     };
 
-    const filteredTags = tags.filter(tag => tag.includes(searchTerm));
+    const filteredTags = allTags.filter(tag => tag.includes(searchTerm));
     const filteredRestaurants = allRestaurants && allRestaurants.filter(restaurant => restaurant.restrntNm && restaurant.restrntNm.includes(searchTerm));
     const shouldShowDropdown = isDropdownVisible && searchTerm.length > 0 && (filteredTags.length > 0 || (filteredRestaurants && filteredRestaurants.length > 0));
 
@@ -132,6 +142,7 @@ const RestaurantSearchBar = () => {
                         <div
                             key={`tag-${index}`}
                             className="mh-suggestion-item"
+                            style={{fontStyle:"italic"}}
                             onClick={() => handleSuggestionClick(tag)}
                         >
                             # {tag}
