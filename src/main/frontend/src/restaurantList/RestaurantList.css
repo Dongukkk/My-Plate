@@ -66,6 +66,13 @@ body {
     flex-direction: column;
     max-width: 320px;
     min-width: 250px;
+    cursor: pointer;
+    transition: transform 0.3s, box-shadow 0.3s;
+}
+
+.restaurant-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(0,0,0,0.2);
 }
 
 .rc-tag-badge {
@@ -77,6 +84,9 @@ body {
     font-size: 12px;
     margin-right: 4px;
     margin-bottom: 4px;
+}
+.rc-tag-badge:hover {
+    background-color: #ffe4dc; 
 }
 
 .rc-tag-badge.active-tag {
