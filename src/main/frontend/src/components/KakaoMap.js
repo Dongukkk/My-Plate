@@ -51,16 +51,38 @@ function KakaoMap({
         });
 
         const infoContent = `
-          <div style=" padding:10px; font-size:12px; line-height:1.5; min-width:180px; max-width:250px; white-space:normal; word-break:break-all;">
-            <div style="font-size:16px;font-weight:bold;margin-bottom:5px;"><a class="map-loc-info" href="/restaurants/detail/${restaurant.id}" style="text-decoration:none; color:#000; transition: color 0.2s;"
-         onmouseover="this.style.color='#ff6600';" 
-         onmouseout="this.style.color='#000';">
-        ${restaurant.restrntNm}
-      </a></div>
-            <p style="margin:0;">⭐ ${restaurant.avgRating ?? "정보 없음"} (${restaurant.ratingCount})</p>
-            <p style="margin:0;">📍 ${restaurant.restrntAddr ?? "정보 없음"}</p>
-            <p style="margin:0;">📞 ${restaurant.restrntInqrTel ?? "정보 없음"}</p>
+          <div style="
+            padding:12px;
+            font-size:13px;
+            line-height:1.5;
+            min-width:200px;
+            max-width:260px;
+            white-space:normal;
+            word-break:break-word;
+            background:#fff;
+            border-radius:8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            font-family: 'Arial', sans-serif;
+          ">
+          <div style="margin-bottom:8px;">
+            <a href="/restaurants/detail/${restaurant.id}"
+              style="
+                display:block;
+                font-size:16px;
+                font-weight:bold;
+                color:#333;
+                text-decoration:none;
+                transition: all 0.2s;
+              "
+              onmouseover="this.style.color='#ff6600'; this.style.textDecoration='underline';"
+              onmouseout="this.style.color='#333'; this.style.textDecoration='none';">
+              ${restaurant.restrntNm}
+            </a>
           </div>
+          <p style="margin:0 0 4px 0;">⭐ ${restaurant.avgRating ?? "정보 없음"} (${restaurant.ratingCount})</p>
+          <p style="margin:0 0 4px 0;">📍 ${restaurant.restrntAddr ?? "정보 없음"}</p>
+          <p style="margin:0;">📞 ${restaurant.restrntInqrTel ?? "정보 없음"}</p>
+        </div>
         `;
 
         const info = new kakao.maps.InfoWindow({
@@ -147,14 +169,36 @@ function KakaoMap({
     });
 
     const infoContent = `
-      <div style="padding:10px; font-size:12px; line-height:1.5; min-width:180px; max-width:250px; white-space:normal; word-break:break-all;">
-        <div style="font-size:16px;font-weight:bold;margin-bottom:5px;"><a class="map-loc-info" href="/restaurants/detail/${selectedRestaurant.id}" style="text-decoration:none; color:#000; transition: color 0.2s;"
-         onmouseover="this.style.color='#ff6600';" 
-         onmouseout="this.style.color='#000';">
-        ${selectedRestaurant.restrntNm}
-      </a></div>
-        <p style="margin:0;">⭐ ${selectedRestaurant.avgRating ?? "정보 없음"} (${selectedRestaurant.ratingCount})</p>
-        <p style="margin:0;">📍 ${selectedRestaurant.restrntAddr ?? "정보 없음"}</p>
+      <div style="
+        padding:12px;
+        font-size:13px;
+        line-height:1.5;
+        min-width:200px;
+        max-width:260px;
+        white-space:normal;
+        word-break:break-word;
+        background:#fff;
+        border-radius:8px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        font-family: 'Arial', sans-serif;
+      ">
+        <div style="margin-bottom:8px;">
+          <a href="/restaurants/detail/${selectedRestaurant.id}" 
+            style="
+              display:block;
+              font-size:16px;
+              font-weight:bold;
+              color:#333;
+              text-decoration:none;
+              transition: all 0.2s;
+            "
+            onmouseover="this.style.color='#ff6600'; this.style.textDecoration='underline';"
+            onmouseout="this.style.color='#333'; this.style.textDecoration='none';">
+            ${selectedRestaurant.restrntNm}
+          </a>
+        </div>
+        <p style="margin:0 0 4px 0;">⭐ ${selectedRestaurant.avgRating ?? "정보 없음"} (${selectedRestaurant.ratingCount})</p>
+        <p style="margin:0 0 4px 0;">📍 ${selectedRestaurant.restrntAddr ?? "정보 없음"}</p>
         <p style="margin:0;">📞 ${selectedRestaurant.restrntInqrTel ?? "정보 없음"}</p>
       </div>
     `;
