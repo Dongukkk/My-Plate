@@ -1,11 +1,13 @@
 import RestaurantCard from './RestaurantCard';
 import axios from 'axios';
 import { useState, useEffect, useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
 import '../restaurantList/RestaurantList.css';
 
 import SideBarMenu from '../components/SideBarMenu';
 
 function RestaurantList() {
+    const navigate = useNavigate();
     const [restaurants, setRestaurants] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
@@ -14,34 +16,38 @@ function RestaurantList() {
 
     const [page, setPage] = useState(1);
     const [hasMore, setHasMore] = useState(true);
+    const [selectedTags, setSelectedTags] = useState([]);
     const loadingRef = useRef(null);
 
-
-    useEffect(() => {
-        setRestaurants([]);
-        setPage(1);
-        setHasMore(true);
-        setLoading(true);
-    }, [sort, direction]);
-
+    // ✅ 하나의 useEffect로 모든 로직을 통합하여 효율성 극대화
     useEffect(() => {
         const fetchRestaurants = async () => {
-            if (!hasMore && page > 1) {
-                setLoading(false);
-                return;
+            // 정렬, 방향, 태그가 변경되면 페이지를 1로 초기화
+            if (page === 1) {
+                setRestaurants([]);
             }
-
+            
             setLoading(true);
             setError(null);
+            
             try {
+                const tagsQuery = selectedTags.length > 0 ? `&tag=${selectedTags.join(',')}` : '';
+
                 const response = await axios.get(
-                    `http://localhost:3000/api/restaurants/getAllRestaurants?sort=${sort}&direction=${direction}&page=${page}&limit=12`
+                    `http://localhost:3000/api/restaurants/getAllRestaurants?sort=${sort}&direction=${direction}&page=${page}&limit=12${tagsQuery}`
                 );
+
+                const newRestaurants = response.data;
+
+                setRestaurants(prev => {
+                    // 페이지가 1일 경우 새로운 데이터로 교체, 아닐 경우 기존 데이터에 추가
+                    return page === 1 ? newRestaurants : [...prev, ...newRestaurants];
+                });
                 
-                setRestaurants(prevRestaurants => [...prevRestaurants, ...response.data]);
-                
-                if (response.data.length < 10) {
+                if (response.data.length < 12) {
                     setHasMore(false);
+                } else {
+                    setHasMore(true);
                 }
             } catch (e) {
                 setError(e);
@@ -51,8 +57,9 @@ function RestaurantList() {
         };
 
         fetchRestaurants();
-    }, [page, sort, direction]);
+    }, [page, sort, direction, selectedTags]);
 
+    // ✅ 인피니트 스크롤 로직 유지
     useEffect(() => {
         if (!loadingRef.current) return;
         
@@ -85,16 +92,25 @@ function RestaurantList() {
             setSort('avg_Rating');
             setDirection('ASC');
         }
+        setPage(1); // 정렬 변경 시 페이지 초기화
+    };
+
+    const handleTagClick = (tag) => {
+        const newSelectedTags = selectedTags.includes(tag)
+            ? selectedTags.filter(t => t !== tag)
+            : [...selectedTags, tag];
+
+        setSelectedTags(newSelectedTags);
+        setPage(1); // 태그 변경 시 페이지 초기화
     };
 
     if (error) {
         return <div>오류가 발생했습니다: {error.message}</div>;
     }
 
-
     return (
         <div className="restaurantList-page">
-            <SideBarMenu />
+            <SideBarMenu handleTagClick={handleTagClick} selectedTags={selectedTags} />
             <div className="rl-container">
                 <main className='restaurant-list-main'>
                     <div className="restaurant-list">
@@ -108,11 +124,10 @@ function RestaurantList() {
                                     <option value="avg_Rating_ASC">평점 순 (낮은순)</option>
                                 </select>
                             </div>
-                            
                         </div>
                         <div className="restaurant-grid">
                             {restaurants.map(restaurant => (
-                                <RestaurantCard key={restaurant.id} restaurant={restaurant} />
+                                <RestaurantCard key={restaurant.id} restaurant={restaurant} selectedTags={selectedTags} onTagClick={handleTagClick}/>
                             ))}
                         </div>
                         

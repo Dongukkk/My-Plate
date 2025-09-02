@@ -4,6 +4,8 @@ import axios from "axios";
 import SideBarMenu from "../components/SideBarMenu";
 import "../restaurantList/RestaurantDetail.css";
 import KakaoMap from "../components/KakaoMap";
+import {DEFAULT_IMAGE_URL} from "./RestaurantCard"
+
 
 function RestaurantDetail() {
   const navigate = useNavigate();
@@ -15,8 +17,11 @@ function RestaurantDetail() {
     const fetchRestaurant = async () => {
       try {
         const response = await axios.get(`http://localhost:3000/api/restaurants/${id}`);
-        setRestaurant(response.data);
-        console.log(restaurant);
+        const tagResp = await axios.get(`http://localhost:3000/api/restaurants/${id}/tags`);
+        const tags = Array.isArray(tagResp.data) ? tagResp.data.map(t => t.tag) : [];
+        console.log(tags);
+        setRestaurant({ ...response.data, tags });
+
       } catch (e) {
         console.error(e);
       }
@@ -27,16 +32,18 @@ function RestaurantDetail() {
   if (!restaurant) {
     return <div>로딩 중...</div>;
   }
-
+  const sampleImageUrl = restaurant && (restaurant.photoUrl || DEFAULT_IMAGE_URL);
   return (
     <div className="restaurantDetail-page">
       <SideBarMenu/>
       <div className="rd-container">
         <div className="rd-represent">
-          <div class="rd-restaurant-header">
+          <div className="rd-restaurant-header">
             <div>
               <h2>{restaurant.restrntNm}</h2>
-              <p>일본 음식 · 스시 · 아시아 퓨전 ⭐ {restaurant.avgrating} ({restaurant.ratingCount} 리뷰)</p>
+              <p>{restaurant.tags && restaurant.tags.length > 0
+                                    ? restaurant.tags.join(' · ')
+                                    : ''} ⭐ {restaurant.avgrating} ({restaurant.ratingCount} 리뷰)</p>
             </div>
             <div>
               <button>리뷰 작성하기</button>
@@ -45,9 +52,7 @@ function RestaurantDetail() {
               <button className="button-color-gray" onClick={() => navigate(`/restaurantList`)}>레스토랑 목록으로 돌아가기</button>
             </div>
           </div>
-          <div className="rd-repr-image">
-            <h1>사진</h1>
-          </div>
+          <div className="rd-repr-image" style={{ backgroundImage: `url(${sampleImageUrl})`}}></div>
           
         </div>
         <div className="rd-info">
