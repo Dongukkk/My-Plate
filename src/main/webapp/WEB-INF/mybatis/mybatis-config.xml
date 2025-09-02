@@ -11,10 +11,15 @@
 
 	<typeAliases>
 		<typeAlias type="com.app.dto.restaurant.RestaurantDTO" alias="Restaurant" />
+		<typeAlias type="com.app.dto.restaurant.RestaurantTagDTO" alias="RestaurantTag" />
 		
 		<typeAlias type="com.app.dto.admin.AdminRestaurantDTO" alias="AdminRestaurant" />
 		<typeAlias type="com.app.dto.admin.AdminUserDTO" alias="AdminUser" />
+<<<<<<< HEAD
 		<typeAlias type="com.app.dto.admin.AdminReportDTO" alias="AdminReport" />
+=======
+		
+>>>>>>> 0580cfec14be7a5f1a6eaee3671070fa7567dfa8
 	</typeAliases>
 
 

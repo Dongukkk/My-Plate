@@ -1,5 +1,7 @@
 package com.app.dao.restaurant.impl;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -10,6 +12,7 @@ import org.springframework.stereotype.Repository;
 
 import com.app.dao.restaurant.RestaurantDAO;
 import com.app.dto.restaurant.RestaurantDTO;
+import com.app.dto.restaurant.RestaurantTagDTO;
 
 @Repository
 public class RestaurantDAOImpl implements RestaurantDAO {
@@ -26,15 +29,26 @@ public class RestaurantDAOImpl implements RestaurantDAO {
 	}
 
 	@Override
-	public List<RestaurantDTO> findAllRestaurants(String sort, String direction, int page, int limit) {
+	public List<RestaurantDTO> findAllRestaurants(String sort, String direction, String tag, String query, int page, int limit) {
 		Map<String, Object> params = new HashMap<>();
-		
-		int offset = (page - 1) * limit;
-		
-	    params.put("sortField", sort);
-	    params.put("sortDirection", direction);
+	    
+	    int offset = (page - 1) * limit;
+	    
+	    List<String> tagList = null;
+	    if (tag != null && !tag.isEmpty()) {
+	        tagList = new ArrayList<>(Arrays.asList(tag.split(",")));
+	    }
+	    
+	    params.put("sort", sort);
+	    params.put("direction", direction);
+	    params.put("query", query);
+	    
+	    if (tagList != null) {
+	        params.put("tags", tagList);
+	    }
 	    params.put("limit", limit);
 	    params.put("offset", offset);
+	    params.put("tagCount", (tagList != null ? tagList.size() : 0));
 	    
 		return sqlSessionTemplate.selectList("restaurant_mapper.findAllRestaurants", params);
 	}
@@ -55,6 +69,11 @@ public class RestaurantDAOImpl implements RestaurantDAO {
 	    params.put("neLng", neLng);
 	    
 		return sqlSessionTemplate.selectList("restaurant_mapper.findRestaurantsInBounds", params);
+	}
+
+	@Override
+	public List<RestaurantTagDTO> getTagsByRestaurantId(long restaurantId) {
+		return sqlSessionTemplate.selectList("restaurant_mapper.getTagsByRestaurantId", restaurantId);
 	}
 
 }

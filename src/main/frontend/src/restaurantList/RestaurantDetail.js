@@ -4,19 +4,27 @@ import axios from "axios";
 import SideBarMenu from "../components/SideBarMenu";
 import "../restaurantList/RestaurantDetail.css";
 import KakaoMap from "../components/KakaoMap";
+import {DEFAULT_IMAGE_URL} from "./RestaurantCard"
+
 
 function RestaurantDetail() {
   const navigate = useNavigate();
 
   const { id } = useParams();
   const [restaurant, setRestaurant] = useState(null);
+  const [bookmarked, setBookmarked] = useState(false);
+
+  const [bookmarkURL, setBookmarkURL] = useState("/images/restaurant/bookmark/BOOKMARK_OFF.png");
 
   useEffect(() => {
     const fetchRestaurant = async () => {
       try {
         const response = await axios.get(`http://localhost:3000/api/restaurants/${id}`);
-        setRestaurant(response.data);
-        console.log(restaurant);
+        const tagResp = await axios.get(`http://localhost:3000/api/restaurants/${id}/tags`);
+        const tags = Array.isArray(tagResp.data) ? tagResp.data.map(t => t.tag) : [];
+        console.log(tags);
+        setRestaurant({ ...response.data, tags });
+
       } catch (e) {
         console.error(e);
       }
@@ -27,27 +35,37 @@ function RestaurantDetail() {
   if (!restaurant) {
     return <div>로딩 중...</div>;
   }
+  const sampleImageUrl = restaurant && (restaurant.photoUrl || DEFAULT_IMAGE_URL);
 
+  function bookMarkToggle(){
+    if (bookmarked){
+      setBookmarkURL("/images/restaurant/bookmark/BOOKMARK_OFF.png");
+      setBookmarked(false);
+    } else {
+      setBookmarkURL("/images/restaurant/bookmark/BOOKMARK_ON.png");
+      setBookmarked(true);
+    }
+
+  };
   return (
     <div className="restaurantDetail-page">
       <SideBarMenu/>
       <div className="rd-container">
         <div className="rd-represent">
-          <div class="rd-restaurant-header">
+          <div className="rd-restaurant-header">
             <div>
               <h2>{restaurant.restrntNm}</h2>
-              <p>일본 음식 · 스시 · 아시아 퓨전 ⭐ {restaurant.avgrating} ({restaurant.ratingCount} 리뷰)</p>
+              <p>{restaurant.tags && restaurant.tags.length > 0
+                                    ? restaurant.tags.join(' · ')
+                                    : ''} ⭐ {restaurant.avgrating} ({restaurant.ratingCount} 리뷰)</p>
             </div>
-            <div>
-              <button>리뷰 작성하기</button>
+            <div style={{display:"flex",   alignItems: "center"}}>
               <button className="button-color-gray">공유</button>
-              <button className="button-color-gray">저장</button>
-              <button className="button-color-gray" onClick={() => navigate(`/restaurantList`)}>레스토랑 목록으로 돌아가기</button>
+              <div className="rd-bookmark" style={{ backgroundImage: `url(${bookmarkURL})`}} onClick={bookMarkToggle}></div>
+              
             </div>
           </div>
-          <div className="rd-repr-image">
-            <h1>사진</h1>
-          </div>
+          <div className="rd-repr-image" style={{ backgroundImage: `url(${sampleImageUrl})`}}></div>
           
         </div>
         <div className="rd-info">
@@ -112,7 +130,9 @@ function RestaurantDetail() {
             )}
             <h3>전화번호</h3>
             <p>{restaurant.restrntInqrTel}</p>
-            <button>전화하기</button>
+            <button style={{width:"100%"}}>전화하기</button>
+            <button style={{width:"49%", marginRight:"3px"}}>제보하기</button> 
+            <button style={{width:"49%"}}>리뷰 작성하기</button>
           </aside>
         </div>
         

@@ -57,6 +57,8 @@ const RestaurantSearchBar = () => {
     const handleSuggestionClick = (suggestion, id) => {
         const trimmedSearchTerm = searchTerm.trim();
 
+        const tagMatch = tags.find(tag => tag === suggestion);
+
         if (trimmedSearchTerm.length === 0) {
             return;
         }
@@ -67,6 +69,8 @@ const RestaurantSearchBar = () => {
 
         if (id) {
             navigate(`/restaurants/detail/${id}`);
+        } else if (tagMatch) {
+            navigate(`/search?tag=${encodeURIComponent(tagMatch)}`);
         } else {
             navigate(`/search?query=${encodeURIComponent(suggestion)}`);
         }
