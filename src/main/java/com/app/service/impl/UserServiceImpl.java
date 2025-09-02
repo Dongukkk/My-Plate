@@ -54,7 +54,8 @@ public class UserServiceImpl implements UserService {
                 saved.getId(),
                 saved.getEmail(),
                 saved.getUsername(),
-                saved.getRole()
+                saved.getRole(),
+                saved.getProvider()
         );
     }
 
@@ -117,12 +118,16 @@ public class UserServiceImpl implements UserService {
         String role = user.getRole();
         if ("ADM".equalsIgnoreCase(role)) role = "Admin";
         if ("USR".equalsIgnoreCase(role)) role = "USER";
-
+        
+        String provider = user.getProvider();
+        if (provider == null || provider.isBlank()) provider = "MYPLATE";
+        
         return new com.app.dto.user.UserResponse(
                 user.getId(),
                 user.getEmail(),
                 user.getUsername(),
-                role
+                role,
+                provider
         );
     }
 }

@@ -1,14 +1,13 @@
 import React from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
-import Login from './pages/Login';
-import Register from './pages/Register'; 
-import MyPage from './pages/MyPage';
-import AdminPage from './pages/AdminPage'; 
+import Login from './account/Login';
+import Register from './account/Register'; 
+import MyPage from './account/MyPage';
 import ProtectedRoute from './routes/ProtectedRoute';
-import Forbidden from './pages/Forbidden';
-import Forgot from './pages/Forgot';
-import Reset from './pages/Reset';
-import GoogleCallback from './pages/GoogleCallback';
+import Forbidden from './account/Forbidden';
+import Forgot from './account/Forgot';
+import Reset from './account/Reset';
+import OAuthCallback from './account/OAuthCallback';
 
 export default function App() {
   return (
@@ -23,10 +22,6 @@ export default function App() {
           <Route path="/mypage" element={<MyPage />} />
         </Route>
 
-        {/* 관리자만 */}
-        <Route element={<ProtectedRoute roles={['Admin']} />}>
-          <Route path="/admin" element={<AdminPage />} />
-        </Route>
 
          {/* ➕ Forbidden 페이지 */}
         <Route path="/forbidden" element={<Forbidden />} />
@@ -36,8 +31,8 @@ export default function App() {
 
         <Route path='/reset' element={<Reset />} />
 
-        {/* 구글 */}
-        <Route path="/oauth/google/callback" element={<GoogleCallback />} />
+        {/* 구글, 네이버, 카카오 콜백 */}
+        <Route path="/oauth/:provider/callback" element={<OAuthCallback />} />
 
       </Routes>
     </BrowserRouter>

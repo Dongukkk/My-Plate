@@ -1,0 +1,29 @@
+.lp-register-title { margin: 6px 0 2px; font-size: 24px; font-weight: 700; }
+.lp-register-sub   { margin: 0 0 16px; color: #666; font-size: 13.5px; }
+
+.lp-register-form  { display: flex; flex-direction: column; gap: 12px; }
+.lp-register-field { display: flex; flex-direction: column; gap: 6px; }
+.lp-register-label { font-size: 13px; color: #444; }
+
+.lp-register-field input {
+  padding: 12px 14px; border: 1px solid #e5e7eb; border-radius: 10px; outline: none; font-size: 15px;
+}
+.lp-register-field input:focus {
+  border-color: #ef5350; box-shadow: 0 0 0 3px rgba(239,83,80,.15);
+}
+
+.lp-register-help { margin-top: 4px; color: #e53935; font-size: 12.5px; }
+
+.lp-register-checks { display: flex; flex-direction: column; gap: 8px; margin-top: 4px; }
+.lp-register-check  { display: flex; align-items: center; gap: 8px; color: #555; font-size: 13px; }
+
+.lp-register-btnPrimary {
+  margin-top: 6px; background: #ef5350; color: #fff; border: none;
+  padding: 12px 14px; border-radius: 10px; font-weight: 700; cursor: pointer;
+}
+.lp-register-btnPrimary:disabled { opacity: .6; cursor: default; }
+
+.lp-register-hint { margin-top: 10px; color: #e53935; font-size: 13px; }
+
+.lp-register-foot { margin-top: 12px; font-size: 13px; color: #555; }
+.lp-register-link { color: #e53935; font-weight: 700; margin-left: 6px; text-decoration: underline; }

@@ -1,0 +1,146 @@
+/* login.css */
+
+.lp-login-title{ 
+  margin:6px 0 2px; 
+  font-size:24px; 
+  font-weight:700; 
+}
+.lp-login-sub{ 
+  margin:0 0 16px; 
+  color:#666; 
+  font-size:13.5px; 
+}
+
+.lp-login-form{ 
+  display:flex; 
+  flex-direction:column; 
+  gap:12px; 
+}
+/* ✅ 그리드 안에서 수축 허용 (부모가 grid인 경우 잘림 방지) */
+.lp-login-form, .lp-login-field { 
+  min-width: 0; 
+}
+
+.lp-login-field{ 
+  display:flex; 
+  flex-direction:column; 
+  gap:6px; 
+}
+
+.lp-login-label{ 
+  font-size:13px; 
+  color:#444; 
+}
+
+.lp-login-field input{
+  width: 100%;
+  box-sizing: border-box;
+  padding:12px 14px; 
+  border:1px solid #e5e7eb; 
+  border-radius:10px; 
+  outline:none; 
+  font-size:15px;
+}
+.lp-login-field input:focus{ 
+  border-color:#ef5350; 
+  box-shadow:0 0 0 3px rgba(239,83,80,.15); 
+}
+
+/* === '자동 로그인 / 비밀번호 찾기' 줄 === */
+.lp-login-row{ 
+  display:flex; 
+  align-items:center;
+  gap:8px;
+  flex-wrap: wrap;           
+  width: 100%;
+}
+.lp-login-between{ 
+  justify-content:space-between;
+  width: 100%;
+}
+.lp-login-checkbox{ 
+  display:flex; 
+  align-items:center; 
+  gap:8px; 
+  color:#555; 
+  font-size:13px;
+  flex: 1 1 auto;            
+  min-width: 220px;          
+}
+/* 오른쪽 '비밀번호를 잊으셨나요?' 링크가 사라지지 않도록 */
+.lp-login-between a{
+  margin-left: auto;
+  white-space: nowrap;       
+  overflow: visible;         
+}
+
+.lp-login-btnPrimary{
+  margin-top:6px; 
+  background:#ef5350; 
+  color:#fff; 
+  border:none;
+  padding:12px 14px; 
+  border-radius:10px; 
+  font-weight:700; 
+  cursor:pointer;
+}
+.lp-login-btnPrimary:disabled{ 
+  opacity:.6; 
+  cursor:default; 
+}
+
+.lp-login-btnGhost{
+  border:1px solid #e5e7eb; 
+  background:#fff; 
+  padding:10px 12px;
+  border-radius:10px; 
+  cursor:pointer;
+}
+
+.lp-login-link{ 
+  color:#666; 
+  text-decoration:underline; 
+  font-size:13px; 
+}
+.lp-login-linkStrong{ 
+  color:#e53935; 
+  font-weight:700; 
+  margin-left:6px; 
+}
+
+.lp-login-hint{ 
+  margin-top:8px; 
+  color:#e53935; 
+  font-size:13px; 
+}
+
+.lp-login-divider{ 
+  display:flex; 
+  align-items:center;
+  gap:12px; 
+  color:#999; 
+  margin:12px 0;
+}
+.lp-login-divider::before, 
+.lp-login-divider::after{ 
+  content:""; 
+  flex:1; 
+  height:1px; 
+  background:#eee; 
+}
+
+.lp-login-foot{ 
+  margin-top:8px; 
+  font-size:13px; 
+  color:#555; 
+}
+
+/* 모바일일 때 자연스럽게 두 줄 배치 */
+@media (max-width: 480px){
+  .lp-login-row.lp-login-between{
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 6px;
+  }
+  .lp-login-between a{ margin-left: 0; }
+}

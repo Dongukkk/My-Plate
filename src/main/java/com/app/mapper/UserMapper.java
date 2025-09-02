@@ -1,6 +1,9 @@
 package com.app.mapper;
 
 import com.app.dto.UserDTO;
+
+import java.util.Map;
+
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Update;
@@ -20,4 +23,8 @@ public interface UserMapper {
     @Update("UPDATE MP_USER SET PASSWORD = #{password} WHERE EMAIL = #{email}")
     int updatePasswordByEmail(@Param("email") String email,
                               @Param("password") String password);
+    // ====== ✅ 소셜용 (XML의 id와 1:1 매칭) ======
+    UserDTO findByProviderAndProviderId(Map<String, Object> params);  // XML select
+    int updateProviderLink(Map<String, Object> params);               // XML update
+    int insertOauthUser(UserDTO user);                                 // XML insert
 }

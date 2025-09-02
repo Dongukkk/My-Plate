@@ -30,6 +30,8 @@
     <property name="dataSource" ref="data_source"/>
     <property name="mapperLocations" value="/WEB-INF/mybatis/mapper/**/*_mapper.xml"/>
     <property name="configLocation" value="/WEB-INF/mybatis/mybatis-config.xml"/>
+    <!-- 이 줄은 유지(타입 별칭 등록) -->
+    <property name="typeAliasesPackage" value="com.app.dto"/>
   </bean>
 
   <bean id="sqlSessionTemplate" class="org.mybatis.spring.SqlSessionTemplate">
@@ -45,13 +47,11 @@
   <bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
     <property name="dataSource" ref="data_source"/>
   </bean>
-  
   <tx:annotation-driven transaction-manager="transactionManager"/>
 
   <!-- Component scan -->
   <context:component-scan base-package="com.app.service"/>
   <context:component-scan base-package="com.app.dao"/>
   <context:component-scan base-package="com.app.config"/>
-  
-  
-  </beans>
+
+</beans>
