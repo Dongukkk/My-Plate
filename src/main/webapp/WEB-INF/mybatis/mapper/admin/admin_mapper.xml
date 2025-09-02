@@ -124,8 +124,58 @@
 		WHERE ID = #{id}
 		AND LEAVE_DATE IS NULL
 	</update>
+	
+	<!-- 신고 관리 -->
+		<!-- 사용자 신고 목록 -->
+		<select id="findUserReportList" resultType="AdminReport">
+		    SELECT
+		      r.id                                    AS id,
+		      r.reporter_id                           AS reporterId,
+		      r.reported_item_type                    AS reportedItemType,
+		      r.reason                                AS reason,
+		      r.status                                AS status
+		    FROM MP_REPORT r
+		    WHERE r.reported_item_type = 'UR'
+		</select>
+	
+		<!-- 기타 문의 신고 목록 -->
+		<select id="findOHTReportList" resultType="AdminReport">
+		    SELECT
+		      r.id                                    AS id,
+		      r.reporter_id                           AS reporterId,
+		      r.reported_item_type                    AS reportedItemType,
+		      r.reason                                AS reason,
+		      r.status                                AS status
+		    FROM MP_REPORT r
+		    WHERE r.reported_item_type = 'OHT'
+		</select>	
 		
-
+		<!-- 가게정보 신고 목록 -->
+		<select id="findRERReportList" resultType="AdminReport">
+		    SELECT
+		      r.id                                    AS id,
+		      r.reporter_id                           AS reporterId,
+		      r.reported_item_type                    AS reportedItemType,
+		      r.reason                                AS reason,
+		      r.status                                AS status
+		    FROM MP_REPORT r
+		    WHERE r.reported_item_type = 'RER'
+		</select>
+		
+		<!-- 부적절한 신고 목록 -->
+		<select id="findIPCReportList" resultType="AdminReport">
+		    SELECT
+		      r.id                                    AS id,
+		      r.reporter_id                           AS reporterId,
+		      r.reported_item_type                    AS reportedItemType,
+		      r.reason                                AS reason,
+		      r.status                                AS status
+		    FROM MP_REPORT r
+		    WHERE r.reported_item_type = 'IPC'
+		</select>
+		
+		
+	
 
 
 

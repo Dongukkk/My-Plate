@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 import com.app.dao.admin.AdminDAO;
+import com.app.dto.admin.AdminReportDTO;
 import com.app.dto.admin.AdminRestaurantDTO;
 import com.app.dto.admin.AdminUserDTO;
 
@@ -73,6 +74,30 @@ public class AdminDAOImpl implements AdminDAO {
 	@Override
 	public int modifyAdminUser(AdminUserDTO dto) {
 		 return sqlSessionTemplate.update(AM + "modifyAdminUser", dto);
+	}
+
+	
+	//신고관리
+	//신고목록
+	@Override
+	public List<AdminReportDTO> findUserReportList() {
+		List<AdminReportDTO> findUserReportList = sqlSessionTemplate.selectList(AM + "findUserReportList");
+		return findUserReportList;
+	}
+	@Override
+	public List<AdminReportDTO> findOHTReportList() {
+		List<AdminReportDTO> findOHTReportList = sqlSessionTemplate.selectList(AM + "findOHTReportList");
+		return findOHTReportList;
+	}
+	@Override
+	public List<AdminReportDTO> findRERReportList() {
+		List<AdminReportDTO> findRERReportList = sqlSessionTemplate.selectList(AM + "findRERReportList");
+		return findRERReportList;
+	}
+	@Override
+	public List<AdminReportDTO> findIPCReportList() {
+		List<AdminReportDTO> findIPCReportList = sqlSessionTemplate.selectList(AM + "findIPCReportList");
+		return findIPCReportList;
 	}
 
 

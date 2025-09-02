@@ -11,10 +11,11 @@ import lombok.NoArgsConstructor;
 @Data
 public class AdminReportDTO {
 	
-    long id;
-    long reporter_id ;
-    String reported_item_type;
-    String reason;
-    String status;
-    LocalDateTime created_at;
+	private long id;
+    private long reporterId;  
+    private String reportedItemType;
+    private String reason;
+    private String status;
+    private LocalDateTime createdAt;
+    
 }

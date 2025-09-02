@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.app.dto.admin.AdminReportDTO;
 import com.app.dto.admin.AdminRestaurantDTO;
 import com.app.dto.admin.AdminUserDTO;
 import com.app.service.admin.AdminService;
@@ -80,5 +81,24 @@ public class AdminController {
         return (n == 1) ? ResponseEntity.ok().build()
                         : ResponseEntity.notFound().build();
     }
+    
+    
+	/* 신고 목록 조회 */
+	@GetMapping("/api/adminUser/reports")
+	public List<AdminReportDTO> findUserReportList() {
+		return adminService.findUserReportList();
+	}
+	@GetMapping("/api/adminContent/OHT")
+	public List<AdminReportDTO> findOHTReportList() {
+		return adminService.findUserReportList();
+	}
+	@GetMapping("/api/adminContent/RER")
+	public List<AdminReportDTO> findRERReportList() {
+		return adminService.findUserReportList();
+	}
+	@GetMapping("/api/adminContent/IPC")
+	public List<AdminReportDTO> findIPCReportList() {
+		return adminService.findUserReportList();
+	}
 	
 }

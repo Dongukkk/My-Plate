@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.app.dao.admin.AdminDAO;
+import com.app.dto.admin.AdminReportDTO;
 import com.app.dto.admin.AdminRestaurantDTO;
 import com.app.dto.admin.AdminUserDTO;
 import com.app.service.admin.AdminService;
@@ -73,6 +74,33 @@ public class AdminServiceImpl implements AdminService {
 			throw new IllegalArgumentException("수정 대상 ID가 비어 있습니다.");
 		}
 		return adminDAO.modifyAdminUser(dto);
+	}
+	
+
+	//신고관리
+	//사용자신고
+	@Override
+	public List<AdminReportDTO> findUserReportList() {
+		List<AdminReportDTO> findUserReportList = adminDAO.findUserReportList();
+		return findUserReportList;
+	}
+
+	@Override
+	public List<AdminReportDTO> findOHTReportList() {
+		List<AdminReportDTO> findOHTReportList = adminDAO.findOHTReportList();
+		return findOHTReportList;
+	}
+
+	@Override
+	public List<AdminReportDTO> findRERReportList() {
+		List<AdminReportDTO> findRERReportList = adminDAO.findRERReportList();
+		return findRERReportList;
+	}
+
+	@Override
+	public List<AdminReportDTO> findIPCReportList() {
+		List<AdminReportDTO> findIPCReportList = adminDAO.findIPCReportList();
+		return findIPCReportList;
 	}
 
 }
