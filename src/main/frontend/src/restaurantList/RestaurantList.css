@@ -52,6 +52,7 @@ body {
 
 .restaurant-list-tag-container {
     height: 30px;
+    margin-bottom: 20px;
 }
 .restaurant-list-tag-container .rc-tag-badge {
     font-size: 14px;
