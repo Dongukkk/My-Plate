@@ -4,6 +4,7 @@ import java.util.List;
 
 import com.app.dto.restaurant.RestaurantDTO;
 import com.app.dto.restaurant.RestaurantTagDTO;
+import com.app.dto.restaurant.TagCodeDTO;
 
 
 public interface RestaurantDAO {
@@ -16,4 +17,6 @@ public interface RestaurantDAO {
 	public List<RestaurantDTO> findRestaurantsInBounds(double swLat, double swLng, double neLat, double neLng);
 
 	public List<RestaurantTagDTO> getTagsByRestaurantId(long restaurantId);
+	
+	public List<TagCodeDTO> getAllTagCodes();
 }
