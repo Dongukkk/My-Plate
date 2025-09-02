@@ -8,19 +8,19 @@ function KakaoMap({
   centerLat = 36.3504119,
   centerLng = 127.3845475,
   level = 7,
+  selectedRestaurant,
   onRestaurantsUpdate,
 }) {
   const mapRef = useRef(null);
   const [markers, setMarkers] = useState([]);
   const openInfoRef = useRef(null);
   const fetchTimeoutRef = useRef(null);
+  const kakaoMapRef = useRef(null);
 
   const fetchMarkers = async (bounds) => {
-    
     markers.forEach((marker) => marker.setMap(null));
     setMarkers([]);
 
-    
     if (openInfoRef.current) {
       openInfoRef.current.close();
       openInfoRef.current = null;
@@ -47,12 +47,16 @@ function KakaoMap({
         const position = new kakao.maps.LatLng(restaurant.mapLat, restaurant.mapLot);
         const marker = new kakao.maps.Marker({
           position,
-          map: mapRef.current,
+          map: kakaoMapRef.current,
         });
 
         const infoContent = `
           <div style=" padding:10px; font-size:12px; line-height:1.5; min-width:180px; max-width:250px; white-space:normal; word-break:break-all;">
-            <div style="font-size:16px;font-weight:bold;margin-bottom:5px;">${restaurant.restrntNm}</div>
+            <div style="font-size:16px;font-weight:bold;margin-bottom:5px;"><a class="map-loc-info" href="/restaurants/detail/${restaurant.id}" style="text-decoration:none; color:#000; transition: color 0.2s;"
+         onmouseover="this.style.color='#ff6600';" 
+         onmouseout="this.style.color='#000';">
+        ${restaurant.restrntNm}
+      </a></div>
             <p style="margin:0;">⭐ ${restaurant.avgRating ?? "정보 없음"} (${restaurant.ratingCount})</p>
             <p style="margin:0;">📍 ${restaurant.restrntAddr ?? "정보 없음"}</p>
             <p style="margin:0;">📞 ${restaurant.restrntInqrTel ?? "정보 없음"}</p>
@@ -67,7 +71,7 @@ function KakaoMap({
 
         kakao.maps.event.addListener(marker, "click", () => {
           if (openInfoRef.current) openInfoRef.current.close();
-          info.open(mapRef.current, marker);
+          info.open(kakaoMapRef.current, marker);
           openInfoRef.current = info;
         });
 
@@ -82,20 +86,18 @@ function KakaoMap({
 
   useEffect(() => {
     if (!kakao || !kakao.maps) return;
-
     const container = document.getElementById("kakao-map");
     if (!container) return;
 
     const center = new kakao.maps.LatLng(centerLat, centerLng);
     const options = { center, level };
-    const newMap = new kakao.maps.Map(container, options);
-    mapRef.current = newMap;
+    kakaoMapRef.current = new kakao.maps.Map(container, options);
 
     if (!isSinglePoint) {
       const handleBoundsChanged = () => {
         if (fetchTimeoutRef.current) clearTimeout(fetchTimeoutRef.current);
         fetchTimeoutRef.current = setTimeout(() => {
-          fetchMarkers(newMap.getBounds());
+          fetchMarkers(kakaoMapRef.current.getBounds());
         }, 500);
       };
 
@@ -106,13 +108,13 @@ function KakaoMap({
         }
       };
 
-      fetchMarkers(newMap.getBounds());
-      kakao.maps.event.addListener(newMap, "bounds_changed", handleBoundsChanged);
-      kakao.maps.event.addListener(newMap, "click", handleMapClick);
+      fetchMarkers(kakaoMapRef.current.getBounds());
+      kakao.maps.event.addListener(kakaoMapRef.current, "bounds_changed", handleBoundsChanged);
+      kakao.maps.event.addListener(kakaoMapRef.current, "click", handleMapClick);
 
       return () => {
-        kakao.maps.event.removeListener(newMap, "bounds_changed", handleBoundsChanged);
-        kakao.maps.event.removeListener(newMap, "click", handleMapClick);
+        kakao.maps.event.removeListener(kakaoMapRef.current, "bounds_changed", handleBoundsChanged);
+        kakao.maps.event.removeListener(kakaoMapRef.current, "click", handleMapClick);
         if (fetchTimeoutRef.current) clearTimeout(fetchTimeoutRef.current);
         markers.forEach((marker) => marker.setMap(null));
         setMarkers([]);
@@ -121,14 +123,56 @@ function KakaoMap({
     } else {
       const marker = new kakao.maps.Marker({
         position: new kakao.maps.LatLng(centerLat, centerLng),
-        map: newMap,
+        map: kakaoMapRef.current,
       });
       setMarkers([marker]);
       if (onRestaurantsUpdate) onRestaurantsUpdate([]);
     }
   }, [isSinglePoint, centerLat, centerLng, level]);
 
-  return <div id="kakao-map" style={{ width: "100%", height: "100%", marginTop: "10px" }}></div>;
+  useEffect(() => {
+    if (!selectedRestaurant || !kakaoMapRef.current) return;
+
+    const moveLatLon = new kakao.maps.LatLng(
+      selectedRestaurant.mapLat,
+      selectedRestaurant.mapLot
+    );
+    kakaoMapRef.current.panTo(moveLatLon);
+
+    markers.forEach((m) => m.setMap(null));
+
+    const marker = new kakao.maps.Marker({
+      position: moveLatLon,
+      map: kakaoMapRef.current,
+    });
+
+    const infoContent = `
+      <div style="padding:10px; font-size:12px; line-height:1.5; min-width:180px; max-width:250px; white-space:normal; word-break:break-all;">
+        <div style="font-size:16px;font-weight:bold;margin-bottom:5px;"><a class="map-loc-info" href="/restaurants/detail/${selectedRestaurant.id}" style="text-decoration:none; color:#000; transition: color 0.2s;"
+         onmouseover="this.style.color='#ff6600';" 
+         onmouseout="this.style.color='#000';">
+        ${selectedRestaurant.restrntNm}
+      </a></div>
+        <p style="margin:0;">⭐ ${selectedRestaurant.avgRating ?? "정보 없음"} (${selectedRestaurant.ratingCount})</p>
+        <p style="margin:0;">📍 ${selectedRestaurant.restrntAddr ?? "정보 없음"}</p>
+        <p style="margin:0;">📞 ${selectedRestaurant.restrntInqrTel ?? "정보 없음"}</p>
+      </div>
+    `;
+
+    const info = new kakao.maps.InfoWindow({
+      content: infoContent,
+      removable: true,
+      position: moveLatLon,
+    });
+
+    if (openInfoRef.current) openInfoRef.current.close();
+    info.open(kakaoMapRef.current, marker);
+    openInfoRef.current = info;
+
+    setMarkers([marker]);
+  }, [selectedRestaurant]);
+
+  return <div id="kakao-map" style={{ width: "100%", height: "100%", marginTop: "10px" }} ref={mapRef}></div>;
 }
 
 export default KakaoMap;

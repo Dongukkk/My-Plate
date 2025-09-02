@@ -12,16 +12,14 @@ function RestaurantMap() {
   const [ result, setResult ] = useState("");
   const [filteredRestaurants, setFilteredRestaurants] = useState([]);
   const slotWrapperRef = useRef(null);
+  const [ centerCoordinate, setCenterCoordinate ] = useState([null,null]);
+  const [ centerLevel, setCenterLevel ] = useState(7);
+  const [ recommendedRestaurant, setRecommendedRestaurant] = useState();
 
   useEffect(() => {
     const restaurantNames = displayedRestaurants.map((rest) => rest.restrntNm);
     setMenus(restaurantNames);
-    setResult();
 
-  }, [displayedRestaurants]);
-
-  useEffect(() => {
-    const restaurantNames = displayedRestaurants.map((rest) => rest.restrntNm);
     const wrapper = slotWrapperRef.current;
     if (wrapper) {
       while (wrapper.firstChild) {
@@ -37,13 +35,25 @@ function RestaurantMap() {
       wrapper.style.transform = `translateY(0px)`;
       wrapper.style.transition = 'none';
     }
+  }, [result, displayedRestaurants]);
+
+  useEffect(() => {
+    
     if (result) {
       const filtered = displayedRestaurants.filter((rest) => rest.restrntNm === result);
       setFilteredRestaurants(filtered);
+      console.log(filtered[0]);
+      if (filtered[0]){
+        setCenterCoordinate([filtered[0].mapLat,filtered[0].mapLot]);
+        setRecommendedRestaurant(filtered[0]);
+        setCenterLevel(4);
+      }
     } else {
       setFilteredRestaurants([]);
     }
-  }, [result, displayedRestaurants]);
+
+    
+  }, [result]);
 
   const spin = () => {
     if (isSpinning || menus.length === 0) return;
@@ -52,12 +62,10 @@ function RestaurantMap() {
 
     const wrapper = slotWrapperRef.current;
     if (wrapper) {
-      // 룰렛을 돌리기 전에 transform 속성을 초기화합니다.
-      wrapper.style.transition = 'none'; // 애니메이션 효과 제거
+      wrapper.style.transition = 'none';
       wrapper.style.transform = `translateY(0px)`;
     }
     
-    // 이펙트 초기화를 위한 약간의 지연
     setTimeout(() => {
       const totalItems = menus.length;
       const randomIndex = Math.floor(Math.random() * totalItems);
@@ -73,7 +81,7 @@ function RestaurantMap() {
         setResult(selectedMenu);
         setIsSpinning(false);
       }, 2600);
-    }, 50); // 짧은 지연 시간
+    }, 50);
   };
   const handleRestaurantUpdate = (restaurants) => {
     setDisplayedRestaurants(restaurants);
@@ -88,6 +96,10 @@ function RestaurantMap() {
           <div className="rm-map-container">
             <KakaoMap
               isSinglePoint={false}
+              centerLat={centerCoordinate[0] ?? 36.3504119}
+              centerLng={centerCoordinate[1] ?? 127.3845475}
+              level={centerLevel}
+              selectedRestaurant={recommendedRestaurant}
               onRestaurantsUpdate={handleRestaurantUpdate}
             />
           </div>
