@@ -17,6 +17,8 @@ function RestaurantList() {
     const [page, setPage] = useState(1);
     const [hasMore, setHasMore] = useState(true);
     const [selectedTags, setSelectedTags] = useState([]);
+    const recommendTag = ['한식','중식','양식','일식','복지카드사용'];
+    const [tagList, setTagList] = useState(recommendTag);
     const loadingRef = useRef(null);
 
     useEffect(() => {
@@ -97,6 +99,8 @@ function RestaurantList() {
             : [...selectedTags, tag];
 
         setSelectedTags(newSelectedTags);
+
+        setTagList([...newSelectedTags, ...recommendTag.filter(t => !newSelectedTags.includes(t))]);
         setPage(1);
     };
 
@@ -106,7 +110,7 @@ function RestaurantList() {
 
     return (
         <div className="restaurantList-page">
-            <SideBarMenu handleTagClick={handleTagClick} selectedTags={selectedTags} />
+            <SideBarMenu />
             <div className="rl-container">
                 <main className='restaurant-list-main'>
                     <div className="restaurant-list">
@@ -120,6 +124,20 @@ function RestaurantList() {
                                     <option value="avg_Rating_ASC">평점 순 (낮은순)</option>
                                 </select>
                             </div>
+                        </div>
+                        <div className='restaurant-list-tag-container'>
+                            {tagList && tagList.map((t, idx) => (
+                                <span 
+                                key={idx} 
+                                className={`rc-tag-badge ${selectedTags.includes(t) ? 'active-tag' : ''}`}
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    handleTagClick(t);
+                                }}
+                                >
+                                #{t}
+                                </span>
+                            ))}
                         </div>
                         <div className="restaurant-grid">
                             {restaurants.map(restaurant => (

@@ -16,6 +16,8 @@ function RestaurantSearchResult() {
     const [ sort, setSort ] = useState('name');
     const [ direction, setDirection ] = useState('ASC');
     const [ selectedTags, setSelectedTags ] = useState([]);
+
+    const recommendTag = ['한식','중식','양식','일식','복지카드사용'];
     
     const query = new URLSearchParams(location.search).get('query') || '';
     const tagsParam = new URLSearchParams(location.search).get('tag');
@@ -48,12 +50,17 @@ function RestaurantSearchResult() {
         const newSelectedTags = selectedTags.includes(tag)
             ? selectedTags.filter(t => t !== tag)
             : [ ...selectedTags, tag ];
-        
-        const newTagsParam = newSelectedTags.length > 0 ? newSelectedTags.join(',') : '';
+        setSelectedTags(newSelectedTags);
+
         const newQueryParam = query ? `query=${encodeURIComponent(query)}` : '';
+        const newTagsParam = newSelectedTags.length > 0 ? `tag=${newSelectedTags.join(',')}` : '';
         const separator = newQueryParam && newTagsParam ? '&' : '';
-        
-        navigate(`/search?${newQueryParam}${separator}tag=${newTagsParam}`);
+
+        const newUrl = newQueryParam || newTagsParam
+            ? `/search?${newQueryParam}${separator}${newTagsParam}`
+            : '/search';
+
+        navigate(newUrl, { replace: true });
     };
 
     const handleSortChange = (newSort) => {
@@ -90,9 +97,12 @@ function RestaurantSearchResult() {
         return <div>오류가 발생했습니다: {error.message}</div>;
     }
 
+    const tagList = [...selectedTags, ...recommendTag.filter(t => !selectedTags.includes(t))];
+
+
     return (
         <div className="restaurantList-page">
-            <SideBarMenu onTagClick={handleTagClick} selectedTags={selectedTags} />
+            <SideBarMenu/>
             <div className="rl-container">
                 <main className='restaurant-list-main'>
                     <div className="restaurant-list">
@@ -106,6 +116,20 @@ function RestaurantSearchResult() {
                                     <option value="avg_Rating_ASC">평점 순 (낮은순)</option>
                                 </select>
                             </div>
+                        </div>
+                        <div className='restaurant-list-tag-container'>
+                            {tagList && tagList.map((t, idx) => (
+                                <span 
+                                key={idx} 
+                                className={`rc-tag-badge ${selectedTags.includes(t) ? 'active-tag' : ''}`}
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    handleTagClick(t);
+                                }}
+                                >
+                                #{t}
+                                </span>
+                            ))}
                         </div>
                         <div className="restaurant-grid">
                             {filteredRestaurants.length > 0 ? (

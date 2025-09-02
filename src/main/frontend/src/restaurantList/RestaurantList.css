@@ -37,7 +37,6 @@ body {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 20px;
 }
 
 .list-header h2 {
@@ -51,6 +50,13 @@ body {
     border: 1px solid #ccc;
 }
 
+.restaurant-list-tag-container {
+    height: 30px;
+}
+.restaurant-list-tag-container .rc-tag-badge {
+    font-size: 14px;
+    background-color: #dbdbdb;
+}
 .restaurant-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
