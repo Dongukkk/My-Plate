@@ -14,6 +14,7 @@
 		
 		<typeAlias type="com.app.dto.admin.AdminRestaurantDTO" alias="AdminRestaurant" />
 		<typeAlias type="com.app.dto.admin.AdminUserDTO" alias="AdminUser" />
+		<typeAlias type="com.app.dto.admin.AdminReportDTO" alias="AdminReport" />
 	</typeAliases>
 
 
