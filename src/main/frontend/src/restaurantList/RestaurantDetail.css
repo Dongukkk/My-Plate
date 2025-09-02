@@ -16,9 +16,20 @@
     width: 100%;
 }
 
+.rd-bookmark {
+  height:30px;
+  width:30px;
+  margin-top: 25px;
+  margin-right: 20px;
+  background-size: cover; 
+  background-position: center;
+  align-items: center;
+  cursor: pointer;
+}
 .rd-repr-image {
     width: 100%; 
     height: 300px;
+    margin-top: 20px;
     background-size: cover; 
     background-position: center;
     border-radius: 8px;
@@ -145,7 +156,6 @@
   background-color: var(--primary-color);
   color: white;
   cursor: pointer;
-  width: 100%;
 }
 
 .rd-right-info button:hover {

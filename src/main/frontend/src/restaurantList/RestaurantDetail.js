@@ -12,6 +12,9 @@ function RestaurantDetail() {
 
   const { id } = useParams();
   const [restaurant, setRestaurant] = useState(null);
+  const [bookmarked, setBookmarked] = useState(false);
+
+  const [bookmarkURL, setBookmarkURL] = useState("/images/restaurant/bookmark/BOOKMARK_OFF.png");
 
   useEffect(() => {
     const fetchRestaurant = async () => {
@@ -33,6 +36,17 @@ function RestaurantDetail() {
     return <div>로딩 중...</div>;
   }
   const sampleImageUrl = restaurant && (restaurant.photoUrl || DEFAULT_IMAGE_URL);
+
+  function bookMarkToggle(){
+    if (bookmarked){
+      setBookmarkURL("/images/restaurant/bookmark/BOOKMARK_OFF.png");
+      setBookmarked(false);
+    } else {
+      setBookmarkURL("/images/restaurant/bookmark/BOOKMARK_ON.png");
+      setBookmarked(true);
+    }
+
+  };
   return (
     <div className="restaurantDetail-page">
       <SideBarMenu/>
@@ -45,11 +59,10 @@ function RestaurantDetail() {
                                     ? restaurant.tags.join(' · ')
                                     : ''} ⭐ {restaurant.avgrating} ({restaurant.ratingCount} 리뷰)</p>
             </div>
-            <div>
-              <button>리뷰 작성하기</button>
+            <div style={{display:"flex",   alignItems: "center"}}>
               <button className="button-color-gray">공유</button>
-              <button className="button-color-gray">저장</button>
-              <button className="button-color-gray" onClick={() => navigate(`/restaurantList`)}>레스토랑 목록으로 돌아가기</button>
+              <div className="rd-bookmark" style={{ backgroundImage: `url(${bookmarkURL})`}} onClick={bookMarkToggle}></div>
+              
             </div>
           </div>
           <div className="rd-repr-image" style={{ backgroundImage: `url(${sampleImageUrl})`}}></div>
@@ -117,7 +130,9 @@ function RestaurantDetail() {
             )}
             <h3>전화번호</h3>
             <p>{restaurant.restrntInqrTel}</p>
-            <button>전화하기</button>
+            <button style={{width:"100%"}}>전화하기</button>
+            <button style={{width:"49%", marginRight:"3px"}}>제보하기</button> 
+            <button style={{width:"49%"}}>리뷰 작성하기</button>
           </aside>
         </div>
         

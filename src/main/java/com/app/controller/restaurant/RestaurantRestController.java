@@ -60,7 +60,6 @@ public class RestaurantRestController {
             @RequestParam("neLng") double neLng) {
 
         List<RestaurantDTO> restaurants = restaurantService.findRestaurantsInBounds(swLat, swLng, neLat, neLng);
-        System.out.println(restaurants);
         return ResponseEntity.ok(restaurants);
     }
 	
