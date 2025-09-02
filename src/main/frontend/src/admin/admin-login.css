@@ -1,0 +1,197 @@
+.admin-login {
+    min-height: 100vh;
+    display: grid;
+    place-items: center;
+    background: #ffffff;
+    color: #333;
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, Arial, "Noto Sans",
+        "Apple SD Gothic Neo", "맑은 고딕", "Malgun Gothic", sans-serif;
+}
+
+.admin-login-wrap {
+    width: min(520px, 92vw);
+    text-align: center;
+}
+
+.admin-brand {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 6px;
+}
+
+.admin-brand-icon {
+    font-size: 28px;
+    line-height: 1;
+}
+
+.admin-brand-name img {
+    width: 40%;
+    font-size: 28px;
+    color: #ef4b3f;
+}
+
+.admin-login-title {
+    font-size: 20px;
+    margin: 6px 0 8px;
+    font-weight: 700;
+    color: #222;
+}
+
+.admin-login-sub {
+    margin: 0 0 22px;
+    font-size: 14px;
+    color: #6b7280;
+}
+
+.admin-login-card {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    padding: 18px 18px 20px;
+    border-radius: 14px;
+    background: #fff;
+    border: 1px solid #eee;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.03);
+    align-items: center;
+    overflow: hidden;
+}
+
+.admin-field {
+    text-align: left;
+    width: 92%;
+}
+
+.admin-field-label {
+    display: inline-block;
+    font-size: 13px;
+    color: #374151;
+    margin-bottom: 8px;
+}
+
+.admin-mp-input {
+    width: 100%;
+    height: 44px;
+    border-radius: 22px;
+    border: 1px solid #e5e7eb;
+    background: #f9fafb;
+    padding: 0 16px;
+    font-size: 14px;
+    color: #111827;
+    outline: none;
+    transition: border-color 0.15s, background 0.15s;
+
+    box-sizing: border-box;
+    display: block;
+    margin: 0 auto;
+}
+
+.admin-mp-input::placeholder {
+    color: #9ca3af;
+}
+
+.admin-mp-input:focus {
+    border-color: #ef4b3f;
+    background: #fff;
+}
+
+.admin-pw-row {
+    width: 100%;
+    position: relative;
+}
+
+.admin-pw-toggle {
+    position: absolute;
+    right: 12px;
+    /* 입력칸 오른쪽 내부에 고정 */
+    top: 50%;
+    transform: translateY(-50%);
+    border: none;
+    background: transparent;
+    font-size: 12px;
+    color: #ef4b3f;
+    cursor: pointer;
+    padding: 6px 8px;
+}
+
+.admin-row-between {
+    width: 92%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: nowrap;
+    gap: 8px;
+}
+
+.admin-remember {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+    color: #4b5563;
+}
+
+.admin-remember input[type="checkbox"] {
+    width: 16px;
+    height: 16px;
+    accent-color: #ef4b3f;
+}
+
+.admin-link-btn {
+    border: none;
+    background: transparent;
+    padding: 0;
+    font-size: 13px;
+    color: #ef4b3f;
+    cursor: pointer;
+}
+
+.admin-link-btn.strong {
+    font-weight: 700;
+}
+
+.admin-error {
+    margin-top: 2px;
+    font-size: 13px;
+    color: #e11d48;
+    text-align: left;
+}
+
+.admin-btn-primary {
+    width: 100%;
+    height: 48px;
+    border-radius: 12px;
+    border: none;
+    background: #ef4b3f;
+    color: #fff;
+    font-weight: 700;
+    font-size: 15px;
+    cursor: pointer;
+    transition: transform 0.05s ease, opacity 0.1s ease;
+}
+
+.admin-btn-primary:hover {
+    opacity: 0.96;
+}
+
+.admin-btn-primary:active {
+    transform: translateY(1px);
+}
+
+.admin-btn-primary[disabled],
+.admin-btn-primary[aria-disabled="true"] {
+    opacity: 0.55;
+    cursor: not-allowed;
+}
+
+.admin-divider {
+    height: 8px;
+    margin: 18px 0 12px;
+    background: #f3f4f6;
+    border-radius: 999px;
+}
+
+.admin-help {
+    font-size: 14px;
+    color: #4b5563;
+}

@@ -1,10 +1,23 @@
+
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE configuration PUBLIC "-//mybatis.org//DTD Config 3.0//EN" "http://mybatis.org/dtd/mybatis-3-config.dtd">
 <configuration>
   <settings>
     <setting name="mapUnderscoreToCamelCase" value="true"/>
   </settings>
-  <typeAliases>
-    <package name="com.app.dto"/>
-  </typeAliases>
+
+
+	<typeAliases>
+		<typeAlias type="com.app.dto.restaurant.RestaurantDTO" alias="Restaurant" />
+		<typeAlias type="com.app.dto.restaurant.RestaurantTagDTO" alias="RestaurantTag" />
+		<typeAlias type="com.app.dto.restaurant.TagCodeDTO" alias="TagCode" />
+		
+		<typeAlias type="com.app.dto.admin.AdminRestaurantDTO" alias="AdminRestaurant" />
+		<typeAlias type="com.app.dto.admin.AdminUserDTO" alias="AdminUser" />
+		<typeAlias type="com.app.dto.admin.AdminReportDTO" alias="AdminReport" />
+		
+	</typeAliases>
+
+
+
 </configuration>

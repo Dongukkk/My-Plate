@@ -1,0 +1,172 @@
+<?xml version="1.0" encoding="UTF-8"?> 
+<!DOCTYPE mapper PUBLIC
+		   "-//mybatis.org//DTD Mapper 3.0//EN" 
+		   "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+		   
+<mapper namespace="restaurant_mapper">
+
+	<insert id="saveApiRestaurant" parameterType="Restaurant">
+		MERGE INTO MP_RESTAURANT B
+    USING (
+        SELECT
+            #{name} AS NAME,
+            #{description} AS DESCRIPTION,
+            null AS CATEGORY,
+            0.0 AS AVG_RATING,
+            0 AS RATING_COUNT,
+            null AS SOLO_INDEX,
+            null AS PHOTO_URL,
+            #{latitude} AS LATITUDE,
+            #{longitude} AS LONGITUDE,
+            #{address} AS ADDRESS,
+            'ACTIVE' AS STATUS,
+            SYSTIMESTAMP AS CREATED_AT,
+            SYSTIMESTAMP AS UPDATED_AT,
+            null AS DELETED_AT,
+            <if test="phone != null and phone != ''">
+                #{phone}
+            </if>
+            <if test="phone == null or phone == ''">
+                '000-0000-0000'
+            </if> AS PHONE
+        FROM DUAL
+    ) A
+    ON (B.NAME = A.NAME AND B.ADDRESS = A.ADDRESS)
+    WHEN MATCHED THEN
+        UPDATE SET
+            B.DESCRIPTION = A.DESCRIPTION,
+            B.LATITUDE = A.LATITUDE,
+            B.LONGITUDE = A.LONGITUDE,
+            B.PHONE = A.PHONE,
+            B.UPDATED_AT = SYSTIMESTAMP
+    WHEN NOT MATCHED THEN
+        INSERT (
+            ID,
+            NAME,
+            DESCRIPTION,
+            CATEGORY,
+            AVG_RATING,
+            RATING_COUNT,
+            SOLO_INDEX,
+            PHOTO_URL,
+            LATITUDE,
+            LONGITUDE,
+            ADDRESS,
+            STATUS,
+            CREATED_AT,
+            UPDATED_AT,
+            DELETED_AT,
+            PHONE
+        ) VALUES (
+            MP_RESTAURANT_SEQ.NEXTVAL,
+            A.NAME,
+            A.DESCRIPTION,
+            A.CATEGORY,
+            A.AVG_RATING,
+            A.RATING_COUNT,
+            A.SOLO_INDEX,
+            A.PHOTO_URL,
+            A.LATITUDE,
+            A.LONGITUDE,
+            A.ADDRESS,
+            A.STATUS,
+            A.CREATED_AT,
+            A.UPDATED_AT,
+            A.DELETED_AT,
+            A.PHONE
+        )
+	</insert>
+	
+	<select id="findAllRestaurants" resultType="Restaurant">
+	    SELECT
+        r.ID,
+        r.NAME,
+        r.DESCRIPTION,
+        r.CATEGORY,
+        r.AVG_RATING,
+        r.RATING_COUNT,
+        r.SOLO_INDEX,
+        r.PHOTO_URL,
+        r.LATITUDE,
+        r.LONGITUDE,
+        r.ADDRESS,
+        r.PHONE
+    FROM MP_RESTAURANT r
+    <where>
+        r.DELETED_AT IS NULL
+        <if test="query != null and query != ''">
+             AND r.NAME LIKE '%' || #{query} || '%'
+        </if>
+        <if test="tags != null and !tags.isEmpty()">
+            AND r.ID IN (
+                SELECT RESTAURANT_ID
+                FROM MP_RESTAURANT_TAG
+                WHERE TAG_CODE IN (
+                    SELECT CODE FROM MP_CODE_TAG WHERE TAG IN
+                    <foreach item="tag" collection="tags" open="(" separator="," close=")">
+                        #{tag}
+                    </foreach>
+                )
+                GROUP BY RESTAURANT_ID
+                HAVING COUNT(DISTINCT TAG_CODE) = #{tagCount}
+            )
+        </if>
+    </where>
+    <if test="sort != null and direction != null">
+        ORDER BY
+        <choose>
+            <when test="sort == 'name'">r.NAME</when>
+            <when test="sort == 'avg_Rating'">r.AVG_RATING</when>
+            <otherwise>r.NAME</otherwise>
+        </choose>
+        <if test="direction == 'DESC'">DESC</if>
+        <if test="direction == 'ASC'">ASC</if>
+    </if>
+    OFFSET #{offset} ROWS FETCH NEXT #{limit} ROWS ONLY
+	</select>
+
+	
+	<select id="getRestaurantById" parameterType="long" resultType="Restaurant">
+		SELECT
+        ID,
+        NAME,
+        DESCRIPTION,
+        CATEGORY,
+        AVG_RATING,
+        RATING_COUNT,
+        SOLO_INDEX,
+        PHOTO_URL,
+        LATITUDE,
+        LONGITUDE,
+        ADDRESS,
+        PHONE
+        FROM MP_RESTAURANT
+        WHERE ID = #{id}
+	</select>
+	
+	<select id="findRestaurantsInBounds" resultType="Restaurant">
+        SELECT ID, NAME, DESCRIPTION, CATEGORY, AVG_RATING, RATING_COUNT,
+            SOLO_INDEX, PHOTO_URL, LATITUDE, LONGITUDE, ADDRESS, PHONE, STATUS
+        FROM MP_RESTAURANT
+        WHERE LATITUDE BETWEEN #{swLat} AND #{neLat}
+        AND LONGITUDE BETWEEN #{swLng} AND #{neLng}
+        AND STATUS = 'ACTIVE'
+    </select>
+    
+    <select id="getTagsByRestaurantId" resultType="RestaurantTag">
+        SELECT 
+            t.restaurant_id AS restaurantId, 
+            c.tag AS tag
+        FROM 
+            mp_code_tag c, 
+            mp_restaurant_tag t
+        WHERE 
+            c.code = t.tag_code
+            AND t.restaurant_id = #{restaurantId}
+    </select>
+    
+    <select id="getAllTagCodes" resultType="TagCode">
+    	SELECT * FROM MP_CODE_TAG
+    </select>
+
+</mapper>

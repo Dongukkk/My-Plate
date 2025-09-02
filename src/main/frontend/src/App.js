@@ -1,40 +1,86 @@
-import React from 'react';
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
-import Login from './account/Login';
-import Register from './account/Register'; 
-import MyPage from './account/MyPage';
-import ProtectedRoute from './routes/ProtectedRoute';
-import Forbidden from './account/Forbidden';
-import Forgot from './account/Forgot';
-import Reset from './account/Reset';
-import OAuthCallback from './account/OAuthCallback';
+import './App.css';
+import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
+import ErrorPage from './admin/error-page';
+import LoadingPage from "./admin/loading";
+import { LoadingProvider, useLoading } from './admin/loading-context';
 
-export default function App() {
+import AdminMain from './admin/admin-main';
+import AdminUser from "./admin/admin-user";
+import AdminAnalysis from "./admin/admin-analysis";
+import AdminContent from "./admin/admin-content";
+import AdminRestaurant from "./admin/admin-restaurant";
+import AdminLogin from "./admin/admin-login";
+import TermsPage from "./admin/terms-page";
+
+import MainPage from './mainpage/MainPage';
+import RestaurantList from './restaurantList/RestaurantList';
+import Header from './components/Header';
+import Footer from './components/Footer';
+import RestaurantDetail from './restaurantList/RestaurantDetail';
+import RestaurantSearchResult from './restaurantList/RestaurantSearchResult';
+import RestaurantMap from './map/RestaurantMap';
+
+const MainLayout = () => {
+
+  const location = useLocation();
+  const noHeaderFooterRoutes = ['/login', '/signup', '/admin', '/AdminMain', '/AdminUser', '/Adminrestaurants', '/AdminContent', '/Adminanalysis'];
+  const showHeaderFooter = !noHeaderFooterRoutes.some(route => location.pathname.startsWith(route));
+
   return (
-    <BrowserRouter>
+    <>
+      {showHeaderFooter && <Header />}
       <Routes>
+        <Route path="/" element={<MainPage />} />
+        <Route path="/search" element={<RestaurantSearchResult />} />
+        <Route path="/RestaurantList" element={<RestaurantList />} />
+        <Route path="/restaurants/detail/:id" element={<RestaurantDetail />} />
+        <Route path="/map" element={<RestaurantMap />} />
+
+        <Route path="/admin" element={<AdminLogin />} />
+        <Route path="/adminMain" element={<AdminMain />} />
+        <Route path="/adminUser" element={<AdminUser />} />
+        <Route path="/adminrestaurants" element={<AdminRestaurant />} />
+        <Route path="/adminContent" element={<AdminContent />} />
+        <Route path="/adminanalysis" element={<AdminAnalysis />} />
+
+        <Route path="/termsOfUse" element={<TermsPage />} />
+
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
         <Route path="/forgot" element={<Forgot />} />
 
-        {/* 로그인만 필요 */}
         <Route element={<ProtectedRoute />}>
           <Route path="/mypage" element={<MyPage />} />
         </Route>
 
-
-         {/* ➕ Forbidden 페이지 */}
-        <Route path="/forbidden" element={<Forbidden />} />
-
-        {/* 기본 */}
-        <Route path="*" element={<Navigate to="/login" replace />} />
-
         <Route path='/reset' element={<Reset />} />
-
-        {/* 구글, 네이버, 카카오 콜백 */}
         <Route path="/oauth/:provider/callback" element={<OAuthCallback />} />
 
+        <Route path="*" element={<ErrorPage />} />
       </Routes>
+      {showHeaderFooter && <Footer />}
+    </>
+  );
+};
+
+const App = () => {
+  return (
+    <BrowserRouter>
+      <LoadingProvider>
+        <MainLayout />
+      </LoadingProvider>
     </BrowserRouter>
   );
-}
+};
+
+const AppContent = () => {
+  const { isLoading } = useLoading();
+  return (
+    <>
+      {isLoading && <LoadingPage show={isLoading} />}
+      <MainLayout />
+    </>
+  );
+};
+
+export default App;

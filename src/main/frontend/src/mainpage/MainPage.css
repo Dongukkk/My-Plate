@@ -1,0 +1,143 @@
+:root {
+  --background-color: #f5f5f5;
+  --primary-color: #e74c3c;
+}
+body {
+    margin: 0;
+    font-family: sans-serif;
+    color: #333;
+}
+
+
+.mainpage-hero {
+    width: 100%;
+    height: 450px;
+    overflow: hidden;
+    margin: 0px auto;
+    position: relative;
+    background-color: white;
+}
+.mainpage-hero video {
+  width: 100%;
+  margin-top:-50px;
+}
+
+.text {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background-color: #57575760;
+    top: 50%;
+    left: 50%;
+    text-align: center;
+    transform: translate(-50%,-50%);
+}
+
+
+.mainpage-hero .text h2 {
+    font-size: 40px;
+    font-weight: bold;
+    margin-top: 120px;
+    margin-bottom: 10px;
+    color: #ffffff;
+}
+
+.mainpage-hero .text p {
+    font-size: 20px;
+    margin-bottom: 20px;
+    color: #ffffff;
+}
+
+.mainpage-hero .text button {
+    margin: auto 5px;
+    padding: 10px;
+    border-radius: 8px;
+    cursor: pointer;
+    border: none;
+    width: 150px;
+}
+
+.mainpage-btn-orange {
+    background: var(--primary-color);
+    color: #fff;
+    border-radius: 10px;
+    padding: 5px 15px;
+    border: 0;
+    cursor: pointer;
+}
+
+.mainpage-btn-white {
+    background: #fff;
+    border: 1px solid #ccc;
+    color: #555;
+}
+
+.mainpage-container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 40px 20px;
+}
+
+.mainpage-restaurant {
+    background: #fff;
+    border-radius: 10px;
+    padding: 20px;
+    margin-bottom: 20px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.mainpage-restaurant h4 {
+    font-size: 18px;
+    font-weight: bold;
+    margin: 0 0 8px 0;
+    display: flex;
+    justify-content: space-between;
+}
+
+.mainpage-restaurant .mainpage-tags span {
+    color: var(--primary-color);
+    margin-right: 6px;
+    font-size: 14px;
+}
+
+.mainpage-restaurant p {
+    margin: 6px 0;
+    font-size: 14px;
+    color: #555;
+}
+
+.mainpage-services {
+    background: #f4f4f4;
+    padding: 40px 20px;
+}
+
+.mainpage-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 20px;
+}
+
+@media(min-width:768px) {
+    .mainpage-grid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+.mainpage-service-card {
+    background: #fff;
+    border-radius: 10px;
+    padding: 20px;
+    text-align: center;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.mainpage-service-card h4 {
+    font-weight: bold;
+    margin-bottom: 10px;
+}
+
+.mainpage-service-card p {
+    font-size: 14px;
+    color: #666;
+    margin-bottom: 14px;
+}

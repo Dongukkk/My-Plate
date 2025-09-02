@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="UTF-8"?> 
+<!DOCTYPE mapper PUBLIC
+		   "-//mybatis.org//DTD Mapper 3.0//EN" 
+		   "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="admin_mapper">
+
+	<!-- 식당 관리 -->
+	<select id="findRestaurantList" resultType="AdminRestaurant">
+		SELECT
+		R.ID AS id,
+		R.NAME AS name,
+		R.CATEGORY AS category,
+		R.ADDRESS AS address,
+		NVL(R.SOLO_INDEX, 0) AS solo_index,
+		NVL(R.AVG_RATING, 0) AS avgRating,
+		NVL(R.RATING_COUNT, 0) AS rating_count,
+		R.STATUS AS status
+		FROM
+		MP_RESTAURANT R
+		WHERE R.DELETED_AT IS NULL
+		ORDER BY R.ID
+	</select>
+	
+	<select id="findRestaurantById" parameterType="long" resultType="AdminRestaurant">
+		SELECT
+			ID AS id,
+			NAME AS name,
+			DESCRIPTION AS description,
+			CATEGORY AS category,
+			AVG_RATING AS avgRating,
+			RATING_COUNT AS rating_count,
+			SOLO_INDEX AS solo_index,
+			PHOTO_URL AS photo_url,
+			ADDRESS AS address,
+			PHONE AS phone,
+			STATUS AS status
+		FROM MP_RESTAURANT
+		WHERE ID = #{id}
+		AND DELETED_AT IS NULL
+	</select>
+
+	<update id="modifyAdminRestaurant" parameterType="AdminRestaurant">
+		UPDATE MP_RESTAURANT
+		SET NAME = #{name}, 
+		DESCRIPTION = #{description}, 
+		CATEGORY = #{category}, 
+		PHOTO_URL = #{photo_url}, 
+		ADDRESS = #{address}, 
+		PHONE = #{phone}, 
+		STATUS = #{status}, 
+		UPDATED_AT = SYSTIMESTAMP  
+		WHERE ID = #{id} 
+	</update>
+	
+	<insert id="saveAdminRestaurant" parameterType="AdminRestaurant">
+		<selectKey keyProperty="id" resultType="long" order="BEFORE">SELECT MP_RESTAURANT_SEQ.NEXTVAL FROM DUAL</selectKey>
+		INSERT INTO MP_RESTAURANT (ID, NAME, DESCRIPTION, CATEGORY, PHOTO_URL, ADDRESS, PHONE, STATUS, CREATED_AT, UPDATED_AT) VALUES (
+		MP_RESTAURANT_SEQ.NEXTVAL,
+		#{name},
+		#{description},
+		#{category},
+		#{photo_url},
+		#{address},
+		#{phone},
+		#{status},
+		SYSTIMESTAMP,
+		SYSTIMESTAMP
+		)
+	</insert>
+
+	<update id="DeleteAdminRestaurant" parameterType="AdminRestaurant">
+		UPDATE MP_RESTAURANT
+		SET STATUS = 'DELETED',
+		DELETED_AT = SYSTIMESTAMP
+		WHERE ID = #{id}
+	</update>
+	
+	
+	<!-- 사용자 관리 -->
+	<select id="findUserList" resultType="AdminUser">
+		SELECT
+		U.ID AS id,
+		U.EMAIL AS email,
+		U.USERNAME AS username,
+		U.ADDRESS AS address,
+		U.PHONE_NUMBER AS phoneNumber,
+		U.ROLE AS role,
+		U.STATUS AS status
+		FROM MP_USER U
+		WHERE U.ROLE != 'ADM'
+		ORDER BY U.ID
+	</select>
+
+	<update id="DeleteAdminUser" parameterType="AdminUser">
+		UPDATE MP_USER
+		SET STATUS = 'DELETED',
+		leave_date = SYSTIMESTAMP
+		WHERE ID = #{id}
+	</update>
+	
+	<select id="findUserById" parameterType="long" resultType="AdminUser">
+		  SELECT
+		    U.ID           AS id,
+		    U.EMAIL        AS email,
+		    U.USERNAME     AS username,
+		    U.ADDRESS      AS address,
+		    U.PHONE_NUMBER AS phoneNumber,
+		    U.ROLE         AS role,
+		    U.STATUS       AS status
+		  FROM MP_USER U
+		WHERE U.ID = #{id}
+		AND LEAVE_DATE IS NULL
+		AND U.ROLE != 'ADM'
+	</select>
+
+	<update id="modifyAdminUser" parameterType="AdminUser">
+		UPDATE MP_USER
+		SET USERNAME = #{username},
+		ADDRESS = #{address},
+		PHONE_NUMBER = #{phoneNumber},
+		STATUS = #{status},
+		UPDATED_AT = SYSTIMESTAMP
+		WHERE ID = #{id}
+		AND LEAVE_DATE IS NULL
+	</update>
+		
+
+
+
+
+</mapper>
