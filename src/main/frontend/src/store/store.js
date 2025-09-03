@@ -17,9 +17,40 @@ const searchSlice = createSlice({
 
 export const { setSearchTerm, clearSearchTerm } = searchSlice.actions;
 
+const userSlice = createSlice({
+    name: 'user',
+    initialState: {
+        id: '',
+        email: '',
+        name: '',
+        role: '',
+        provider: ''
+    },
+    reducers: {
+        setUser: (state, action) => {
+            const { id, email, name, role, provider } = action.payload;
+            state.id = id ?? '';
+            state.email = email ?? '';
+            state.name = name ?? '';
+            state.role = role ?? '';
+            state.provider = provider ?? '';
+        },
+        clearUser: (state) => {
+            state.id = '';
+            state.email = '';
+            state.name = '';
+            state.role = '';
+            state.provider = '';
+        }
+    }
+})
+
+
+export const { setUser, clearUser } = userSlice.actions;
 
 export default configureStore({
     reducer: {
-        search: searchSlice.reducer
+        search: searchSlice.reducer,
+        user: userSlice.reducer
     }
 });

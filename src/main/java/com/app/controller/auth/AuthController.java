@@ -70,6 +70,7 @@ public class AuthController {
 
         String token = header.substring(7).trim();
         UserResponse user = userService.me(token);
+        System.out.println(user);
         return ResponseEntity.ok(user);
     }
 
