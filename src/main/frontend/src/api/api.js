@@ -11,8 +11,6 @@ api.interceptors.request.use((cfg) => {
     // 이미 Authorization가 있으면 덮어쓰지 않음
     if (!cfg.headers.Authorization) cfg.headers.Authorization = bearer;
   }
-  // 디버그 로그
-  console.log('[REQ]', (cfg.method || 'GET').toUpperCase(), cfg.url, cfg.data ?? '');
   return cfg;
 });
 
@@ -42,7 +40,6 @@ const bare = axios.create({ baseURL: '/api' });
 
 api.interceptors.response.use(
   (res) => {
-    console.log('[RES]', res.status, res.config?.url, res.data);
     return res;
   },
   async (err) => {

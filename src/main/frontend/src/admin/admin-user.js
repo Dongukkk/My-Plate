@@ -1,4 +1,3 @@
-// AdminUser.jsx
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
@@ -37,7 +36,7 @@ const mapReportStatusToServer = (label = "") => ({
     "반려": "REJECTED",
 }[label] ?? "PENDING");
 
-/* 처분(결정) */
+/* 처분 */
 const SANCTIONS = [
     { value: "NONE", label: "처분 없음" },
     { value: "WARNING", label: "경고" },

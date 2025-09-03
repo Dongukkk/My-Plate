@@ -1,7 +1,9 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { useNavigate, useLocation, Link } from 'react-router-dom';
 import api from '../api/api';
 import AuthLayout from '../components/AuthLayout';
+import { useDispatch } from 'react-redux';
+import { setUser } from '../store/store';
 import './Login.css';
 
 export default function Login() {
@@ -12,8 +14,9 @@ export default function Login() {
   const [sso, setSso] = useState('');                // 'google' | 'naver' | 'kakao' | ''  (소셜 로딩표시)
 
   const navigate = useNavigate();
+  const dispatch = useDispatch();
   const location = useLocation();
-  const from = location.state?.from?.pathname || '/mypage';
+  const from = location.state?.from?.pathname || '/';
 
   // 기본 이메일/비번 로그인
   const onSubmit = async (e) => {
@@ -39,6 +42,20 @@ export default function Login() {
       if (refresh) localStorage.setItem('refresh', refresh);
 
       setPassword('');
+      fetch('/api/me', {
+        headers: { Authorization: `Bearer ${access}` },
+      })
+        .then(res => res.json())
+        .then(userData => {
+          dispatch(setUser(userData));
+          setMsg('로그인 완료! 잠시 후 이동합니다…');
+
+          navigate('/', { replace: true });
+        })
+        .catch(err => {
+          console.error(err);
+          setMsg('사용자 정보를 가져오지 못했습니다.');
+        });
       setMsg('성공! 이동합니다...');
       navigate(from, { replace: true });
     } catch (err) {

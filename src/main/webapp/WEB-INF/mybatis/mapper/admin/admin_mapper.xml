@@ -275,8 +275,7 @@
 		WHERE r.reported_item_type = 'RER' AND r.id = #{id}
 	</select>
 
-	<select id="searchIPCReportsById" parameterType="long"
-		resultType="AdminReport">
+	<select id="searchIPCReportsById" parameterType="long"	resultType="AdminReport">
 		SELECT
 		r.id AS id,
 		r.reporter_id AS reporterId,
@@ -292,14 +291,14 @@
 		WHERE r.reported_item_type = 'IPC' AND r.id = #{id}
 	</select>
 
-	<!-- 업데이트 (그대로 유지) -->
+	<!-- 업데이트 -->
 	<update id="updateURReport" parameterType="map">
 		UPDATE MP_REPORT
 		SET
 		status = #{status},
 		decision = #{decision},
-		memo = #{memo},
-		excerpt = #{excerpt},
+		memo = #{memo, jdbcType=VARCHAR},
+		excerpt = #{excerpt, jdbcType=VARCHAR},
 		updated_at = SYSTIMESTAMP
 		WHERE id = #{id} AND reported_item_type = 'UR'
 	</update>
@@ -309,8 +308,8 @@
 		SET
 		status = #{status},
 		decision = #{decision},
-		memo = #{memo},
-		excerpt = #{excerpt},
+		memo = #{memo, jdbcType=VARCHAR},
+		excerpt = #{excerpt, jdbcType=VARCHAR},
 		updated_at = SYSTIMESTAMP
 		WHERE id = #{id} AND reported_item_type = 'OTH'
 	</update>
@@ -320,8 +319,8 @@
 		SET
 		status = #{status},
 		decision = #{decision},
-		memo = #{memo},
-		excerpt = #{excerpt},
+		memo = #{memo, jdbcType=VARCHAR},
+		excerpt = #{excerpt, jdbcType=VARCHAR},
 		updated_at = SYSTIMESTAMP
 		WHERE id = #{id} AND reported_item_type = 'RER'
 	</update>
@@ -331,8 +330,8 @@
 		SET
 		status = #{status},
 		decision = #{decision},
-		memo = #{memo},
-		excerpt = #{excerpt},
+		memo = #{memo, jdbcType=VARCHAR},
+		excerpt = #{excerpt, jdbcType=VARCHAR},
 		updated_at = SYSTIMESTAMP
 		WHERE id = #{id} AND reported_item_type = 'IPC'
 	</update>

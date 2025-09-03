@@ -83,8 +83,6 @@ const App = () => {
     const access = localStorage.getItem('access');
     if (!access) return;
 
-    console.log('가죠오기');
-
     fetch('/api/me', {
       headers: { Authorization: `Bearer ${access}` },
     })
