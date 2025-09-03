@@ -56,7 +56,7 @@ export default function Login() {
     setSso(provider);
     setMsg(movingMsg);
     try {
-      const { data } = await api.get(urlPath); // 백엔드가 동의화면 URL 생성
+      const { data } = await api.get(urlPath, { baseURL: '/api' }); // 백엔드가 동의화면 URL 생성
       if (!data?.url) {
         setMsg(failMsg);
         setSso('');

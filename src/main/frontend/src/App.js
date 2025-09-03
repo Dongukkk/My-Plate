@@ -19,6 +19,13 @@ import Footer from './components/Footer';
 import RestaurantDetail from './restaurantList/RestaurantDetail';
 import RestaurantSearchResult from './restaurantList/RestaurantSearchResult';
 import RestaurantMap from './map/RestaurantMap';
+import Login from './account/Login';
+import Forgot from './account/Forgot';
+import ProtectedRoute from './routes/ProtectedRoute';
+import MyPage from './account/MyPage';
+import Reset from './account/Reset';
+import OAuthCallback from './account/OAuthCallback';
+import Register from './account/Register';
 
 const MainLayout = () => {
 
