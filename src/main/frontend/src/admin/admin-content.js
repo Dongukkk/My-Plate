@@ -194,7 +194,7 @@ export default function AdminContent() {
             setIpc(prev);
         }
     };
-
+    
     /* 페이징 */
     const PENDING_SIZE = 5, IPC_SIZE = 5;
     const [pendingPage, setPendingPage] = useState(1);

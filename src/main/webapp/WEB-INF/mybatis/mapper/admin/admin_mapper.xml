@@ -18,7 +18,8 @@
 		R.STATUS AS status,
 		TO_CHAR(R.created_at, 'YYYY-MM-DD"T"HH24:MI:SS') AS createdAt,
 		TO_CHAR(R.updated_at, 'YYYY-MM-DD"T"HH24:MI:SS') AS updatedAt
-		FROM MP_RESTAURANT R
+		FROM
+		MP_RESTAURANT R
 		WHERE R.DELETED_AT IS NULL
 		ORDER BY R.ID
 	</select>
@@ -31,29 +32,36 @@
 		DESCRIPTION AS description,
 		CATEGORY AS category,
 		AVG_RATING AS avgRating,
-		RATING_COUNT AS rating_count,
+		RATING_COUNT AS
+		rating_count,
 		SOLO_INDEX AS solo_index,
 		PHOTO_URL AS photo_url,
-		ADDRESS AS address,
+		ADDRESS
+		AS address,
 		PHONE AS phone,
 		STATUS AS status,
-		TO_CHAR(created_at, 'YYYY-MM-DD"T"HH24:MI:SS') AS createdAt,
-		TO_CHAR(updated_at, 'YYYY-MM-DD"T"HH24:MI:SS') AS updatedAt
+		TO_CHAR(created_at,
+		'YYYY-MM-DD"T"HH24:MI:SS') AS createdAt,
+		TO_CHAR(updated_at,
+		'YYYY-MM-DD"T"HH24:MI:SS') AS updatedAt
 		FROM MP_RESTAURANT
-		WHERE ID = #{id} AND DELETED_AT IS NULL
+		WHERE ID =
+		#{id} AND DELETED_AT IS NULL
 	</select>
 
 	<update id="modifyAdminRestaurant"
 		parameterType="AdminRestaurant">
 		UPDATE MP_RESTAURANT
 		SET NAME = #{name},
-		DESCRIPTION = #{description},
+		DESCRIPTION =
+		#{description},
 		CATEGORY = #{category},
 		PHOTO_URL = #{photo_url},
 		ADDRESS = #{address},
 		PHONE = #{phone},
 		STATUS = #{status},
-		UPDATED_AT = SYSTIMESTAMP
+		UPDATED_AT =
+		SYSTIMESTAMP
 		WHERE ID = #{id}
 	</update>
 
@@ -76,10 +84,12 @@
 		)
 	</insert>
 
-	<update id="DeleteAdminRestaurant" parameterType="AdminRestaurant">
+	<update id="DeleteAdminRestaurant"
+		parameterType="AdminRestaurant">
 		UPDATE MP_RESTAURANT
 		SET STATUS = 'DELETED',
-		DELETED_AT = SYSTIMESTAMP
+		DELETED_AT =
+		SYSTIMESTAMP
 		WHERE ID = #{id}
 	</update>
 
@@ -88,16 +98,21 @@
 	<select id="findUserList" resultType="AdminUser">
 		SELECT
 		U.ID AS id,
-		U.EMAIL AS email,
+		U.EMAIL AS
+		email,
 		U.USERNAME AS username,
 		U.ADDRESS AS address,
-		U.PHONE_NUMBER AS phoneNumber,
+		U.PHONE_NUMBER AS
+		phoneNumber,
 		U.ROLE AS role,
 		U.STATUS AS status,
-		TO_CHAR(U.CREATED_AT, 'YYYY-MM-DD"T"HH24:MI:SS') AS createdAt,
-		TO_CHAR(U.UPDATED_AT, 'YYYY-MM-DD"T"HH24:MI:SS') AS updatedAt
+		TO_CHAR(U.CREATED_AT,
+		'YYYY-MM-DD"T"HH24:MI:SS') AS createdAt,
+		TO_CHAR(U.UPDATED_AT,
+		'YYYY-MM-DD"T"HH24:MI:SS') AS updatedAt
 		FROM MP_USER U
-		WHERE U.ROLE != 'ADM'
+		WHERE U.ROLE !=
+		'ADM'
 		ORDER BY U.ID
 	</select>
 
@@ -109,19 +124,20 @@
 		WHERE ID = #{id}
 	</update>
 
-	<select id="findUserById" parameterType="long" resultType="AdminUser">
-	    SELECT
-	        U.ID AS id,
-	        U.EMAIL AS email,
-	        U.USERNAME AS username,
-	        U.ADDRESS AS address,
-	        U.PHONE_NUMBER AS phoneNumber,
-	        U.ROLE AS role,
-	        U.STATUS AS status,
-	        TO_CHAR(U.CREATED_AT, 'YYYY-MM-DD"T"HH24:MI:SS') AS createdAt,
-	        TO_CHAR(U.UPDATED_AT, 'YYYY-MM-DD"T"HH24:MI:SS') AS updatedAt
-	    FROM MP_USER U
-	    WHERE U.ID = #{id} AND U.LEAVE_DATE IS NULL AND U.ROLE != 'ADM'
+	<select id="findUserById" parameterType="long"
+		resultType="AdminUser">
+		SELECT
+		U.ID AS id,
+		U.EMAIL AS email,
+		U.USERNAME AS username,
+		U.ADDRESS AS address,
+		U.PHONE_NUMBER AS phoneNumber,
+		U.ROLE AS role,
+		U.STATUS AS status,
+		TO_CHAR(U.CREATED_AT, 'YYYY-MM-DD"T"HH24:MI:SS') AS createdAt,
+		TO_CHAR(U.UPDATED_AT, 'YYYY-MM-DD"T"HH24:MI:SS') AS updatedAt
+		FROM MP_USER U
+		WHERE U.ID = #{id} AND U.LEAVE_DATE IS NULL AND U.ROLE != 'ADM'
 	</select>
 
 	<update id="modifyAdminUser" parameterType="AdminUser">
@@ -133,7 +149,8 @@
 		#{phoneNumber},
 		STATUS = #{status},
 		UPDATED_AT = SYSTIMESTAMP
-		WHERE ID = #{id} AND LEAVE_DATE IS NULL
+		WHERE ID =
+		#{id} AND LEAVE_DATE IS NULL
 	</update>
 
 	<!-- ================= 신고 관리 (UR/OHT/RER/IPC) ================= -->
@@ -157,23 +174,31 @@
 
 	<select id="findOHTReportList" resultType="AdminReport">
 		SELECT
-		r.id,
-		r.reporter_id AS reporterId, r.reported_item_type AS
-		reportedItemType,
-		r.reason, r.status, r.decision, r.memo, r.excerpt,
+		r.id AS id,
+		r.reporter_id AS reporterId,
+		r.reported_item_type AS reportedItemType,
+		r.reason AS reason,
+		r.status AS status,
+		r.decision AS decision,
+		r.memo AS memo,
+		r.excerpt AS excerpt,
 		TO_CHAR(r.created_at, 'YYYY-MM-DD"T"HH24:MI:SS') AS createdAt,
 		TO_CHAR(r.updated_at, 'YYYY-MM-DD"T"HH24:MI:SS') AS updatedAt
 		FROM MP_REPORT r
-		WHERE r.reported_item_type = 'OHT'
+		WHERE r.reported_item_type = 'OTH'
 		ORDER BY r.created_at DESC
 	</select>
 
 	<select id="findRERReportList" resultType="AdminReport">
 		SELECT
-		r.id,
-		r.reporter_id AS reporterId, r.reported_item_type AS
-		reportedItemType,
-		r.reason, r.status, r.decision, r.memo, r.excerpt,
+		r.id AS id,
+		r.reporter_id AS reporterId,
+		r.reported_item_type AS reportedItemType,
+		r.reason AS reason,
+		r.status AS status,
+		r.decision AS decision,
+		r.memo AS memo,
+		r.excerpt AS excerpt,
 		TO_CHAR(r.created_at, 'YYYY-MM-DD"T"HH24:MI:SS') AS createdAt,
 		TO_CHAR(r.updated_at, 'YYYY-MM-DD"T"HH24:MI:SS') AS updatedAt
 		FROM MP_REPORT r
@@ -183,10 +208,14 @@
 
 	<select id="findIPCReportList" resultType="AdminReport">
 		SELECT
-		r.id,
-		r.reporter_id AS reporterId, r.reported_item_type AS
-		reportedItemType,
-		r.reason, r.status, r.decision, r.memo, r.excerpt,
+		r.id AS id,
+		r.reporter_id AS reporterId,
+		r.reported_item_type AS reportedItemType,
+		r.reason AS reason,
+		r.status AS status,
+		r.decision AS decision,
+		r.memo AS memo,
+		r.excerpt AS excerpt,
 		TO_CHAR(r.created_at, 'YYYY-MM-DD"T"HH24:MI:SS') AS createdAt,
 		TO_CHAR(r.updated_at, 'YYYY-MM-DD"T"HH24:MI:SS') AS updatedAt
 		FROM MP_REPORT r
@@ -198,11 +227,14 @@
 	<select id="searchURReportsById" parameterType="long"
 		resultType="AdminReport">
 		SELECT
-		r.id, r.reporter_id AS reporterId,
-		r.reported_item_type AS
-		reportedItemType,
-		r.reason, r.status,
-		r.decision, r.memo, r.excerpt,
+		r.id AS id,
+		r.reporter_id AS reporterId,
+		r.reported_item_type AS reportedItemType,
+		r.reason AS reason,
+		r.status AS status,
+		r.decision AS decision,
+		r.memo AS memo,
+		r.excerpt AS excerpt,
 		TO_CHAR(r.created_at, 'YYYY-MM-DD"T"HH24:MI:SS') AS createdAt,
 		TO_CHAR(r.updated_at, 'YYYY-MM-DD"T"HH24:MI:SS') AS updatedAt
 		FROM MP_REPORT r
@@ -212,25 +244,31 @@
 	<select id="searchOHTReportsById" parameterType="long"
 		resultType="AdminReport">
 		SELECT
-		r.id, r.reporter_id AS reporterId,
-		r.reported_item_type AS
-		reportedItemType,
-		r.reason, r.status,
-		r.decision, r.memo, r.excerpt,
+		r.id AS id,
+		r.reporter_id AS reporterId,
+		r.reported_item_type AS reportedItemType,
+		r.reason AS reason,
+		r.status AS status,
+		r.decision AS decision,
+		r.memo AS memo,
+		r.excerpt AS excerpt,
 		TO_CHAR(r.created_at, 'YYYY-MM-DD"T"HH24:MI:SS') AS createdAt,
 		TO_CHAR(r.updated_at, 'YYYY-MM-DD"T"HH24:MI:SS') AS updatedAt
 		FROM MP_REPORT r
-		WHERE r.reported_item_type = 'OHT' AND r.id = #{id}
+		WHERE r.reported_item_type = 'OTH' AND r.id = #{id}
 	</select>
 
 	<select id="searchRERReportsById" parameterType="long"
 		resultType="AdminReport">
 		SELECT
-		r.id, r.reporter_id AS reporterId,
-		r.reported_item_type AS
-		reportedItemType,
-		r.reason, r.status,
-		r.decision, r.memo, r.excerpt,
+		r.id AS id,
+		r.reporter_id AS reporterId,
+		r.reported_item_type AS reportedItemType,
+		r.reason AS reason,
+		r.status AS status,
+		r.decision AS decision,
+		r.memo AS memo,
+		r.excerpt AS excerpt,
 		TO_CHAR(r.created_at, 'YYYY-MM-DD"T"HH24:MI:SS') AS createdAt,
 		TO_CHAR(r.updated_at, 'YYYY-MM-DD"T"HH24:MI:SS') AS updatedAt
 		FROM MP_REPORT r
@@ -240,17 +278,21 @@
 	<select id="searchIPCReportsById" parameterType="long"
 		resultType="AdminReport">
 		SELECT
-		r.id, r.reporter_id AS reporterId,
-		r.reported_item_type AS
-		reportedItemType,
-		r.reason, r.status,
-		r.decision, r.memo, r.excerpt,
+		r.id AS id,
+		r.reporter_id AS reporterId,
+		r.reported_item_type AS reportedItemType,
+		r.reason AS reason,
+		r.status AS status,
+		r.decision AS decision,
+		r.memo AS memo,
+		r.excerpt AS excerpt,
 		TO_CHAR(r.created_at, 'YYYY-MM-DD"T"HH24:MI:SS') AS createdAt,
 		TO_CHAR(r.updated_at, 'YYYY-MM-DD"T"HH24:MI:SS') AS updatedAt
 		FROM MP_REPORT r
 		WHERE r.reported_item_type = 'IPC' AND r.id = #{id}
 	</select>
 
+	<!-- 업데이트 (그대로 유지) -->
 	<update id="updateURReport" parameterType="map">
 		UPDATE MP_REPORT
 		SET
@@ -270,7 +312,7 @@
 		memo = #{memo},
 		excerpt = #{excerpt},
 		updated_at = SYSTIMESTAMP
-		WHERE id = #{id} AND reported_item_type = 'OHT'
+		WHERE id = #{id} AND reported_item_type = 'OTH'
 	</update>
 
 	<update id="updateRERReport" parameterType="map">
@@ -294,6 +336,7 @@
 		updated_at = SYSTIMESTAMP
 		WHERE id = #{id} AND reported_item_type = 'IPC'
 	</update>
+
 
 
 
