@@ -138,9 +138,8 @@ export default function Login() {
           disabled={anyBusy}
           aria-busy={sso === 'kakao'}
         >
-          {sso === 'kakao' ? '카카오로 이동 중…' : '카카오'}
+          <img src={`${process.env.PUBLIC_URL}/images/icon/sns/kakao.png`} className='lp-login-btnGhost-img'></img>
         </button>
-
         <button
           className="lp-login-btnGhost"
           type="button"
@@ -148,7 +147,7 @@ export default function Login() {
           disabled={anyBusy}
           aria-busy={sso === 'naver'}
         >
-          {sso === 'naver' ? '네이버로 이동 중…' : '네이버'}
+          <img src={`${process.env.PUBLIC_URL}/images/icon/sns/naver.png`} className='lp-login-btnGhost-img'></img>
         </button>
 
         <button
@@ -158,12 +157,12 @@ export default function Login() {
           disabled={anyBusy}
           aria-busy={sso === 'google'}
         >
-          {sso === 'google' ? '구글로 이동 중…' : '구글'}
+          <img src={`${process.env.PUBLIC_URL}/images/icon/sns/google.png`} className='lp-login-btnGhost-img'></img>
         </button>
       </div>
 
       <div className="lp-login-foot">
-        <span>계정이 없으신가요?</span> <br />
+        <span>계정이 없으신가요?</span>
         <Link to="/register" className="lp-login-linkStrong">회원가입</Link>
       </div>
     </AuthLayout>

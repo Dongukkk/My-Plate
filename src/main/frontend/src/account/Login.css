@@ -50,9 +50,9 @@
 .lp-login-row{ 
   display:flex; 
   align-items:center;
+  margin: auto;
   gap:8px;
-  flex-wrap: wrap;           
-  width: 100%;
+  flex-wrap: wrap;
 }
 .lp-login-between{ 
   justify-content:space-between;
@@ -90,12 +90,19 @@
 }
 
 .lp-login-btnGhost{
-  border:1px solid #e5e7eb; 
-  background:#fff; 
-  padding:10px 12px;
+  border:none; 
+  background:none;
+  align-items: center;
+
   border-radius:10px; 
   cursor:pointer;
 }
+
+.lp-login-btnGhost-img {
+  height: 40px;
+  align-items: center;
+}
+
 
 .lp-login-link{ 
   color:#666; 
@@ -131,7 +138,8 @@
 
 .lp-login-foot{ 
   margin-top:8px; 
-  font-size:13px; 
+  font-size:13px;
+  text-align: center; 
   color:#555; 
 }
 
