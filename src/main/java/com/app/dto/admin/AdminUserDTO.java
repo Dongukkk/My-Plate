@@ -19,8 +19,8 @@ public class AdminUserDTO {
     private String role;
     private String status;
 
-    private LocalDateTime createdAt;
-    private LocalDateTime updatedAt;
-    private LocalDateTime leaveDate;
+    private String createdAt;
+    private String updatedAt;
+    private String leaveDate;
 
 }

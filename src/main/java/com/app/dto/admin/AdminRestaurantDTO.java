@@ -1,7 +1,5 @@
 package com.app.dto.admin;
 
-import java.time.LocalDateTime;
-
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -25,8 +23,8 @@ public class AdminRestaurantDTO {
     private String phone;
     private String status;
 
-    private LocalDateTime createdAt;
-    private LocalDateTime updatedAt;
-    private LocalDateTime deletedAt;
+    private String createdAt;
+    private String updatedAt;
+    private String deletedAt;
 	
 }
