@@ -15,6 +15,7 @@ function RestaurantDetail() {
   const [bookmarked, setBookmarked] = useState(false);
 
   const [bookmarkURL, setBookmarkURL] = useState("/images/restaurant/bookmark/BOOKMARK_OFF.png");
+  const shareURL = "/images/restaurant/bookmark/BOOKMARK_SHARE.png";
 
   useEffect(() => {
     const fetchRestaurant = async () => {
@@ -60,8 +61,8 @@ function RestaurantDetail() {
                                     : ''} ⭐ {restaurant.avgrating} ({restaurant.ratingCount} 리뷰)</p>
             </div>
             <div style={{display:"flex",   alignItems: "center"}}>
-              <button className="button-color-gray">공유</button>
-              <div className="rd-bookmark" style={{ backgroundImage: `url(${bookmarkURL})`}} onClick={bookMarkToggle}></div>
+              <div className="rd-bookmark" style={{ backgroundImage: `url(${shareURL})`}} title="공유"></div>
+              <div className="rd-bookmark" style={{ backgroundImage: `url(${bookmarkURL})`}} title="북마크" onClick={bookMarkToggle}></div>
               
             </div>
           </div>

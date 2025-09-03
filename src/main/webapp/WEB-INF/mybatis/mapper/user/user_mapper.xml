@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.app.mapper.UserMapper">
+
+  <!-- 공통 컬럼 alias 묶음 -->
+  <sql id="UserColumns">
+    ID                            AS id,
+    EMAIL                         AS email,
+    PASSWORD                      AS password,
+    USERNAME                      AS username,
+    ADDRESS                       AS address,
+    PHONE_NUMBER                  AS phoneNumber,
+    ROLE                          AS role,
+    STATUS                        AS status,
+    CAST(CREATED_AT AS TIMESTAMP) AS createdAt,
+    CAST(UPDATED_AT AS TIMESTAMP) AS updatedAt,
+    CAST(LEAVE_DATE AS TIMESTAMP) AS leaveDate,
+    -- ✅ 추가
+    PROVIDER                      AS provider,
+    PROVIDER_ID                   AS providerId
+  </sql>
+
+  <!-- DB 연결 확인 -->
+  <select id="ping" resultType="int">
+    SELECT 1 FROM DUAL
+  </select>
+
+  <!-- 이메일 중복 확인 (대소문자 무시) -->
+  <select id="existsByEmail" parameterType="string" resultType="int">
+    SELECT COUNT(*)
+    FROM MP_USER
+    WHERE LOWER(EMAIL) = LOWER(#{email})
+  </select>
+
+  <!-- username 중복 확인 -->
+  <select id="existsByUsername" parameterType="string" resultType="int">
+    SELECT COUNT(*)
+    FROM MP_USER
+    WHERE USERNAME = #{username}
+  </select>
+
+  <!-- 회원가입(우리 사이트): provider를 MYPLATE로 명시 -->
+  <insert id="insertUser" parameterType="com.app.dto.UserDTO">
+    INSERT INTO MP_USER (
+      ID, EMAIL, PASSWORD, USERNAME, ADDRESS, PHONE_NUMBER,
+      ROLE, STATUS, PROVIDER, PROVIDER_ID, CREATED_AT
+    ) VALUES (
+      MP_USER_SEQ.NEXTVAL,
+      #{email},
+      #{password},
+      #{username},
+      NVL(#{address}, ' '),
+      NVL(#{phoneNumber}, ' '),
+      'USER',
+      'ACTIVE',
+      'MYPLATE',
+      NULL,
+      SYSTIMESTAMP
+    )
+  </insert>
+
+  <!-- 로그인/조회: 이메일로(대소문자 무시) -->
+  <select id="findByEmail" parameterType="string" resultType="com.app.dto.UserDTO">
+    SELECT
+      <include refid="UserColumns"/>
+    FROM MP_USER
+    WHERE LOWER(EMAIL) = LOWER(#{email})
+  </select>
+
+  <!-- ✅ 소셜: (provider, provider_id)로 조회 -->
+  <select id="findByProviderAndProviderId" parameterType="map" resultType="com.app.dto.UserDTO">
+    SELECT
+      <include refid="UserColumns"/>
+    FROM MP_USER
+    WHERE PROVIDER = #{provider}
+      AND PROVIDER_ID = #{providerId}
+  </select>
+
+  <!-- ✅ 소셜 신규 생성: MP_USER 컬럼에 맞춰 정확히 매칭 -->
+	<insert id="insertOauthUser" parameterType="com.app.dto.UserDTO">
+	  INSERT INTO MP_USER (
+	    ID, EMAIL, PASSWORD, USERNAME,
+	    ADDRESS, PHONE_NUMBER,
+	    ROLE, STATUS,
+	    PROVIDER, PROVIDER_ID, CREATED_AT
+	  	) 
+	  	VALUES (
+	    MP_USER_SEQ.NEXTVAL,
+	    #{email},
+	    #{password},
+	    #{username},
+	    NVL(#{address}, ' '),
+	    NVL(#{phoneNumber}, ' '),
+	    'USER',
+	    'ACTIVE',
+	    #{provider},
+	    #{providerId},
+	    SYSTIMESTAMP
+	  )
+	</insert>
+
+  <!-- ✅ 기존 이메일 계정에 소셜 연결(간단 모드) -->
+  <update id="updateProviderLink" parameterType="map">
+    UPDATE MP_USER
+       SET PROVIDER    = #{provider},
+           PROVIDER_ID = #{providerId}
+     WHERE LOWER(EMAIL) = LOWER(#{email})
+  </update>
+
+</mapper>

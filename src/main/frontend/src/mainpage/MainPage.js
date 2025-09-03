@@ -7,13 +7,17 @@ function MainPage() {
         <>
 
             <section className="mainpage-hero">
-                <h2>혼자서도 맛있게, 혼밥인</h2>
-                <p>당신을 위한 맞춤형 혼밥 맛집 추천 서비스</p>
-                <div>
-                    <button className="mainpage-btn-orange" onClick={() => navigate(`/restaurantList`)}>맛집 탐색하기</button>
-                    <button className="mainpage-btn-white" onClick={() => navigate(`/map`)}>지도로 보기</button>
+                <video muted autoPlay loop>
+                    <source src={`${process.env.PUBLIC_URL}/video/MAIN_VIDEO.mp4`} type="video/mp4"></source>
+                </video>
+                <div className="text">
+                    <h2>혼자서도 맛있게, 혼밥인</h2>
+                    <p>당신을 위한 맞춤형 혼밥 맛집 추천 서비스</p>
+                    <div>
+                        <button className="mainpage-btn-orange" onClick={() => navigate(`/restaurantList`)}>맛집 탐색하기</button>
+                        <button className="mainpage-btn-white" onClick={() => navigate(`/map`)}>지도로 보기</button>
+                    </div>
                 </div>
-                
             </section>
 
             <section className="mainpage-container">

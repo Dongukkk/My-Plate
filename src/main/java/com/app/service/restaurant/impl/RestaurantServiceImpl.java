@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 import com.app.dao.restaurant.RestaurantDAO;
 import com.app.dto.restaurant.RestaurantDTO;
 import com.app.dto.restaurant.RestaurantTagDTO;
+import com.app.dto.restaurant.TagCodeDTO;
 import com.app.service.restaurant.RestaurantService;
 
 @Service
@@ -51,4 +52,9 @@ public class RestaurantServiceImpl implements RestaurantService{
     public List<RestaurantTagDTO> getTagsByRestaurantId(long restaurantId) {
         return restaurantDAO.getTagsByRestaurantId(restaurantId);
     }
+
+	@Override
+	public List<TagCodeDTO> getAllTagCodes() {
+		return restaurantDAO.getAllTagCodes();
+	}
 }

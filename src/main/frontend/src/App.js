@@ -1,8 +1,11 @@
 import './App.css';
 import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
 import ErrorPage from './admin/error-page';
-import LoadingPage from "./admin/loading";
 import { LoadingProvider, useLoading } from './admin/loading-context';
+
+import { useEffect } from 'react';
+import { useSelector, useDispatch } from 'react-redux';
+import { setUser } from './store/store';
 
 import AdminMain from './admin/admin-main';
 import AdminUser from "./admin/admin-user";
@@ -19,6 +22,13 @@ import Footer from './components/Footer';
 import RestaurantDetail from './restaurantList/RestaurantDetail';
 import RestaurantSearchResult from './restaurantList/RestaurantSearchResult';
 import RestaurantMap from './map/RestaurantMap';
+import Login from './account/Login';
+import Forgot from './account/Forgot';
+import ProtectedRoute from './routes/ProtectedRoute';
+import MyPage from './account/MyPage';
+import Reset from './account/Reset';
+import OAuthCallback from './account/OAuthCallback';
+import Register from './account/Register';
 
 const MainLayout = () => {
 
@@ -44,6 +54,18 @@ const MainLayout = () => {
         <Route path="/adminanalysis" element={<AdminAnalysis />} />
 
         <Route path="/termsOfUse" element={<TermsPage />} />
+
+        <Route path="/login" element={<Login />} />
+        <Route path="/register" element={<Register />} />
+        <Route path="/forgot" element={<Forgot />} />
+
+        <Route element={<ProtectedRoute />}>
+          <Route path="/mypage" element={<MyPage />} />
+        </Route>
+
+        <Route path='/reset' element={<Reset />} />
+        <Route path="/oauth/:provider/callback" element={<OAuthCallback />} />
+
         <Route path="*" element={<ErrorPage />} />
       </Routes>
       {showHeaderFooter && <Footer />}
@@ -52,6 +74,32 @@ const MainLayout = () => {
 };
 
 const App = () => {
+  const dispatch = useDispatch();
+  const user = useSelector(state => state.user);
+
+  useEffect(() => {
+    if (user && user.id) return;
+
+    const access = localStorage.getItem('access');
+    if (!access) return;
+
+    console.log('가죠오기');
+
+    fetch('/api/me', {
+      headers: { Authorization: `Bearer ${access}` },
+    })
+      .then(res => {
+        if (!res.ok) throw new Error('Unauthorized');
+        return res.json();
+      })
+      .then(userData => {
+        dispatch(setUser(userData));
+      })
+      .catch(err => {
+        console.error(err);
+      });
+  }, [dispatch, user]);
+
   return (
     <BrowserRouter>
       <LoadingProvider>
@@ -61,14 +109,5 @@ const App = () => {
   );
 };
 
-const AppContent = () => {
-  const { isLoading } = useLoading();
-  return (
-    <>
-      {isLoading && <LoadingPage show={isLoading} />}
-      <MainLayout />
-    </>
-  );
-};
 
 export default App;

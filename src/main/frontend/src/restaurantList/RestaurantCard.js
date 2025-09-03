@@ -8,7 +8,7 @@ const RestaurantCard = ({ restaurant, selectedTags, onTagClick }) => {
   const sampleImageUrl = restaurant.photoUrl || DEFAULT_IMAGE_URL;
 
   return (
-    <div className="restaurant-card">
+    <div className="restaurant-card" onClick={() => navigate(`/restaurants/detail/${restaurant.id}`)}>
       <div className="rc-card-image" style={{ backgroundImage: `url(${sampleImageUrl})` }}></div>
       <div className="rc-card-content">
         <h3>{restaurant.restrntNm}</h3>
@@ -41,7 +41,6 @@ const RestaurantCard = ({ restaurant, selectedTags, onTagClick }) => {
         <div className="rc-card-actions">
           <button
             className="rc-details-button" 
-            onClick={() => navigate(`/restaurants/detail/${restaurant.id}`)}
             >
             상세 보기
             </button>

@@ -7,58 +7,82 @@ import { useNavigate } from "react-router-dom";
 function RestaurantMap() {
   const navigate = useNavigate();
   const [ displayedRestaurants, setDisplayedRestaurants ] = useState([]);
-
-  const menus = [
-    "돈까스",
-    "김치찌개",
-    "제육볶음",
-    "초밥",
-    "파스타",
-    "햄버거",
-    "비빔밥",
-    "라면",
-    "샌드위치",
-    "닭갈비",
-  ];
+  const [menus, setMenus] = useState([]);
   const [ isSpinning, setIsSpinning ] = useState(false);
   const [ result, setResult ] = useState("");
+  const [filteredRestaurants, setFilteredRestaurants] = useState([]);
   const slotWrapperRef = useRef(null);
+  const [ centerCoordinate, setCenterCoordinate ] = useState([null,null]);
+  const [ centerLevel, setCenterLevel ] = useState(7);
+  const [ recommendedRestaurant, setRecommendedRestaurant] = useState();
 
   useEffect(() => {
-    const wrapper = slotWrapperRef.current;
-    if (wrapper && wrapper.childElementCount === 0) {
-      menus.forEach((menu) => {
-        const item = document.createElement("div");
-        item.className = "rm-slot-item";
-        item.textContent = menu;
-        wrapper.appendChild(item);
-      });
-    }
-  }, [ menus ]);
-
-  const spin = () => {
-    if (isSpinning) return;
-    setIsSpinning(true);
-
-    const totalItems = menus.length;
-    const randomIndex = Math.floor(Math.random() * totalItems);
-    const selectedMenu = menus[ randomIndex ];
-
-    // 슬롯 이동 높이 (아이템당 60px)
-    const offset = -(randomIndex * 60);
+    const restaurantNames = displayedRestaurants.map((rest) => rest.restrntNm);
+    setMenus(restaurantNames);
 
     const wrapper = slotWrapperRef.current;
     if (wrapper) {
-      wrapper.style.transition = "transform 2.5s cubic-bezier(0.25, 1, 0.5, 1)";
-      wrapper.style.transform = `translateY(${offset}px)`;
+      while (wrapper.firstChild) {
+        wrapper.removeChild(wrapper.firstChild);
+      }
+      
+      restaurantNames.forEach((name) => {
+        const item = document.createElement("div");
+        item.className = "rm-slot-item";
+        item.textContent = name;
+        wrapper.appendChild(item);
+      });
+      wrapper.style.transform = `translateY(0px)`;
+      wrapper.style.transition = 'none';
+    }
+  }, [result, displayedRestaurants]);
+
+  useEffect(() => {
+    
+    if (result) {
+      const filtered = displayedRestaurants.filter((rest) => rest.restrntNm === result);
+      setFilteredRestaurants(filtered);
+      console.log(filtered[0]);
+      if (filtered[0]){
+        setCenterCoordinate([filtered[0].mapLat,filtered[0].mapLot]);
+        setRecommendedRestaurant(filtered[0]);
+        setCenterLevel(4);
+      }
+    } else {
+      setFilteredRestaurants([]);
     }
 
-    setTimeout(() => {
-      setResult(selectedMenu);
-      setIsSpinning(false);
-    }, 2600);
-  };
+    
+  }, [result]);
 
+  const spin = () => {
+    if (isSpinning || menus.length === 0) return;
+    setIsSpinning(true);
+    setResult("");
+
+    const wrapper = slotWrapperRef.current;
+    if (wrapper) {
+      wrapper.style.transition = 'none';
+      wrapper.style.transform = `translateY(0px)`;
+    }
+    
+    setTimeout(() => {
+      const totalItems = menus.length;
+      const randomIndex = Math.floor(Math.random() * totalItems);
+      const selectedMenu = menus[randomIndex];
+      const offset = -(randomIndex * 60);
+
+      if (wrapper) {
+        wrapper.style.transition = "transform 2.5s cubic-bezier(0.25, 1, 0.5, 1)";
+        wrapper.style.transform = `translateY(${offset}px)`;
+      }
+
+      setTimeout(() => {
+        setResult(selectedMenu);
+        setIsSpinning(false);
+      }, 2600);
+    }, 50);
+  };
   const handleRestaurantUpdate = (restaurants) => {
     setDisplayedRestaurants(restaurants);
   };
@@ -72,6 +96,10 @@ function RestaurantMap() {
           <div className="rm-map-container">
             <KakaoMap
               isSinglePoint={false}
+              centerLat={centerCoordinate[0] ?? 36.3504119}
+              centerLng={centerCoordinate[1] ?? 127.3845475}
+              level={centerLevel}
+              selectedRestaurant={recommendedRestaurant}
               onRestaurantsUpdate={handleRestaurantUpdate}
             />
           </div>
@@ -79,14 +107,30 @@ function RestaurantMap() {
 
         <div className="rm-right">
           <div className="rm-recommend-box">
-            <h3>오늘 뭘 먹을지 고민된다면?</h3>
+            {!result && <div>
+            <h3>현재 지도에서 랜덤 음식점 추천</h3>
             <div className="rm-slot-machine">
               <div className="rm-slot-wrapper" ref={slotWrapperRef}></div>
             </div>
             <button className="rm-spin-btn" onClick={spin} disabled={isSpinning}>
               {isSpinning ? "돌아가는 중..." : "룰렛 돌리기"}
             </button>
-            {result && <div className="rm-result">👉 {result} 당첨!</div>}
+            </div>}
+            {result && <div style={{height:"30px", display:"flex", justifyContent:"space-between"}}><div className="rm-slot-title"> 랜덤 추천 음식점은? </div><div className="rm-slot-close" onClick={()=>{setResult()}}> X </div></div>}
+             {filteredRestaurants.length > 0 ? (
+                  <div
+                    key={filteredRestaurants[0].id}
+                    className="rm-restaurant-card"
+                    onClick={() => navigate(`/restaurants/detail/${filteredRestaurants[0].id}`)}
+                  >
+                    <h4>{filteredRestaurants[0].restrntNm}</h4>
+                    <p>⭐ 별점: {filteredRestaurants[0].avgRating} ({filteredRestaurants[0].ratingCount})</p>
+                    <p>📍 주소: {filteredRestaurants[0].restrntAddr}</p>
+                    <p>📞 전화번호: {filteredRestaurants[0].restrntInqrTel}</p>
+                  </div>
+                ) : (
+                  <></>
+                )}
           </div>
 
           <div className="rm-restList">

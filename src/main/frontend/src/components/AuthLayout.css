@@ -1,0 +1,72 @@
+/* 바깥 여백 */
+.lp-auth-wrap {
+  height: 100vh;
+}
+
+/* 좌/우 고정 폭 + 같은 높이로 맞춤 */
+.lp-auth-grid {
+  max-width: 1120px;
+  min-height: 100vh;
+  margin: auto auto;
+  display: grid;
+  grid-template-columns: 520px 560px;
+  gap: 40px;
+  align-items: center;
+  justify-items: center;
+}
+
+/* 왼쪽 이미지 카드 */
+.lp-auth-hero {
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 10px 24px rgba(0,0,0,0.08);
+  background: #fff;
+  width: 100%;
+  height: 60%;
+  min-height: 486px;
+  display: grid;
+  place-items: center;
+  aspect-ratio: 16 / 9;
+}
+
+/* 이미지 채우기 (props로 제어 가능) */
+.lp-auth-hero img {
+  width: 100%;
+  height: 100%;
+  object-fit: var(--fit, cover);
+  object-position: var(--pos, center);
+  display: block;
+}
+
+/* 폼 패널 */
+.lp-auth-panel {
+  max-width: 560px;
+  width: 100%;
+  min-width: 0;
+  overflow: visible;
+  display: flex;
+  flex-direction: column;
+  z-index: 1;
+}
+
+/* 브랜드 */
+.lp-auth-brand { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+.lp-auth-brand-mark { font-size: 18px; }
+.lp-auth-brand-text { font-weight: 700; }
+
+/* 이미지가 없을 때는 폼만 가운데 */
+.lp-auth-grid.no-hero {
+  grid-template-columns: minmax(0, 520px);
+  justify-content: center;
+  align-items: start;
+}
+
+/* 반응형 */
+@media (max-width: 960px) {
+  .lp-auth-grid {
+    grid-template-columns: 1fr;
+    gap: 16px;
+    align-items: start;
+  }
+  .lp-auth-hero { height: 260px; }
+}

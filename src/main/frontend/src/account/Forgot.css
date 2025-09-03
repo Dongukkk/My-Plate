@@ -1,0 +1,26 @@
+
+.lp-forgot-title { margin:6px 0 2px; font-size:24px; font-weight:700; }
+.lp-forgot-sub { margin:0 0 16px; color:#666; font-size:13.5px; }
+
+.lp-forgot-form { display:flex; flex-direction:column; gap:12px; }
+.lp-forgot-field { display:flex; flex-direction:column; gap:6px; }
+.lp-forgot-label { font-size:13px; color:#444; }
+
+.lp-forgot-field input {
+  padding:12px 14px; border:1px solid #e5e7eb; border-radius:10px; outline:none; font-size:15px;
+}
+.lp-forgot-field input:focus {
+  border-color:#ef5350; box-shadow:0 0 0 3px rgba(239,83,80,.15);
+}
+
+.lp-forgot-btnPrimary {
+  margin-top:6px; background:#ef5350; color:#fff; border:none;
+  padding:12px 14px; border-radius:10px; font-weight:700; cursor:pointer;
+}
+.lp-forgot-btnPrimary:disabled { opacity:.6; cursor:default; }
+
+.lp-forgot-hint { margin-top:10px; color:#e53935; font-size:13px; }
+.lp-forgot-hint.ok { color:#2e7d32; }  /* 성공 시 초록색 (ok 클래스는 그대로 사용) */
+
+.lp-forgot-foot { margin-top:12px; }
+.lp-forgot-link { color:#666; text-decoration:underline; font-size:13px; }
