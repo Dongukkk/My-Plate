@@ -28,4 +28,17 @@ public interface AdminDAO {
 	List <AdminReportDTO> findRERReportList();
 	List <AdminReportDTO> findIPCReportList();
 	
+	//수정업데이트
+	AdminReportDTO searchURReportsById(long id);
+	int updateURReport(AdminReportDTO dto);
+	
+	AdminReportDTO searchOHTReportsById(long id);
+	int updateOHTReport(AdminReportDTO dto);
+	
+	AdminReportDTO searchRERReportsById(long id);
+	int updateRERReport(AdminReportDTO dto);
+	
+	AdminReportDTO searchIPCReportsById(long id);
+	int updateIPCReport(AdminReportDTO dto);
+	
 }

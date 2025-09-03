@@ -103,4 +103,61 @@ public class AdminServiceImpl implements AdminService {
 		return findIPCReportList;
 	}
 
+	
+	@Override
+	public AdminReportDTO searchURReportsById(long id) {
+		return adminDAO.searchURReportsById(id);
+	}
+	@Override
+	public int updateURReport(AdminReportDTO dto) {
+		if (dto == null)
+			return 0;
+		if (dto.getId() == 0) {
+			throw new IllegalArgumentException("수정 대상 ID가 비어 있습니다.");
+		}
+		return adminDAO.updateURReport(dto);
+	}
+
+	@Override
+	public AdminReportDTO searchOHTReportsById(long id) {
+		return adminDAO.searchOHTReportsById(id);
+	}
+	@Override
+	public int updateOHTReport(AdminReportDTO dto) {
+		if (dto == null)
+			return 0;
+		if (dto.getId() == 0) {
+			throw new IllegalArgumentException("수정 대상 ID가 비어 있습니다.");
+		}
+		return adminDAO.updateOHTReport(dto);
+	}
+
+	@Override
+	public AdminReportDTO searchRERReportsById(long id) {
+		return adminDAO.searchRERReportsById(id);
+	}
+	@Override
+	public int updateRERReport(AdminReportDTO dto) {
+		if (dto == null)
+			return 0;
+		if (dto.getId() == 0) {
+			throw new IllegalArgumentException("수정 대상 ID가 비어 있습니다.");
+		}
+		return adminDAO.updateRERReport(dto);
+	}
+
+	@Override
+	public AdminReportDTO searchIPCReportsById(long id) {
+		return adminDAO.searchIPCReportsById(id);
+	}
+	@Override
+	public int updateIPCReport(AdminReportDTO dto) {
+		if (dto == null)
+			return 0;
+		if (dto.getId() == 0) {
+			throw new IllegalArgumentException("수정 대상 ID가 비어 있습니다.");
+		}
+		return adminDAO.updateIPCReport(dto);
+	}
+
 }

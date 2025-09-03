@@ -1,3 +1,4 @@
+// AdminUser.jsx
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
@@ -7,23 +8,36 @@ axios.defaults.baseURL = "http://localhost:8080";
 
 /* === 공통 유틸/매핑 === */
 const toDateStr = (v) => (v ? String(v).slice(0, 10) : "-");
+const stripSanction = (txt = "") => txt.replace(/\[처분:[^\]]+\]\s*/g, "").trim();
 
 const mapStatusFromServer = (s = "") => ({
-    ACTIVE: "활성", SUSPENDED: "정지", DELETED: "비활성", PENDING: "수정 필요",
+    ACTIVE: "활성",
+    SUSPENDED: "정지",
+    DELETED: "비활성",
+    PENDING: "수정 필요",
 }[s.toUpperCase()] ?? "수정 필요");
 const mapStatusToServer = (label = "") => ({
-    "활성": "ACTIVE", "정지": "SUSPENDED", "비활성": "DELETED", "수정 필요": "PENDING",
+    "활성": "ACTIVE",
+    "정지": "SUSPENDED",
+    "비활성": "DELETED",
+    "수정 필요": "PENDING",
 }[label] ?? "PENDING");
 
 /* 신고 상태 */
 const mapReportStatusFromServer = (s = "") => ({
-    PENDING: "대기", IN_PROGRESS: "처리중", RESOLVED: "완료", REJECTED: "반려",
+    PENDING: "대기",
+    IN_PROGRESS: "처리중",
+    RESOLVED: "완료",
+    REJECTED: "반려",
 }[s.toUpperCase()] ?? "대기");
 const mapReportStatusToServer = (label = "") => ({
-    "대기": "PENDING", "처리중": "IN_PROGRESS", "완료": "RESOLVED", "반려": "REJECTED",
+    "대기": "PENDING",
+    "처리중": "IN_PROGRESS",
+    "완료": "RESOLVED",
+    "반려": "REJECTED",
 }[label] ?? "PENDING");
 
-/* 처분 */
+/* 처분(결정) */
 const SANCTIONS = [
     { value: "NONE", label: "처분 없음" },
     { value: "WARNING", label: "경고" },
@@ -36,31 +50,41 @@ const mapSanctionFromServer = (s = "") => sanctionLabel(s.toUpperCase());
 
 /* DTO -> 뷰 모델 */
 const toViewUser = (u) => ({
-    id: u.id, email: u.email, name: u.username ?? u.name ?? "",
-    address: u.address ?? "", phone: u.phoneNumber ?? "",
+    id: u.id,
+    email: u.email,
+    name: u.username ?? u.name ?? "",
+    address: u.address ?? "",
+    phone: u.phoneNumber ?? "",
     role: (u.role || "").toUpperCase().trim(),
     status: mapStatusFromServer(u.status),
     joined: toDateStr(u.createdAt ?? u.joined),
 });
+
 const toViewReport = (r) => ({
-    id: r.id, reporterId: r.reporterId,
-    reason: r.reason || "-", date: toDateStr(r.createdAt),
+    id: r.id,
+    reporterId: r.reporterId,
+    reason: r.reason || "-",
+    date: toDateStr(r.createdAt),
     status: mapReportStatusFromServer(r.status),
+    decision: r.decision || "NONE",
+    memo: r.memo || "",
 });
+
 const toViewAction = (a) => ({
     id: a.id,
     reportId: a.reportId,
     userId: a.userId,
-    userName: a.userName, // 없으면 프론트에서 users로 보완
+    userName: a.userName,
     action: mapSanctionFromServer(a.action || "NONE"),
     status: mapReportStatusFromServer(a.statusAfter ?? a.status),
     date: toDateStr(a.createdAt ?? a.date),
     memo: a.memo || "",
 });
 
-const reportStatusToPill = (st) => (st === "완료" ? "활성" : st === "반려" ? "비활성" : "수정 필요");
+const reportStatusToPill = (st) =>
+    st === "완료" ? "활성" : st === "반려" ? "비활성" : "수정 필요";
 
-/* 프레젠테이션 공통 */
+/* 프레젠테이션 */
 const StatusPill = ({ status = "비활성" }) => {
     const cls = { "활성": "ok", "수정 필요": "warn", "비활성": "off", "정지": "ban" }[status] || "off";
     return <span className={`admin-status ${cls}`}>{status}</span>;
@@ -76,13 +100,15 @@ const Pager = ({ page, total, onPage }) => {
     return (
         <div className="admin-pager">
             <button disabled={page <= 1} onClick={() => onPage(page - 1)}>이전</button>
-            {pages.map((p) => <button key={p} className={p === page ? "on" : ""} onClick={() => onPage(p)}>{p}</button>)}
+            {pages.map((p) => (
+                <button key={p} className={p === page ? "on" : ""} onClick={() => onPage(p)}>{p}</button>
+            ))}
             <button disabled={page >= max} onClick={() => onPage(page + 1)}>다음</button>
         </div>
     );
 };
 
-/* 심플 라인차트(기존) */
+/* 간단 라인차트(SVG) */
 const LineChart = ({ series, height = 160 }) => {
     const width = 380, padding = 16;
     const lens = series.map(s => s.data.length);
@@ -108,7 +134,11 @@ const LineChart = ({ series, height = 160 }) => {
     );
 };
 
-/* === 페이지 === */
+/* ===== 로컬 액션 폴백(최근 이력은 다음 단계에서 서버 연동 예정) ===== */
+const ACTIONS_KEY = "mp_actions";
+const readLocalActions = () => { try { return JSON.parse(localStorage.getItem(ACTIONS_KEY) || "[]"); } catch { return []; } };
+const writeLocalActions = (arr) => { try { localStorage.setItem(ACTIONS_KEY, JSON.stringify(arr)); } catch { } };
+
 export default function AdminUser() {
     const navigate = useNavigate();
 
@@ -138,42 +168,46 @@ export default function AdminUser() {
     /* 차트 */
     const [period, setPeriod] = useState("최근 30일");
 
-    /* 신고 */
+    /* 신고 (UR) */
     const [reports, setReports] = useState([]);
     const [reportState, setReportState] = useState("모든 상태");
     const [reportPage, setReportPage] = useState(1);
     const reportPageSize = 10;
 
-    /* 신고 모달 (상태 + 처분) */
+    /* 신고 모달 */
     const [reportOpen, setReportOpen] = useState(false);
     const [reportData, setReportData] = useState(null); // { ...toViewReport, action, memo }
     const [reportSaving, setReportSaving] = useState(false);
 
-    /* 처리 이력(사이드 + 전체 모달) */
+    /* 처리 이력 (사이드 + 전체 모달) - 로컬 폴백 유지 */
     const [recentActions, setRecentActions] = useState([]);
     const [actionModalOpen, setActionModalOpen] = useState(false);
-    const [actionTab, setActionTab] = useState("전체"); // 전체/경고/정지/반려/완료
+    const [actionTab, setActionTab] = useState("전체");
     const [allActions, setAllActions] = useState([]);
 
-    /* 데이터 로드 */
+    /* ===== 데이터 로드 ===== */
     const loadUsers = async () => {
         const { data } = await axios.get("/api/adminUser");
         const items = Array.isArray(data) ? data : (data?.items || []);
         setUsers(items.map(toViewUser).filter(u => u.role !== "ADM"));
     };
+
     const loadReports = async () => {
+        // UR 목록 (백엔드에서 decision, memo 포함하도록 매퍼 수정 완료 전제)
         const { data } = await axios.get("/api/adminUser/reports");
         const items = Array.isArray(data) ? data : (data?.items || []);
         setReports(items.map(toViewReport));
     };
+
     const loadRecentActions = async () => {
-        const { data } = await axios.get("/api/adminUser/reports/actions", { params: { limit: 3 } });
-        const items = Array.isArray(data) ? data : (data?.items || []);
+        const items = readLocalActions()
+            .sort((a, b) => String(b.createdAt || b.date).localeCompare(String(a.createdAt || a.date)))
+            .slice(0, 3);
         setRecentActions(items.map(toViewAction));
     };
     const loadAllActions = async () => {
-        const { data } = await axios.get("/api/adminUser/reports/actions");
-        const items = Array.isArray(data) ? data : (data?.items || []);
+        const items = readLocalActions()
+            .sort((a, b) => String(b.createdAt || b.date).localeCompare(String(a.createdAt || a.date)));
         setAllActions(items.map(toViewAction));
     };
 
@@ -187,7 +221,7 @@ export default function AdminUser() {
         })();
     }, []);
 
-    /* 파생값 */
+    /* ===== 파생값 ===== */
     const filteredUsers = useMemo(() => {
         const q = query.trim().toLowerCase();
         return users.filter(u =>
@@ -195,13 +229,10 @@ export default function AdminUser() {
             (statusFilter === "전체" || u.status === statusFilter)
         );
     }, [users, query, statusFilter]);
+
     const userPages = Math.max(1, Math.ceil(filteredUsers.length / pageSize));
     const pagedUsers = filteredUsers.slice((page - 1) * pageSize, page * pageSize);
 
-    const userNameById = useMemo(
-        () => Object.fromEntries(users.map(u => [u.id, u.name || u.email || `ID:${u.id}`])),
-        [users]
-    );
     const filteredReports = useMemo(
         () => reports.filter(r => reportState === "모든 상태" || r.status === reportState),
         [reports, reportState]
@@ -209,26 +240,27 @@ export default function AdminUser() {
     const reportPages = Math.max(1, Math.ceil(filteredReports.length / reportPageSize));
     const reportView = filteredReports.slice((reportPage - 1) * reportPageSize, reportPage * reportPageSize);
 
-    /* 활동 차트(간결화 생략: 기존 로직 유지) */
+    /* 활동 차트 시리즈 */
     const activitySeries = useMemo(() => {
         const periodDays = period === "최근 7일" ? 7 : period === "최근 90일" ? 90 : 30;
         const today = new Date();
         const start = new Date(today); start.setDate(today.getDate() - (periodDays - 1));
         const days = []; for (let d = new Date(start); d <= today; d.setDate(d.getDate() + 1)) days.push(d.toISOString().slice(0, 10));
+
         const joined = users.map(u => u.joined).filter(Boolean).filter(s => /^\d{4}-\d{2}-\d{2}$/.test(s));
         const newByDay = Object.fromEntries(days.map(k => [k, 0])); joined.forEach(j => { if (newByDay[j] != null) newByDay[j]++; });
-        let cum = 0; const activeByDay = {}; days.forEach(k => { cum += newByDay[k] || 0; const ratio = users.length ? (users.filter(u => u.status === "활성").length / users.length) : 0.5; activeByDay[k] = Math.round(cum * ratio); });
+
+        let cum = 0; const activeByDay = {};
+        days.forEach(k => { cum += newByDay[k] || 0; const ratio = users.length ? (users.filter(u => u.status === "활성").length / users.length) : 0.5; activeByDay[k] = Math.round(cum * ratio); });
         const reviewByDay = Object.fromEntries(days.map(k => [k, Math.round((newByDay[k] || 0) * 0.6)]));
+
         const compress = (arr) => { const pts = 10; if (arr.length <= pts) return arr; const size = Math.ceil(arr.length / pts); const out = []; for (let i = 0; i < arr.length; i += size) out.push(arr.slice(i, i + size).reduce((a, b) => a + b, 0)); return out; };
-        const newArr = compress(days.map(k => newByDay[k]));
-        const activeArr = compress(days.map(k => activeByDay[k]));
-        const reviewArr = compress(days.map(k => reviewByDay[k]));
-        const allZero = [...newArr, ...activeArr, ...reviewArr].every(v => v === 0);
-        const safe = (arr, base = 1) => allZero ? arr.map((_, i) => base + (i % 3)) : arr;
+        const safe = (arr, base = 1) => ([...arr].every(v => v === 0) ? arr.map((_, i) => base + (i % 3)) : arr);
+
         return [
-            { name: "신규 가입", color: "#ef5350", data: safe(newArr, 1) },
-            { name: "활성 사용자", color: "#42a5f5", data: safe(activeArr, 3) },
-            { name: "리뷰 작성", color: "#66bb6a", data: safe(reviewArr, 1) },
+            { name: "신규 가입", color: "#ef5350", data: safe(compress(days.map(k => newByDay[k])), 1) },
+            { name: "활성 사용자", color: "#42a5f5", data: safe(compress(days.map(k => activeByDay[k])), 3) },
+            { name: "리뷰 작성", color: "#66bb6a", data: safe(compress(days.map(k => reviewByDay[k])), 1) },
         ];
     }, [users, period]);
 
@@ -239,24 +271,32 @@ export default function AdminUser() {
         try {
             const { data } = await axios.get(`/api/adminUser/${id}`);
             setEditData(toViewUser(data));
-        } catch { alert("사용자 상세 조회 중 오류가 발생했습니다."); setEditOpen(false); }
-        finally { setEditLoading(false); }
+        } catch {
+            alert("사용자 상세 조회 중 오류가 발생했습니다.");
+            setEditOpen(false);
+        } finally { setEditLoading(false); }
     };
+
     const saveEdit = async () => {
         if (!editData?.id) return alert("사용자 ID가 없어 저장 불가");
         setSaving(true);
         const payload = {
-            username: editData.name, address: editData.address,
-            phoneNumber: editData.phone, status: mapStatusToServer(editData.status),
+            username: editData.name,
+            address: editData.address,
+            phoneNumber: editData.phone,
+            status: mapStatusToServer(editData.status),
         };
         const prev = users;
         setUsers(prev.map(u => u.id === editData.id ? { ...u, ...editData } : u));
         try {
             await axios.post(`/api/adminUser/${editData.id}`, payload, { headers: { "Content-Type": "application/json" } });
             await loadUsers(); setEditOpen(false);
-        } catch { alert("저장 실패: 되돌립니다."); setUsers(prev); }
-        finally { setSaving(false); }
+        } catch {
+            alert("저장 실패: 되돌립니다.");
+            setUsers(prev);
+        } finally { setSaving(false); }
     };
+
     const handleDelete = async (user) => {
         if (!window.confirm(`${user.name || user.email} 사용자를 삭제할까요?`)) return;
         setDeletingId(user.id);
@@ -264,31 +304,61 @@ export default function AdminUser() {
         try {
             const res = await axios.delete(`/api/adminUser/${user.id}`);
             if (res.status !== 200 || Number(res.data) !== 1) throw new Error();
-        } catch { alert("서버 삭제 실패: 되돌립니다."); setUsers(prev); }
-        finally { setDeletingId(null); }
+        } catch {
+            alert("서버 삭제 실패: 되돌립니다.");
+            setUsers(prev);
+        } finally { setDeletingId(null); }
     };
 
     /* 신고 모달 */
     const openReport = (r) => {
-        setReportData({ ...r, action: "NONE", memo: "" }); // 기본값
+        // 🔧 서버 값(decision/memo) 반영
+        setReportData({
+            ...r,
+            action: r.decision || "NONE",
+            memo: r.memo || "",
+        });
         setReportOpen(true);
     };
+
+    // 로컬 폴백: 액션 추가 (서버 이력 연동 이전까지 사용)
+    const addLocalAction = ({ reportId, userId, action, status, memo }) => {
+        const now = new Date().toISOString();
+        const item = { id: Date.now(), reportId, userId, action, status, createdAt: now, memo: memo || "" };
+        const cur = readLocalActions();
+        const next = [item, ...cur].slice(0, 200);
+        writeLocalActions(next);
+        setRecentActions(prev => [toViewAction(item), ...prev].slice(0, 3));
+        setAllActions(prev => [toViewAction(item), ...prev]);
+    };
+
     const saveReport = async () => {
         if (!reportData?.id) return;
         setReportSaving(true);
         try {
-            await axios.post(`/api/adminUser/reports/${reportData.id}`, {
-                status: mapReportStatusToServer(reportData.status),
-                action: reportData.action,
-                memo: reportData.memo || "",
+            await axios.post(`/api/reports/ur/${reportData.id}`, {
+                status: mapReportStatusToServer(reportData.status), 
+                decision: reportData.action,  
+                memo: reportData.memo || ""  
             }, { headers: { "Content-Type": "application/json" } });
-            await Promise.all([loadReports(), loadRecentActions()]);
+
+            // 로컬 이력(임시)
+            addLocalAction({
+                reportId: reportData.id,
+                userId: reportData.reporterId,
+                action: reportData.action,
+                status: mapReportStatusToServer(reportData.status),
+                memo: reportData.memo,
+            });
+
+            await loadReports();
             setReportOpen(false);
-        } catch { alert("신고 저장 실패"); }
-        finally { setReportSaving(false); }
+        } catch {
+            alert("신고 저장 실패");
+        } finally { setReportSaving(false); }
     };
 
-    /* 처리 이력 탭 필터 */
+    /* 액션 탭 필터 */
     const actionFiltered = useMemo(() => {
         if (actionTab === "전체") return allActions;
         if (actionTab === "경고") return allActions.filter(a => a.action === "경고");
@@ -351,11 +421,15 @@ export default function AdminUser() {
                                         <td><StatusPill status={u.status} /></td>
                                         <td className="admin-ops">
                                             <button onClick={() => openEdit(u.id)} className="admin-link">수정</button>
-                                            <button onClick={() => handleDelete(u)} className="admin-link danger" disabled={deletingId === u.id}>{deletingId === u.id ? "삭제 중…" : "삭제"}</button>
+                                            <button onClick={() => handleDelete(u)} className="admin-link danger" disabled={deletingId === u.id}>
+                                                {deletingId === u.id ? "삭제 중…" : "삭제"}
+                                            </button>
                                         </td>
                                     </tr>
                                 ))}
-                                {pagedUsers.length === 0 && !loading && (<tr><td colSpan={7} className="admin-empty">검색 결과가 없습니다.</td></tr>)}
+                                {pagedUsers.length === 0 && !loading && (
+                                    <tr><td colSpan={5} className="admin-empty">검색 결과가 없습니다.</td></tr>
+                                )}
                             </tbody>
                         </table>
                         <div className="admin-foot right"><Pager page={page} total={userPages} onPage={setPage} /></div>
@@ -374,7 +448,7 @@ export default function AdminUser() {
                     </aside>
                 </div>
 
-                {/* 사용자 신고 */}
+                {/* 사용자 신고 (UR) */}
                 <div className="admin-grid">
                     <section className="admin-panel">
                         <div className="admin-panel-head">
@@ -387,26 +461,28 @@ export default function AdminUser() {
                         </div>
 
                         <table className="admin-table">
-                            <thead><tr><th>신고 ID</th><th>신고자</th><th>사유</th><th>상태</th><th>작업</th></tr></thead>
+                            <thead><tr><th>신고 ID</th><th>신고자(ID)</th><th>사유</th><th>상태</th><th>작업</th></tr></thead>
                             <tbody>
                                 {reportView.map(r => (
                                     <tr key={r.id}>
                                         <td>{r.id}</td>
-                                        <td>{userNameById[r.reporterId] ?? (r.reporterId != null ? `ID:${r.reporterId}` : "-")}</td>
-                                        <td>{r.reason}</td>
+                                        <td>{r.reporterId ?? "-"}</td>
+                                        <td>{stripSanction(r.reason)}</td>
                                         <td><StatusPill status={reportStatusToPill(r.status)} /></td>
                                         <td className="admin-ops">
                                             <button className="admin-link" onClick={() => openReport(r)}>내용</button>
                                         </td>
                                     </tr>
                                 ))}
-                                {reportView.length === 0 && (<tr><td colSpan={7} className="admin-empty">신고 데이터가 없습니다.</td></tr>)}
+                                {reportView.length === 0 && (
+                                    <tr><td colSpan={5} className="admin-empty">신고 데이터가 없습니다.</td></tr>
+                                )}
                             </tbody>
                         </table>
                         <div className="admin-foot right"><Pager page={reportPage} total={reportPages} onPage={setReportPage} /></div>
                     </section>
 
-                    {/* 최근 처리 이력 (최근 3개) */}
+                    {/* 최근 처리 이력(임시 로컬) */}
                     <aside className="admin-sidecol">
                         <section className="admin-panel">
                             <div className="admin-panel-head">
@@ -416,16 +492,12 @@ export default function AdminUser() {
                             <ul className="admin-feed">
                                 {recentActions.length > 0 ? recentActions.map((a) => (
                                     <li key={a.id}>
-                                        <div className="admin-avatar" />
                                         <div>
                                             <div className="admin-feed-head">
-                                                <strong>{a.userName || userNameById[a.userId] || `ID:${a.userId}`}</strong>
+                                                <strong>ID:{a.userId}</strong>
                                                 <span>{a.date}</span>
                                             </div>
-                                            <p>
-                                                <ActionBadge action={a.action} /> · 리포트 #{a.reportId} · <StatusPill status={reportStatusToPill(a.status)} />
-                                                {a.memo ? <> · {a.memo}</> : null}
-                                            </p>
+                                            <p><ActionBadge action={a.action} /> · 신고 #{a.reportId} · <StatusPill status={reportStatusToPill(a.status)} />{a.memo ? <> · {a.memo}</> : null}</p>
                                         </div>
                                     </li>
                                 )) : (<li className="admin-empty">처리 이력이 없습니다.</li>)}
@@ -482,7 +554,7 @@ export default function AdminUser() {
                             {reportData && (
                                 <div className="admin-form-grid">
                                     <label>신고 ID<input value={reportData.id} disabled /></label>
-                                    <label>신고자<input value={userNameById[reportData.reporterId] ?? `ID:${reportData.reporterId}`} disabled /></label>
+                                    <label>신고자(ID)<input value={reportData.reporterId ?? "-"} disabled /></label>
                                     <label>접수일<input value={reportData.date} disabled /></label>
 
                                     <label style={{ gridColumn: "1 / -1" }}>
@@ -504,8 +576,12 @@ export default function AdminUser() {
 
                                     <label style={{ gridColumn: "1 / -1" }}>
                                         메모
-                                        <textarea placeholder="처리 사유/비고를 적어주세요." value={reportData.memo}
-                                            onChange={(e) => setReportData(d => ({ ...d, memo: e.target.value }))} rows={3} />
+                                        <textarea
+                                            placeholder="처리 사유/비고를 적어주세요."
+                                            value={reportData.memo}
+                                            onChange={(e) => setReportData(d => ({ ...d, memo: e.target.value }))}
+                                            rows={3}
+                                        />
                                     </label>
                                 </div>
                             )}
@@ -535,19 +611,20 @@ export default function AdminUser() {
                                 ))}
                             </div>
                             <table className="admin-table">
-                                <thead><tr><th>날짜</th><th>사용자</th><th>처분</th><th>상태</th><th>리포트</th><th>메모</th></tr></thead>
+                                <thead><tr><th>날짜</th><th>사용자(ID)</th><th>처분</th><th>상태</th><th>리포트</th></tr></thead>
                                 <tbody>
                                     {actionFiltered.map(a => (
                                         <tr key={a.id}>
                                             <td>{a.date}</td>
-                                            <td>{a.userName || userNameById[a.userId] || `ID:${a.userId}`}</td>
+                                            <td>{a.userId != null ? `ID:${a.userId}` : "-"}</td>
                                             <td><ActionBadge action={a.action} /></td>
                                             <td><StatusPill status={reportStatusToPill(a.status)} /></td>
                                             <td>#{a.reportId}</td>
-                                            <td>{a.memo || "-"}</td>
                                         </tr>
                                     ))}
-                                    {actionFiltered.length === 0 && (<tr><td colSpan={6} className="admin-empty">표시할 이력이 없습니다.</td></tr>)}
+                                    {actionFiltered.length === 0 && (
+                                        <tr><td colSpan={5} className="admin-empty">표시할 이력이 없습니다.</td></tr>
+                                    )}
                                 </tbody>
                             </table>
                         </div>

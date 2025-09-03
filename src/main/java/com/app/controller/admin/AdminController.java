@@ -90,15 +90,63 @@ public class AdminController {
 	}
 	@GetMapping("/api/adminContent/OHT")
 	public List<AdminReportDTO> findOHTReportList() {
-		return adminService.findUserReportList();
+		return adminService.findOHTReportList();
 	}
 	@GetMapping("/api/adminContent/RER")
 	public List<AdminReportDTO> findRERReportList() {
-		return adminService.findUserReportList();
+		return adminService.findRERReportList();
 	}
 	@GetMapping("/api/adminContent/IPC")
 	public List<AdminReportDTO> findIPCReportList() {
-		return adminService.findUserReportList();
+		return adminService.findIPCReportList();
 	}
+	
+	
+	/* 신고 업데이트 */
+	@GetMapping("/api/reports/ur/{id}")
+	public AdminReportDTO getURReport(@PathVariable long id) {
+	    return adminService.searchURReportsById(id);
+	}
+	@PostMapping("/api/reports/ur/{id}")
+	public ResponseEntity<Void> updateURReport(@PathVariable long id, @RequestBody AdminReportDTO dto) {
+	    dto.setId(id);
+	    int n = adminService.updateURReport(dto);
+	    return (n == 1) ? ResponseEntity.ok().build() : ResponseEntity.notFound().build();
+	}
+
+	@GetMapping("/api/reports/oht/{id}")
+	public AdminReportDTO getOHTReport(@PathVariable long id) {
+	    return adminService.searchOHTReportsById(id);
+	}
+	@PostMapping("/api/reports/oht/{id}")
+	public ResponseEntity<Void> updateOHTReport(@PathVariable long id, @RequestBody AdminReportDTO dto) {
+	    dto.setId(id);
+	    int n = adminService.updateOHTReport(dto);
+	    return (n == 1) ? ResponseEntity.ok().build() : ResponseEntity.notFound().build();
+	}
+
+	@GetMapping("/api/reports/rer/{id}")
+	public AdminReportDTO getRERReport(@PathVariable long id) {
+	    return adminService.searchRERReportsById(id);
+	}
+	@PostMapping("/api/reports/rer/{id}")
+	public ResponseEntity<Void> updateRERReport(@PathVariable long id, @RequestBody AdminReportDTO dto) {
+	    dto.setId(id);
+	    int n = adminService.updateRERReport(dto);
+	    return (n == 1) ? ResponseEntity.ok().build() : ResponseEntity.notFound().build();
+	}
+
+	@GetMapping("/api/reports/ipc/{id}")
+	public AdminReportDTO getIPCReport(@PathVariable long id) {
+	    return adminService.searchIPCReportsById(id);
+	}
+	@PostMapping("/api/reports/ipc/{id}")
+	public ResponseEntity<Void> updateIPCReport(@PathVariable long id, @RequestBody AdminReportDTO dto) {
+	    dto.setId(id);
+	    int n = adminService.updateIPCReport(dto);
+	    return (n == 1) ? ResponseEntity.ok().build() : ResponseEntity.notFound().build();
+	}
+	
+	
 	
 }

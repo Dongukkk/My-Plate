@@ -140,14 +140,6 @@
     width: 44px;
 }
 
-/* 아바타 칼럼 고정 */
-.admin-avatar {
-    width: 32px;
-    height: 32px;
-    border-radius: 50%;
-    object-fit: cover;
-}
-
 .admin-ellipsis {
     max-width: 260px;
     white-space: nowrap;
@@ -227,6 +219,7 @@
 }
 
 .admin-pager {
+    margin-top: 5px;
     display: flex;
     gap: 6px;
 }

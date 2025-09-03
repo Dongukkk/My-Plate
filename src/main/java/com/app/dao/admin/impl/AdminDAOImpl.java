@@ -100,5 +100,47 @@ public class AdminDAOImpl implements AdminDAO {
 		return findIPCReportList;
 	}
 
+	@Override
+	public AdminReportDTO searchURReportsById(long id) {
+		return sqlSessionTemplate.selectOne(AM + "searchURReportsById", id);
+	}
+
+	@Override
+	public int updateURReport(AdminReportDTO dto) {
+		 return sqlSessionTemplate.update(AM + "updateURReport", dto);
+	}
+
+	@Override
+	public AdminReportDTO searchOHTReportsById(long id) {
+		return sqlSessionTemplate.selectOne(AM + "searchOHTReportsById", id);
+	}
+
+	@Override
+	public int updateOHTReport(AdminReportDTO dto) {
+		 return sqlSessionTemplate.update(AM + "updateOHTReport", dto);
+	}
+
+	@Override
+	public AdminReportDTO searchRERReportsById(long id) {
+		return sqlSessionTemplate.selectOne(AM + "searchRERReportsById", id);
+	}
+
+	@Override
+	public int updateRERReport(AdminReportDTO dto) {
+		 return sqlSessionTemplate.update(AM + "updateRERReport", dto);
+	}
+
+	@Override
+	public AdminReportDTO searchIPCReportsById(long id) {
+		return sqlSessionTemplate.selectOne(AM + "searchIPCReportsById", id);
+	}
+
+	@Override
+	public int updateIPCReport(AdminReportDTO dto) {
+		 return sqlSessionTemplate.update(AM + "updateIPCReport", dto);
+	}
+
+	
+	
 
 }

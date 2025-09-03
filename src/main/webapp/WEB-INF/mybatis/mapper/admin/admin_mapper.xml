@@ -21,41 +21,51 @@
 		WHERE R.DELETED_AT IS NULL
 		ORDER BY R.ID
 	</select>
-	
-	<select id="findRestaurantById" parameterType="long" resultType="AdminRestaurant">
+
+	<select id="findRestaurantById" parameterType="long"
+		resultType="AdminRestaurant">
 		SELECT
-			ID AS id,
-			NAME AS name,
-			DESCRIPTION AS description,
-			CATEGORY AS category,
-			AVG_RATING AS avgRating,
-			RATING_COUNT AS rating_count,
-			SOLO_INDEX AS solo_index,
-			PHOTO_URL AS photo_url,
-			ADDRESS AS address,
-			PHONE AS phone,
-			STATUS AS status
+		ID AS id,
+		NAME AS name,
+		DESCRIPTION AS description,
+		CATEGORY AS category,
+		AVG_RATING AS avgRating,
+		RATING_COUNT AS
+		rating_count,
+		SOLO_INDEX AS solo_index,
+		PHOTO_URL AS photo_url,
+		ADDRESS
+		AS address,
+		PHONE AS phone,
+		STATUS AS status
 		FROM MP_RESTAURANT
-		WHERE ID = #{id}
+		WHERE ID =
+		#{id}
 		AND DELETED_AT IS NULL
 	</select>
 
-	<update id="modifyAdminRestaurant" parameterType="AdminRestaurant">
+	<update id="modifyAdminRestaurant"
+		parameterType="AdminRestaurant">
 		UPDATE MP_RESTAURANT
-		SET NAME = #{name}, 
-		DESCRIPTION = #{description}, 
-		CATEGORY = #{category}, 
-		PHOTO_URL = #{photo_url}, 
-		ADDRESS = #{address}, 
-		PHONE = #{phone}, 
-		STATUS = #{status}, 
-		UPDATED_AT = SYSTIMESTAMP  
-		WHERE ID = #{id} 
+		SET NAME = #{name},
+		DESCRIPTION =
+		#{description},
+		CATEGORY = #{category},
+		PHOTO_URL = #{photo_url},
+		ADDRESS = #{address},
+		PHONE = #{phone},
+		STATUS = #{status},
+		UPDATED_AT =
+		SYSTIMESTAMP
+		WHERE ID = #{id}
 	</update>
-	
+
 	<insert id="saveAdminRestaurant" parameterType="AdminRestaurant">
-		<selectKey keyProperty="id" resultType="long" order="BEFORE">SELECT MP_RESTAURANT_SEQ.NEXTVAL FROM DUAL</selectKey>
-		INSERT INTO MP_RESTAURANT (ID, NAME, DESCRIPTION, CATEGORY, PHOTO_URL, ADDRESS, PHONE, STATUS, CREATED_AT, UPDATED_AT) VALUES (
+		<selectKey keyProperty="id" resultType="long" order="BEFORE">SELECT
+			MP_RESTAURANT_SEQ.NEXTVAL FROM DUAL
+		</selectKey>
+		INSERT INTO MP_RESTAURANT (ID, NAME, DESCRIPTION, CATEGORY, PHOTO_URL,
+		ADDRESS, PHONE, STATUS, CREATED_AT, UPDATED_AT) VALUES (
 		MP_RESTAURANT_SEQ.NEXTVAL,
 		#{name},
 		#{description},
@@ -69,16 +79,44 @@
 		)
 	</insert>
 
-	<update id="DeleteAdminRestaurant" parameterType="AdminRestaurant">
+	<update id="DeleteAdminRestaurant"
+		parameterType="AdminRestaurant">
 		UPDATE MP_RESTAURANT
 		SET STATUS = 'DELETED',
-		DELETED_AT = SYSTIMESTAMP
+		DELETED_AT =
+		SYSTIMESTAMP
 		WHERE ID = #{id}
 	</update>
-	
-	
+
+
 	<!-- 사용자 관리 -->
 	<select id="findUserList" resultType="AdminUser">
+		SELECT
+		U.ID AS id,
+		U.EMAIL AS
+		email,
+		U.USERNAME AS username,
+		U.ADDRESS AS address,
+		U.PHONE_NUMBER AS
+		phoneNumber,
+		U.ROLE AS role,
+		U.STATUS AS status
+		FROM MP_USER U
+		WHERE
+		U.ROLE != 'ADM'
+		ORDER BY U.ID
+	</select>
+
+	<update id="DeleteAdminUser" parameterType="AdminUser">
+		UPDATE MP_USER
+		SET
+		STATUS = 'DELETED',
+		leave_date = SYSTIMESTAMP
+		WHERE ID = #{id}
+	</update>
+
+	<select id="findUserById" parameterType="long"
+		resultType="AdminUser">
 		SELECT
 		U.ID AS id,
 		U.EMAIL AS email,
@@ -88,94 +126,188 @@
 		U.ROLE AS role,
 		U.STATUS AS status
 		FROM MP_USER U
-		WHERE U.ROLE != 'ADM'
-		ORDER BY U.ID
-	</select>
-
-	<update id="DeleteAdminUser" parameterType="AdminUser">
-		UPDATE MP_USER
-		SET STATUS = 'DELETED',
-		leave_date = SYSTIMESTAMP
-		WHERE ID = #{id}
-	</update>
-	
-	<select id="findUserById" parameterType="long" resultType="AdminUser">
-		  SELECT
-		    U.ID           AS id,
-		    U.EMAIL        AS email,
-		    U.USERNAME     AS username,
-		    U.ADDRESS      AS address,
-		    U.PHONE_NUMBER AS phoneNumber,
-		    U.ROLE         AS role,
-		    U.STATUS       AS status
-		  FROM MP_USER U
 		WHERE U.ID = #{id}
-		AND LEAVE_DATE IS NULL
+		AND LEAVE_DATE IS
+		NULL
 		AND U.ROLE != 'ADM'
 	</select>
 
 	<update id="modifyAdminUser" parameterType="AdminUser">
 		UPDATE MP_USER
-		SET USERNAME = #{username},
+		SET
+		USERNAME = #{username},
 		ADDRESS = #{address},
-		PHONE_NUMBER = #{phoneNumber},
+		PHONE_NUMBER =
+		#{phoneNumber},
 		STATUS = #{status},
 		UPDATED_AT = SYSTIMESTAMP
-		WHERE ID = #{id}
+		WHERE ID =
+		#{id}
 		AND LEAVE_DATE IS NULL
 	</update>
-	
-	<!-- 신고 관리 -->
-		<!-- 사용자 신고 목록 -->
-		<select id="findUserReportList" resultType="AdminReport">
-		    SELECT
-		      r.id                                    AS id,
-		      r.reporter_id                           AS reporterId,
-		      r.reported_item_type                    AS reportedItemType,
-		      r.reason                                AS reason,
-		      r.status                                AS status
-		    FROM MP_REPORT r
-		    WHERE r.reported_item_type = 'UR'
-		</select>
-	
-		<!-- 기타 문의 신고 목록 -->
-		<select id="findOHTReportList" resultType="AdminReport">
-		    SELECT
-		      r.id                                    AS id,
-		      r.reporter_id                           AS reporterId,
-		      r.reported_item_type                    AS reportedItemType,
-		      r.reason                                AS reason,
-		      r.status                                AS status
-		    FROM MP_REPORT r
-		    WHERE r.reported_item_type = 'OHT'
-		</select>	
-		
-		<!-- 가게정보 신고 목록 -->
-		<select id="findRERReportList" resultType="AdminReport">
-		    SELECT
-		      r.id                                    AS id,
-		      r.reporter_id                           AS reporterId,
-		      r.reported_item_type                    AS reportedItemType,
-		      r.reason                                AS reason,
-		      r.status                                AS status
-		    FROM MP_REPORT r
-		    WHERE r.reported_item_type = 'RER'
-		</select>
-		
-		<!-- 부적절한 신고 목록 -->
-		<select id="findIPCReportList" resultType="AdminReport">
-		    SELECT
-		      r.id                                    AS id,
-		      r.reporter_id                           AS reporterId,
-		      r.reported_item_type                    AS reportedItemType,
-		      r.reason                                AS reason,
-		      r.status                                AS status
-		    FROM MP_REPORT r
-		    WHERE r.reported_item_type = 'IPC'
-		</select>
-		
-		
-	
+
+	<!-- ================= 신고 관리 (UR/OHT/RER/IPC) ================= -->
+	<!-- 목록 -->
+	<select id="findUserReportList" resultType="AdminReport">
+		SELECT
+		r.id AS id,
+		r.reporter_id AS reporterId,
+		r.reported_item_type AS reportedItemType,
+		r.reason AS reason,
+		r.status AS status,
+		r.decision AS decision,
+		r.memo AS memo,
+		r.excerpt AS excerpt,
+		TO_CHAR(r.created_at, 'YYYY-MM-DD"T"HH24:MI:SS') AS createdAt,
+		TO_CHAR(r.updated_at, 'YYYY-MM-DD"T"HH24:MI:SS') AS updatedAt
+		FROM MP_REPORT r
+		WHERE r.reported_item_type = 'UR'
+		ORDER BY r.created_at DESC
+	</select>
+
+	<select id="findOHTReportList" resultType="AdminReport">
+		SELECT
+		r.id,
+		r.reporter_id AS reporterId, r.reported_item_type AS
+		reportedItemType,
+		r.reason, r.status, r.decision, r.memo, r.excerpt,
+		TO_CHAR(r.created_at, 'YYYY-MM-DD"T"HH24:MI:SS') AS createdAt,
+		TO_CHAR(r.updated_at, 'YYYY-MM-DD"T"HH24:MI:SS') AS updatedAt
+		FROM MP_REPORT r
+		WHERE r.reported_item_type = 'OHT'
+		ORDER BY r.created_at DESC
+	</select>
+
+	<select id="findRERReportList" resultType="AdminReport">
+		SELECT
+		r.id,
+		r.reporter_id AS reporterId, r.reported_item_type AS
+		reportedItemType,
+		r.reason, r.status, r.decision, r.memo, r.excerpt,
+		TO_CHAR(r.created_at, 'YYYY-MM-DD"T"HH24:MI:SS') AS createdAt,
+		TO_CHAR(r.updated_at, 'YYYY-MM-DD"T"HH24:MI:SS') AS updatedAt
+		FROM MP_REPORT r
+		WHERE r.reported_item_type = 'RER'
+		ORDER BY r.created_at DESC
+	</select>
+
+	<select id="findIPCReportList" resultType="AdminReport">
+		SELECT
+		r.id,
+		r.reporter_id AS reporterId, r.reported_item_type AS
+		reportedItemType,
+		r.reason, r.status, r.decision, r.memo, r.excerpt,
+		TO_CHAR(r.created_at, 'YYYY-MM-DD"T"HH24:MI:SS') AS createdAt,
+		TO_CHAR(r.updated_at, 'YYYY-MM-DD"T"HH24:MI:SS') AS updatedAt
+		FROM MP_REPORT r
+		WHERE r.reported_item_type = 'IPC'
+		ORDER BY r.created_at DESC
+	</select>
+
+	<!-- 상세 (id 조건 포함) -->
+	<select id="searchURReportsById" parameterType="long"
+		resultType="AdminReport">
+		SELECT
+		r.id, r.reporter_id AS reporterId,
+		r.reported_item_type AS
+		reportedItemType,
+		r.reason, r.status,
+		r.decision, r.memo, r.excerpt,
+		TO_CHAR(r.created_at, 'YYYY-MM-DD"T"HH24:MI:SS') AS createdAt,
+		TO_CHAR(r.updated_at, 'YYYY-MM-DD"T"HH24:MI:SS') AS updatedAt
+		FROM MP_REPORT r
+		WHERE r.reported_item_type = 'UR' AND r.id = #{id}
+	</select>
+
+	<select id="searchOHTReportsById" parameterType="long"
+		resultType="AdminReport">
+		SELECT
+		r.id, r.reporter_id AS reporterId,
+		r.reported_item_type AS
+		reportedItemType,
+		r.reason, r.status,
+		r.decision, r.memo, r.excerpt,
+		TO_CHAR(r.created_at, 'YYYY-MM-DD"T"HH24:MI:SS') AS createdAt,
+		TO_CHAR(r.updated_at, 'YYYY-MM-DD"T"HH24:MI:SS') AS updatedAt
+		FROM MP_REPORT r
+		WHERE r.reported_item_type = 'OHT' AND r.id = #{id}
+	</select>
+
+	<select id="searchRERReportsById" parameterType="long"
+		resultType="AdminReport">
+		SELECT
+		r.id, r.reporter_id AS reporterId,
+		r.reported_item_type AS
+		reportedItemType,
+		r.reason, r.status,
+		r.decision, r.memo, r.excerpt,
+		TO_CHAR(r.created_at, 'YYYY-MM-DD"T"HH24:MI:SS') AS createdAt,
+		TO_CHAR(r.updated_at, 'YYYY-MM-DD"T"HH24:MI:SS') AS updatedAt
+		FROM MP_REPORT r
+		WHERE r.reported_item_type = 'RER' AND r.id = #{id}
+	</select>
+
+	<select id="searchIPCReportsById" parameterType="long"
+		resultType="AdminReport">
+		SELECT
+		r.id, r.reporter_id AS reporterId,
+		r.reported_item_type AS
+		reportedItemType,
+		r.reason, r.status,
+		r.decision, r.memo, r.excerpt,
+		TO_CHAR(r.created_at, 'YYYY-MM-DD"T"HH24:MI:SS') AS createdAt,
+		TO_CHAR(r.updated_at, 'YYYY-MM-DD"T"HH24:MI:SS') AS updatedAt
+		FROM MP_REPORT r
+		WHERE r.reported_item_type = 'IPC' AND r.id = #{id}
+	</select>
+
+	<update id="updateURReport" parameterType="map">
+		UPDATE MP_REPORT
+		SET
+		status = #{status},
+		decision = #{decision},
+		memo = #{memo},
+		excerpt = #{excerpt},
+		updated_at = SYSTIMESTAMP
+		WHERE id = #{id} AND reported_item_type = 'UR'
+	</update>
+
+	<update id="updateOHTReport" parameterType="map">
+		UPDATE MP_REPORT
+		SET
+		status = #{status},
+		decision = #{decision},
+		memo = #{memo},
+		excerpt = #{excerpt},
+		updated_at = SYSTIMESTAMP
+		WHERE id = #{id} AND reported_item_type = 'OHT'
+	</update>
+
+	<update id="updateRERReport" parameterType="map">
+		UPDATE MP_REPORT
+		SET
+		status = #{status},
+		decision = #{decision},
+		memo = #{memo},
+		excerpt = #{excerpt},
+		updated_at = SYSTIMESTAMP
+		WHERE id = #{id} AND reported_item_type = 'RER'
+	</update>
+
+	<update id="updateIPCReport" parameterType="map">
+		UPDATE MP_REPORT
+		SET
+		status = #{status},
+		decision = #{decision},
+		memo = #{memo},
+		excerpt = #{excerpt},
+		updated_at = SYSTIMESTAMP
+		WHERE id = #{id} AND reported_item_type = 'IPC'
+	</update>
+
+
+
+
 
 
 

@@ -22,9 +22,23 @@ public interface AdminService {
 	int modifyAdminUser(AdminUserDTO dto);
 	
 	//신고관리
-	//사용자신고
+	//신고 목록
 	List <AdminReportDTO> findUserReportList();
 	List <AdminReportDTO> findOHTReportList();
 	List <AdminReportDTO> findRERReportList();
 	List <AdminReportDTO> findIPCReportList();
+	
+	//수정업데이트
+	AdminReportDTO searchURReportsById(long id);
+	int updateURReport(AdminReportDTO dto);
+	
+	AdminReportDTO searchOHTReportsById(long id);
+	int updateOHTReport(AdminReportDTO dto);
+	
+	AdminReportDTO searchRERReportsById(long id);
+	int updateRERReport(AdminReportDTO dto);
+	
+	AdminReportDTO searchIPCReportsById(long id);
+	int updateIPCReport(AdminReportDTO dto);
+	
 }
