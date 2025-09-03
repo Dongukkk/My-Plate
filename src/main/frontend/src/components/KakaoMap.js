@@ -48,6 +48,7 @@ function KakaoMap({
         const marker = new kakao.maps.Marker({
           position,
           map: kakaoMapRef.current,
+          zIndex: 1,
         });
 
         const infoContent = `
@@ -89,6 +90,7 @@ function KakaoMap({
           content: infoContent,
           removable: true,
           position,
+          zIndex: 9999,
         });
 
         kakao.maps.event.addListener(marker, "click", () => {
@@ -166,6 +168,7 @@ function KakaoMap({
     const marker = new kakao.maps.Marker({
       position: moveLatLon,
       map: kakaoMapRef.current,
+      zIndex: 1,
     });
 
     const infoContent = `
@@ -207,6 +210,7 @@ function KakaoMap({
       content: infoContent,
       removable: true,
       position: moveLatLon,
+      zIndex: 9999,
     });
 
     if (openInfoRef.current) openInfoRef.current.close();
@@ -214,6 +218,7 @@ function KakaoMap({
     openInfoRef.current = info;
 
     setMarkers([marker]);
+    
   }, [selectedRestaurant]);
 
   return <div id="kakao-map" style={{ width: "100%", height: "100%", marginTop: "10px" }} ref={mapRef}></div>;

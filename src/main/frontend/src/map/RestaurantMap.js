@@ -116,7 +116,7 @@ function RestaurantMap() {
               {isSpinning ? "돌아가는 중..." : "룰렛 돌리기"}
             </button>
             </div>}
-            {result && <div className="rm-slot-close" onClick={()=>{setResult()}}> X </div>}
+            {result && <div style={{height:"30px", display:"flex", justifyContent:"space-between"}}><div className="rm-slot-title"> 랜덤 추천 음식점은? </div><div className="rm-slot-close" onClick={()=>{setResult()}}> X </div></div>}
              {filteredRestaurants.length > 0 ? (
                   <div
                     key={filteredRestaurants[0].id}

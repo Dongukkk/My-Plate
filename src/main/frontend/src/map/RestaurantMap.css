@@ -86,9 +86,30 @@
 .rm-spin-btn:hover {
   background-color: #df6666;
 }
-.rm-slot-close {
+
+.rm-slot-title {
+  text-align: left;
+  font-size: 16px;
   font-weight: bold;
-  text-align: right;
+}
+
+.rm-slot-close {
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  color: #333;
+  font-size: 20px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.25s ease;
+}
+
+.rm-slot-close:hover {
+  background-color: #f5f5f5;
+  color: #f55c5c;
 }
 
 .rm-result {
