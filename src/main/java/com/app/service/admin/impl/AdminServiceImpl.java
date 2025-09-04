@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.app.dao.admin.AdminDAO;
+import com.app.dto.admin.AdminActionDTO;
 import com.app.dto.admin.AdminReportDTO;
 import com.app.dto.admin.AdminRestaurantDTO;
 import com.app.dto.admin.AdminUserDTO;
@@ -159,5 +160,42 @@ public class AdminServiceImpl implements AdminService {
 		}
 		return adminDAO.updateIPCReport(dto);
 	}
+	
+	
+	/* 최근 처리 이력 */
+	@Override
+	public List<AdminActionDTO> findRecentActionsUR() {
+		List<AdminActionDTO> findRecentActionsUR = adminDAO.findRecentActionsUR();
+		return findRecentActionsUR;
+	}
+
+	@Override
+	public List<AdminActionDTO> findRecentActionsOHT() {
+		List<AdminActionDTO> findRecentActionsOHT = adminDAO.findRecentActionsOHT();
+		return findRecentActionsOHT;
+	}
+
+	@Override
+	public List<AdminActionDTO> findRecentActionsRER() {
+		List<AdminActionDTO> findRecentActionsRER = adminDAO.findRecentActionsRER();
+		return findRecentActionsRER;
+	}
+
+	@Override
+	public List<AdminActionDTO> findRecentActionsIPC() {
+		List<AdminActionDTO> findRecentActionsIPC = adminDAO.findRecentActionsIPC();
+		return findRecentActionsIPC;
+	}
+
+	@Override
+	public int processReport(AdminReportDTO dto) {
+		 int n = adminDAO.updateReport(dto);
+		    if (n == 1) {
+		        adminDAO.insertReportAction(dto);
+		    }
+		    return n;
+	}
+	
+	
 
 }

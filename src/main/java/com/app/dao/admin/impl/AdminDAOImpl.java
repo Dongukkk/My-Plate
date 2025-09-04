@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 import com.app.dao.admin.AdminDAO;
+import com.app.dto.admin.AdminActionDTO;
 import com.app.dto.admin.AdminReportDTO;
 import com.app.dto.admin.AdminRestaurantDTO;
 import com.app.dto.admin.AdminUserDTO;
@@ -140,7 +141,39 @@ public class AdminDAOImpl implements AdminDAO {
 		 return sqlSessionTemplate.update(AM + "updateIPCReport", dto);
 	}
 
-	
+	@Override
+	public List<AdminActionDTO> findRecentActionsUR() {
+		List<AdminActionDTO> findRecentActionsUR = sqlSessionTemplate.selectList(AM + "findRecentActionsUR");
+		return findRecentActionsUR;
+	}
+
+	@Override
+	public List<AdminActionDTO> findRecentActionsOHT() {
+		List<AdminActionDTO> findRecentActionsOHT = sqlSessionTemplate.selectList(AM + "findRecentActionsOHT");
+		return findRecentActionsOHT;
+	}
+
+	@Override
+	public List<AdminActionDTO> findRecentActionsRER() {
+		List<AdminActionDTO> findRecentActionsRER = sqlSessionTemplate.selectList(AM + "findRecentActionsRER");
+		return findRecentActionsRER;
+	}
+
+	@Override
+	public List<AdminActionDTO> findRecentActionsIPC() {
+		List<AdminActionDTO> findRecentActionsIPC = sqlSessionTemplate.selectList(AM + "findRecentActionsIPC");
+		return findRecentActionsIPC;
+	}
+
+    @Override
+    public int updateReport(AdminReportDTO dto) {
+        return sqlSessionTemplate.update(AM + "updateReport", dto);
+    }
+
+    @Override
+    public int insertReportAction(AdminReportDTO dto) {
+        return sqlSessionTemplate.insert(AM + "insertReportAction", dto);
+    }
 	
 
 }

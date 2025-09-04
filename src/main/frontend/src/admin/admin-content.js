@@ -61,14 +61,18 @@ export default function AdminContent() {
     const [loadingIpc, setLoadingIpc] = useState(false);
     const [loadingOht, setLoadingOht] = useState(false);
 
-    // 피드(프론트 상태)
-    const [feed, setFeed] = useState([]);
-
     // 모달
     const [pendingModal, setPendingModal] = useState(null);
     const [ipcModal, setIpcModal] = useState(null);
     const [ohtModalOpen, setOhtModalOpen] = useState(false);
-    const [feedModalOpen, setFeedModalOpen] = useState(false);
+
+    // 최근 처리 이력
+    const [recentActions, setRecentActions] = useState([]);
+    const [actionsRer, setActionsRer] = useState([]);
+    const [actionsIpc, setActionsIpc] = useState([]);
+    const [actionsOht, setActionsOht] = useState([]);
+    const [actionTab, setActionTab] = useState("RER");
+    const [actionModalOpen, setActionModalOpen] = useState(false);
 
     // IPC 폼
     const [ipcDecision, setIpcDecision] = useState("무시");
@@ -85,62 +89,51 @@ export default function AdminContent() {
     /* 데이터 로드 */
     useEffect(() => {
         (async () => {
-            // RER
-            setLoadingPending(true);
             try {
-                const { data } = await axios.get("/api/adminContent/RER");
-                const rows = arr(data).map((x) => ({
-                    id: x.id,
-                    status: mapStatus(x.status),
-                    text: x.reason ?? "-",
-                    reporterId: x.reporterId ?? null,
-                    place: x.placeName ?? "-",
-                    date: fmtDate(pickDate(x)),
-                    type: "가게정보",
-                }));
-                rows.sort((a, b) => (b.date || "").localeCompare(a.date || "") || (b.id ?? 0) - (a.id ?? 0));
-                setPending(rows);
-            } finally {
-                setLoadingPending(false);
-            }
+                const rerRes = await axios.get("/api/adminContent/RER");
+                setPending(arr(rerRes.data).map(x => ({
+                    id: x.id, status: mapStatus(x.status), text: x.reason ?? "-", reporterId: x.reporterId ?? null,
+                    place: x.placeName ?? "-", date: fmtDate(pickDate(x)), type: "가게정보"
+                })));
 
-            // IPC
-            setLoadingIpc(true);
-            try {
-                const { data } = await axios.get("/api/adminContent/IPC");
-                const rows = arr(data).map((x) => ({
-                    id: x.id,
-                    title: "부적절한 콘텐츠 신고",
-                    reason: x.reason ?? "-",
-                    reporterId: x.reporterId ?? null,
-                    date: fmtDate(pickDate(x)),
-                    excerpt: x.excerpt ?? "",
-                    memo: x.memo ?? "",
-                    status: mapStatus(x.status),
-                }));
-                rows.sort((a, b) => (b.date || "").localeCompare(a.date || "") || (b.id ?? 0) - (a.id ?? 0));
-                setIpc(rows);
-            } finally {
-                setLoadingIpc(false);
-            }
+                const ipcRes = await axios.get("/api/adminContent/IPC");
+                setIpc(arr(ipcRes.data).map(x => ({
+                    id: x.id, title: "부적절한 콘텐츠 신고", reason: x.reason ?? "-", reporterId: x.reporterId ?? null,
+                    date: fmtDate(pickDate(x)), excerpt: x.excerpt ?? "", memo: x.memo ?? "", status: mapStatus(x.status)
+                })));
 
-            // OHT
-            setLoadingOht(true);
-            try {
-                const { data } = await axios.get("/api/adminContent/OHT");
-                const rows = arr(data).map((x) => ({
-                    id: x.id,
-                    text: x.reason ?? x.text ?? "-",
-                    reporterId: x.reporterId ?? null,
-                    date: fmtDate(pickDate(x)),
-                }));
-                rows.sort((a, b) => (b.date || "").localeCompare(a.date || "") || (b.id ?? 0) - (a.id ?? 0));
-                setOht(rows);
-            } finally {
-                setLoadingOht(false);
+                const ohtRes = await axios.get("/api/adminContent/OHT");
+                setOht(arr(ohtRes.data).map(x => ({
+                    id: x.id, text: x.reason ?? x.text ?? "-", reporterId: x.reporterId ?? null, date: fmtDate(pickDate(x))
+                })));
+
+                const [rerAct, ipcAct, ohtAct] = await Promise.all([
+                    axios.get("/api/adminActions/RER"),
+                    axios.get("/api/adminActions/IPC"),
+                    axios.get("/api/adminActions/OHT")
+                ]);
+                const all = [
+                    ...arr(rerAct.data).map(a => ({ ...a, type: "RER" })),
+                    ...arr(ipcAct.data).map(a => ({ ...a, type: "IPC" })),
+                    ...arr(ohtAct.data).map(a => ({ ...a, type: "OHT" })),
+                ].sort((a, b) => String(b.createdAt).localeCompare(String(a.createdAt)));
+
+                setRecentActions(all.slice(0, 3));
+                setActionsRer(arr(rerAct.data));
+                setActionsIpc(arr(ipcAct.data));
+                setActionsOht(arr(ohtAct.data));
+            } catch (e) {
+                console.error("데이터 로드 실패", e);
             }
         })();
     }, []);
+
+    const actionFiltered = useMemo(() => {
+        if (actionTab === "RER") return actionsRer;
+        if (actionTab === "IPC") return actionsIpc;
+        if (actionTab === "OHT") return actionsOht;
+        return [];
+    }, [actionTab, actionsRer, actionsIpc, actionsOht]);
 
     /* 공통 업데이트 */
     const updateReport = async (type, id, payload) => {
@@ -148,15 +141,10 @@ export default function AdminContent() {
         return axios.post(`/api/reports/${t}/${id}`, payload, { headers: { "Content-Type": "application/json" } });
     };
 
-    /* 피드 */
-    const pushFeed = (title, tag, text) =>
-        setFeed((prev) => [{ id: Date.now(), title, date: today(), tag, text }, ...prev].slice(0, 3));
-
     /* RER 승인/거절 */
     const approvePending = async (row) => {
         const prev = pending;
         setPending((list) => list.filter((p) => p.id !== row.id));
-        pushFeed("승인됨(가게 정보)", row.place || "-", row.text);
         try {
             await updateReport("rer", row.id, { status: "RESOLVED", decision: "APPROVE", memo: "프론트 승인 처리" });
         } catch {
@@ -181,7 +169,7 @@ export default function AdminContent() {
         const payload = {
             decision: toServerDecision(ipcDecision),
             status: toServerStatus(ipcState),
-            memo: ipcMemo, // reason은 보존
+            memo: ipcMemo,
         };
         const prev = ipc;
         setIpc((rows) => rows.map((r) => (r.id === ipcModal.id ? { ...r, status: ipcState, memo: ipcMemo } : r)));
@@ -193,7 +181,7 @@ export default function AdminContent() {
             setIpc(prev);
         }
     };
-    
+
     /* 페이징 */
     const PENDING_SIZE = 5, IPC_SIZE = 5;
     const [pendingPage, setPendingPage] = useState(1);
@@ -228,7 +216,6 @@ export default function AdminContent() {
                     <div className="admin-section-header"><h3 className="admin-section-title">수정 요청 대기 중인 콘텐츠</h3></div>
                     <div className="admin-desk-wrap">
                         <table className="admin-desk admin-pending-desk">
-                            {/* ✅ 고정 컬럼 폭: 버튼 정렬 보장 */}
                             <colgroup>
                                 <col className="col-type" />
                                 <col className="col-text" />
@@ -267,7 +254,7 @@ export default function AdminContent() {
                     <Pager page={pendingPage} total={pendingPages} onPage={setPendingPage} />
                 </section>
 
-                {/* 하단: 좌 IPC / 우 OHT + 피드 */}
+                {/* 하단: 좌 IPC / 우 OHT + 처리 이력 */}
                 <div className="admin-page-grid">
                     {/* 좌: IPC */}
                     <section className="admin-section admin-reports">
@@ -292,7 +279,7 @@ export default function AdminContent() {
                         <Pager page={ipcPage} total={ipcPages} onPage={setIpcPage} />
                     </section>
 
-                    {/* 우: OHT + 피드 */}
+                    {/* 우: OHT + 처리 이력 */}
                     <aside className="admin-sidecol">
                         <section className="admin-section">
                             <div className="admin-section-header">
@@ -315,21 +302,23 @@ export default function AdminContent() {
 
                         <section className="admin-section">
                             <div className="admin-section-header">
-                                <h3 className="admin-section-title">최근 승인 피드</h3>
-                                <button className="admin-view" onClick={() => setFeedModalOpen(true)}>모두 보기</button>
+                                <h3 className="admin-section-title">최근 처리 이력</h3>
+                                <button className="admin-view" onClick={() => setActionModalOpen(true)}>모두 보기</button>
                             </div>
                             <div className="admin-approved-grid small-gap">
-                                {feed.slice(0, 3).map((f) => (
-                                    <div key={f.id} className="admin-approved-card">
+                                {recentActions.map(a => (
+                                    <div key={a.id} className="admin-approved-card">
                                         <div className="admin-approved-top">
-                                            <div className="admin-approved-kind">{f.title}</div>
-                                            <div className="admin-approved-date">{f.date}</div>
+                                            <div className="admin-approved-kind">리포트 #{a.reportId}</div>
+                                            <div className="admin-approved-date">{fmtDate(a.createdAt)}</div>
                                         </div>
-                                        {f.text && <p className="admin-approved-text admin-ellipsis-3">{f.text}</p>}
-                                        <div className="admin-approved-bottom"><span className="admin-approved-tag">{f.tag}</span></div>
+                                        <p className="admin-approved-text">{a.memo || "-"}</p>
+                                        <div className="admin-approved-bottom">
+                                            <span className="admin-approved-tag">{mapStatus(a.statusAfter ?? a.status)}</span>
+                                        </div>
                                     </div>
                                 ))}
-                                {feed.length === 0 && <div className="admin-empty">표시할 항목이 없습니다.</div>}
+                                {recentActions.length === 0 && <div className="admin-empty">표시할 이력이 없습니다.</div>}
                             </div>
                         </section>
                     </aside>
@@ -435,7 +424,6 @@ export default function AdminContent() {
                                         <div>
                                             <div className="admin-feed-head">
                                                 <strong>리포터 ID: {q.reporterId ?? "-"}</strong>
-                                                <span>{q.date}</span>
                                             </div>
                                             <p>{q.text}</p>
                                         </div>
@@ -448,25 +436,42 @@ export default function AdminContent() {
                 </div>
             )}
 
-            {/* 모달: 승인 피드 전체 */}
-            {feedModalOpen && (
-                <div className="admin-modal-overlay" onClick={(e) => { if (e.target.classList.contains("admin-modal-overlay")) setFeedModalOpen(false); }} role="dialog" aria-modal="true">
-                    <div className="admin-modal">
+            {/* 모달: 처리 이력 전체 */}
+            {actionModalOpen && (
+                <div className="admin-modal-overlay" onClick={() => setActionModalOpen(false)}>
+                    <div className="admin-modal large" onClick={(e) => e.stopPropagation()}>
                         <div className="admin-modal-header">
-                            <h3>최근 승인 피드 전체</h3>
-                            <button className="admin-modal-close" onClick={() => setFeedModalOpen(false)} aria-label="닫기">×</button>
+                            <h3>처리 이력</h3>
+                            <button className="admin-modal-close" onClick={() => setActionModalOpen(false)}>×</button>
                         </div>
                         <div className="admin-modal-body">
-                            <div className="admin-approved-grid admin-approved-grid--modal">
-                                {feed.map((f) => (
-                                    <div key={f.id} className="admin-approved-card">
-                                        <div className="admin-approved-top"><div className="admin-approved-kind">{f.title}</div></div>
-                                        {f.text && <p className="admin-approved-text">{f.text}</p>}
-                                        <div className="admin-approved-bottom"><span className="admin-approved-tag">{f.tag}</span></div>
-                                    </div>
+                            <div className="admin-tabs">
+                                {["RER", "IPC", "OHT"].map(t => (
+                                    <button key={t}
+                                        className={`admin-tab ${actionTab === t ? "on" : ""}`}
+                                        onClick={() => setActionTab(t)}>
+                                        {t === "RER" ? "수정요청" : t === "IPC" ? "부적절 신고" : "기타 문의"}
+                                    </button>
                                 ))}
-                                {feed.length === 0 && <div className="admin-empty">표시할 항목이 없습니다.</div>}
                             </div>
+                            <table className="admin-table">
+                                <thead><tr><th>날짜</th><th>리포터ID</th><th>조치</th><th>상태</th><th>리포트</th></tr></thead>
+                                <tbody>
+                                    {actionFiltered.map(a => (
+                                        <tr key={a.id}>
+                                            <td>{fmtDate(a.createdAt)}</td>
+                                            <td>{a.reporterId ?? "-"}</td>
+                                            <td>{a.action}</td>
+                                            <td>{mapStatus(a.statusAfter ?? a.status)}</td>
+                                            <td>#{a.reportId}</td>
+                                        </tr>
+                                    ))}
+                                    {actionFiltered.length === 0 && <tr><td colSpan={5} className="admin-empty">표시할 이력이 없습니다.</td></tr>}
+                                </tbody>
+                            </table>
+                        </div>
+                        <div className="admin-modal-footer">
+                            <button className="admin-bttn admin-bttn--primary" onClick={() => setActionModalOpen(false)}>닫기</button>
                         </div>
                     </div>
                 </div>

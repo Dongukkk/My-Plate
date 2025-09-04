@@ -3,6 +3,7 @@ package com.app.controller.admin;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -12,6 +13,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.app.dto.admin.AdminActionDTO;
 import com.app.dto.admin.AdminReportDTO;
 import com.app.dto.admin.AdminRestaurantDTO;
 import com.app.dto.admin.AdminUserDTO;
@@ -102,51 +104,107 @@ public class AdminController {
 	}
 	
 	
-	/* 신고 업데이트 */
+	/* 신고 업데이트 (UR) */
 	@GetMapping("/api/reports/ur/{id}")
 	public AdminReportDTO getURReport(@PathVariable long id) {
 	    return adminService.searchURReportsById(id);
 	}
 	@PostMapping("/api/reports/ur/{id}")
-	public ResponseEntity<Void> updateURReport(@PathVariable long id, @RequestBody AdminReportDTO dto) {
+	public ResponseEntity<?> updateURReport(@PathVariable long id, @RequestBody AdminReportDTO dto) {
 	    dto.setId(id);
-	    int n = adminService.updateURReport(dto);
-	    return (n == 1) ? ResponseEntity.ok().build() : ResponseEntity.notFound().build();
+	    dto.setReportedItemType("UR");
+	    AdminReportDTO report = adminService.searchURReportsById(id);
+	    if (report != null) {
+	        dto.setReporterId(report.getReporterId());
+	    }
+	    int result = adminService.processReport(dto);
+	    return (result == 1) ? ResponseEntity.ok().body("처리 완료")
+	                         : ResponseEntity.status(HttpStatus.BAD_REQUEST).body("처리 실패");
 	}
 
+	/* 신고 업데이트 (OHT) */
 	@GetMapping("/api/reports/oht/{id}")
 	public AdminReportDTO getOHTReport(@PathVariable long id) {
 	    return adminService.searchOHTReportsById(id);
 	}
 	@PostMapping("/api/reports/oht/{id}")
-	public ResponseEntity<Void> updateOHTReport(@PathVariable long id, @RequestBody AdminReportDTO dto) {
+	public ResponseEntity<?> updateOHTReport(@PathVariable long id, @RequestBody AdminReportDTO dto) {
 	    dto.setId(id);
-	    int n = adminService.updateOHTReport(dto);
-	    return (n == 1) ? ResponseEntity.ok().build() : ResponseEntity.notFound().build();
+	    dto.setReportedItemType("OHT");
+	    AdminReportDTO report = adminService.searchOHTReportsById(id);
+	    if (report != null) {
+	        dto.setReporterId(report.getReporterId());
+	    }
+	    int result = adminService.processReport(dto);
+	    return (result == 1) ? ResponseEntity.ok().body("처리 완료")
+	                         : ResponseEntity.status(HttpStatus.BAD_REQUEST).body("처리 실패");
 	}
 
+	/* 신고 업데이트 (RER) */
 	@GetMapping("/api/reports/rer/{id}")
 	public AdminReportDTO getRERReport(@PathVariable long id) {
 	    return adminService.searchRERReportsById(id);
 	}
 	@PostMapping("/api/reports/rer/{id}")
-	public ResponseEntity<Void> updateRERReport(@PathVariable long id, @RequestBody AdminReportDTO dto) {
+	public ResponseEntity<?> updateRERReport(@PathVariable long id, @RequestBody AdminReportDTO dto) {
 	    dto.setId(id);
-	    int n = adminService.updateRERReport(dto);
-	    return (n == 1) ? ResponseEntity.ok().build() : ResponseEntity.notFound().build();
+	    dto.setReportedItemType("RER");
+	    AdminReportDTO report = adminService.searchRERReportsById(id);
+	    if (report != null) {
+	        dto.setReporterId(report.getReporterId());
+	    }
+	    int result = adminService.processReport(dto);
+	    return (result == 1) ? ResponseEntity.ok().body("처리 완료")
+	                         : ResponseEntity.status(HttpStatus.BAD_REQUEST).body("처리 실패");
 	}
 
+	/* 신고 업데이트 (IPC) */
 	@GetMapping("/api/reports/ipc/{id}")
 	public AdminReportDTO getIPCReport(@PathVariable long id) {
 	    return adminService.searchIPCReportsById(id);
 	}
 	@PostMapping("/api/reports/ipc/{id}")
-	public ResponseEntity<Void> updateIPCReport(@PathVariable long id, @RequestBody AdminReportDTO dto) {
+	public ResponseEntity<?> updateIPCReport(@PathVariable long id, @RequestBody AdminReportDTO dto) {
 	    dto.setId(id);
-	    int n = adminService.updateIPCReport(dto);
-	    return (n == 1) ? ResponseEntity.ok().build() : ResponseEntity.notFound().build();
+	    dto.setReportedItemType("IPC");
+	    AdminReportDTO report = adminService.searchIPCReportsById(id);
+	    if (report != null) {
+	        dto.setReporterId(report.getReporterId());
+	    }
+	    int result = adminService.processReport(dto);
+	    return (result == 1) ? ResponseEntity.ok().body("처리 완료")
+	                         : ResponseEntity.status(HttpStatus.BAD_REQUEST).body("처리 실패");
 	}
 	
 	
+	/* 최근 처리 이력 */
+	@GetMapping("/api/adminActions/UR")
+	public List<AdminActionDTO> findRecentActionsUR() {
+		return adminService.findRecentActionsUR();
+	}
+	@GetMapping("/api/adminActions/OHT")
+	public List<AdminActionDTO> findRecentActionsOHT() {
+		return adminService.findRecentActionsOHT();
+	}
+	@GetMapping("/api/adminActions/RER")
+	public List<AdminActionDTO> findRecentActionsRER() {
+		return adminService.findRecentActionsRER();
+	}
+	@GetMapping("/api/adminActions/IPC")
+	public List<AdminActionDTO> findRecentActionsIPC() {
+		return adminService.findRecentActionsIPC();
+	}
+	
+	@PostMapping("/api/reports/{type}/{id}")
+	public ResponseEntity<?> processReport( @PathVariable("type") String type, @PathVariable("id") long id, @RequestBody AdminReportDTO dto) {
+	    dto.setId(id);
+	    dto.setReportedItemType(type.toUpperCase());
+	    int result = adminService.processReport(dto);
+	    if (result == 1) {
+	        return ResponseEntity.ok().body("처리 완료");
+	    } else {
+	        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("처리 실패");
+	    }
+	}
 	
 }
