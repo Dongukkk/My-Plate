@@ -130,4 +130,16 @@ public class UserServiceImpl implements UserService {
                 provider
         );
     }
+    
+    @Override
+    public Long getUserIdByEmail(String email) {
+        if (email == null || email.isBlank()) {
+            throw new IllegalArgumentException("이메일이 비어있습니다.");
+        }
+        UserDTO user = userMapper.findByEmail(email);
+        if (user == null) {
+            throw new IllegalArgumentException("사용자를 찾을 수 없습니다.");
+        }
+        return user.getId();
+    }
 }

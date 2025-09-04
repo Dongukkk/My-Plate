@@ -113,6 +113,14 @@ body {
     flex-shrink: 0;
 }
 
+.rc-bookmark {
+    height:30px;
+    width:30px;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+}
+
 .rc-card-content {
     padding: 20px;
     display: flex;

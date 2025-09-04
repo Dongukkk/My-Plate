@@ -6,48 +6,70 @@ import "../restaurantList/RestaurantDetail.css";
 import KakaoMap from "../components/KakaoMap";
 import {DEFAULT_IMAGE_URL} from "./RestaurantCard"
 
+import { useSelector } from 'react-redux';
+import { getMyBookmarks, toggleBookmark, getRestaurantDetail } from "../api/api";
+
 
 function RestaurantDetail() {
   const navigate = useNavigate();
+
+  const user = useSelector(state => state.user);
 
   const { id } = useParams();
   const [restaurant, setRestaurant] = useState(null);
   const [bookmarked, setBookmarked] = useState(false);
 
-  const [bookmarkURL, setBookmarkURL] = useState("/images/restaurant/bookmark/BOOKMARK_OFF.png");
+  const bookmarkURL = bookmarked
+    ? "/images/restaurant/bookmark/BOOKMARK_ON.png"
+    : "/images/restaurant/bookmark/BOOKMARK_OFF.png";
+
   const shareURL = "/images/restaurant/bookmark/BOOKMARK_SHARE.png";
 
   useEffect(() => {
-    const fetchRestaurant = async () => {
+    const fetchRestaurantData = async () => {
       try {
-        const response = await axios.get(`http://localhost:3000/api/restaurants/${id}`);
-        const tagResp = await axios.get(`http://localhost:3000/api/restaurants/${id}/tags`);
-        const tags = Array.isArray(tagResp.data) ? tagResp.data.map(t => t.tag) : [];
-        console.log(tags);
+        const response = await getRestaurantDetail(id);
+        const tags = Array.isArray(response.data.tags)
+          ? response.data.tags
+          : [];
         setRestaurant({ ...response.data, tags });
 
+        if (user && user.id) {
+          const bookmarks = await getMyBookmarks();
+          const isBookmarked = bookmarks.data.some(
+            (b) => b.restaurantId === Number(id)
+          );
+          setBookmarked(isBookmarked);
+        } else {
+          setBookmarked(false);
+        }
       } catch (e) {
-        console.error(e);
+        console.error("레스토랑 정보를 가져오는 데 실패했습니다:", e);
       }
     };
-    fetchRestaurant();
-  }, [id]);
+    fetchRestaurantData();
+  }, [id, user]);
+
+  const bookMarkToggle = async () => {
+    if (!user || !user.id) {
+      alert("로그인 후 이용 가능합니다.");
+      return;
+    }
+
+    try {
+      await toggleBookmark(id);
+      setBookmarked(!bookmarked);
+    } catch (e) {
+      console.error("북마크 토글 API 호출 실패:", e);
+      alert("북마크 상태 변경에 실패했습니다. 다시 시도해주세요.");
+    }
+  };
 
   if (!restaurant) {
     return <div>로딩 중...</div>;
   }
   const sampleImageUrl = restaurant && (restaurant.photoUrl || DEFAULT_IMAGE_URL);
 
-  function bookMarkToggle(){
-    if (bookmarked){
-      setBookmarkURL("/images/restaurant/bookmark/BOOKMARK_OFF.png");
-      setBookmarked(false);
-    } else {
-      setBookmarkURL("/images/restaurant/bookmark/BOOKMARK_ON.png");
-      setBookmarked(true);
-    }
-
-  };
   return (
     <div className="restaurantDetail-page">
       <SideBarMenu/>
@@ -70,9 +92,9 @@ function RestaurantDetail() {
           
         </div>
         <div className="rd-info">
-            <main class="rd-main">
-            <div class="rd-card">
-              <h3>혼밥 지수 <span class="rd-badge">8.5/10</span></h3>
+            <main className="rd-main">
+            <div className="rd-card">
+              <h3>혼밥 지수 <span className="rd-badge">8.5/10</span></h3>
               <p>혼자 식사하는 손님에게 받은 평점 기반입니다. 혼밥 포인트가 있는 박 수석이 있습니다.</p>
               <ul>
                 <li>쾌적 배치: 1인 테이블, 바 좌석, 개인 공간 배려</li>
@@ -82,31 +104,31 @@ function RestaurantDetail() {
             </div>
 
 
-            <div class="rd-card">
+            <div className="rd-card">
               <h3>메뉴 하이라이트</h3>
-              <div class="rd-menu-item">시그니처 스시 플래터 - ₩32,000</div>
-              <div class="rd-menu-item">육즙 테리아키 - ₩38,000</div>
-              <div class="rd-menu-item">프리미엄 세트 - ₩25,000</div>
-              <div class="rd-menu-item">말차 티라미수 - ₩12,000</div>
+              <div className="rd-menu-item">시그니처 스시 플래터 - ₩32,000</div>
+              <div className="rd-menu-item">육즙 테리아키 - ₩38,000</div>
+              <div className="rd-menu-item">프리미엄 세트 - ₩25,000</div>
+              <div className="rd-menu-item">말차 티라미수 - ₩12,000</div>
             </div>
 
-            <div class="rd-card">
+            <div className="rd-card">
               <h3>특별 이벤트</h3>
-              <div class="rd-event-item">스시 만들기 클래스 - 1인 ₩35,000</div>
-              <div class="rd-event-item">사케 시음의 밤 - 1인 ₩45,000</div>
+              <div className="rd-event-item">스시 만들기 클래스 - 1인 ₩35,000</div>
+              <div className="rd-event-item">사케 시음의 밤 - 1인 ₩45,000</div>
             </div>
 
-            <div class="rd-card">
+            <div className="rd-card">
               <h3>리뷰 ({restaurant.ratingCount})</h3>
-              <div class="rd-review-item">
+              <div className="rd-review-item">
                 <strong>박지훈</strong> ⭐⭐⭐⭐⭐ <br/>
                 “혼자 와서 세트로 즐길 수 있는 구성이 좋습니다. 종종 오겠습니다.”
               </div>
-              <div class="rd-review-item">
+              <div className="rd-review-item">
                 <strong>이수연</strong> ⭐⭐⭐⭐ <br/>
                 “음식 퀄리티는 좋아요. 다만 혼자 먹기엔 양이 많네요.”
               </div>
-              <div class="rd-review-item">
+              <div className="rd-review-item">
                 <strong>최준호</strong> ⭐⭐⭐⭐⭐ <br/>
                 “사케 시음 이벤트 재밌었어요! 추천합니다.”
               </div>
@@ -114,7 +136,7 @@ function RestaurantDetail() {
             </div>
           </main>
 
-          <aside class="rd-right-info">
+          <aside className="rd-right-info">
             <h3>영업시간</h3>
             <p>월~금: 오전 11시 - 오후 10시<br/>토: 오전 12시 - 오후 10시<br/>일: 오전 12시 - 오후 9시</p>
             <h3>주소</h3>

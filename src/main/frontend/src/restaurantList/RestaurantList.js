@@ -6,8 +6,13 @@ import '../restaurantList/RestaurantList.css';
 
 import SideBarMenu from '../components/SideBarMenu';
 
+import { useSelector } from 'react-redux';
+import { getRestaurants, getMyBookmarks } from '../api/api'; 
+
 function RestaurantList() {
     const navigate = useNavigate();
+
+    const user = useSelector(state => state.user);
     const [restaurants, setRestaurants] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
@@ -21,42 +26,70 @@ function RestaurantList() {
     const [tagList, setTagList] = useState(recommendTag);
     const loadingRef = useRef(null);
 
-    useEffect(() => {
-        const fetchRestaurants = async () => {
-            if (page === 1) {
-                setRestaurants([]);
-            }
-            
-            setLoading(true);
-            setError(null);
-            
-            try {
-                const tagsQuery = selectedTags.length > 0 ? `&tag=${selectedTags.join(',')}` : '';
+    const fetchRestaurants = async () => {
+        if (page === 1) {
+            setRestaurants([]);
+        }
+        
+        setLoading(true);
+        setError(null);
+        
+        try {
+            const tagsQuery = selectedTags.length > 0 ? selectedTags.join(',') : null;
+            const restaurantParams = {
+                sort: sort,
+                direction: direction,
+                page: page,
+                limit: 12,
+                tag: tagsQuery
+            };
 
-                const response = await axios.get(
-                    `http://localhost:3000/api/restaurants/getAllRestaurants?sort=${sort}&direction=${direction}&page=${page}&limit=12${tagsQuery}`
-                );
+            const response = await getRestaurants(restaurantParams);
 
-                const newRestaurants = response.data;
+            let newRestaurants = response.data;
 
-                setRestaurants(prev => {
-                    return page === 1 ? newRestaurants : [...prev, ...newRestaurants];
-                });
-                
-                if (response.data.length < 12) {
-                    setHasMore(false);
-                } else {
-                    setHasMore(true);
+            if (user && user.id) {
+                try {
+                    const bookmarkResponse = await getMyBookmarks();
+                    const bookmarkedRestaurantIds = new Set(bookmarkResponse.data.map(item => item.restaurantId));
+                    
+                    newRestaurants = newRestaurants.map(restaurant => ({
+                        ...restaurant,
+                        bookmarked: bookmarkedRestaurantIds.has(restaurant.id)
+                    }));
+                } catch (bookmarkError) {
+                    console.error("북마크 목록을 가져오는 데 실패했습니다:", bookmarkError);
                 }
-            } catch (e) {
-                setError(e);
-            } finally {
-                setLoading(false);
+            } else {
+                newRestaurants = newRestaurants.map(restaurant => ({
+                    ...restaurant,
+                    bookmarked: false
+                }));
             }
-        };
 
+            setRestaurants(prev => {
+                return page === 1 ? newRestaurants : [...prev, ...newRestaurants];
+            });
+            
+            if (response.data.length < 12) {
+                setHasMore(false);
+            } else {
+                setHasMore(true);
+            }
+        } catch (e) {
+            setError(e);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const handleBookmarkToggle = () => {
+      setPage(1);
+    };
+
+    useEffect(() => {
         fetchRestaurants();
-    }, [page, sort, direction, selectedTags]);
+    }, [page, sort, direction, selectedTags, user]);
 
     useEffect(() => {
         if (!loadingRef.current) return;
@@ -94,13 +127,25 @@ function RestaurantList() {
     };
 
     const handleTagClick = (tag) => {
-        const newSelectedTags = selectedTags.includes(tag)
-            ? selectedTags.filter(t => t !== tag)
-            : [...selectedTags, tag];
+        let newSelectedTags = [];
+        let newTagList = [...tagList];
+
+        if (selectedTags.includes(tag)) {
+            newSelectedTags = selectedTags.filter(t => t !== tag);
+            
+            if (!recommendTag.includes(tag)) {
+                newTagList = newTagList.filter(t => t !== tag);
+            }
+        } else {
+            newSelectedTags = [...selectedTags, tag];
+
+            if (!recommendTag.includes(tag)) {
+                newTagList = [...tagList, tag];
+            }
+        }
 
         setSelectedTags(newSelectedTags);
-
-        setTagList([...newSelectedTags, ...recommendTag.filter(t => !newSelectedTags.includes(t))]);
+        setTagList(newTagList);
         setPage(1);
     };
 
@@ -141,7 +186,14 @@ function RestaurantList() {
                         </div>
                         <div className="restaurant-grid">
                             {restaurants.map(restaurant => (
-                                <RestaurantCard key={restaurant.id} restaurant={restaurant} selectedTags={selectedTags} onTagClick={handleTagClick}/>
+                                <RestaurantCard 
+                                    key={restaurant.id} 
+                                    restaurant={restaurant} 
+                                    selectedTags={selectedTags} 
+                                    onTagClick={handleTagClick} 
+                                    initialBookmarkStatus={restaurant.bookmarked}
+                                    onBookmarkToggle={handleBookmarkToggle}
+                                />
                             ))}
                         </div>
                         
