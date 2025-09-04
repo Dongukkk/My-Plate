@@ -254,10 +254,18 @@
 .admin-legend {
     display: flex;
     align-items: center;
-    gap: 14px;
+    gap: 16px;
     color: #666;
     font-size: 12px;
-    margin-top: 6px;
+    flex-wrap:nowrap;
+    margin:4px 0 0;
+}
+.legend-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    /* 점–텍스트 간격 */
+    white-space: nowrap;
 }
 
 .admin-dot {
@@ -268,17 +276,9 @@
     margin-right: 6px;
 }
 
-.admin-dot.red {
-    background: #ef5350;
-}
-
-.admin-dot.blue {
-    background: #42a5f5;
-}
-
-.admin-dot.green {
-    background: #66bb6a;
-}
+.admin-legend .admin-dot.red   { background: #ef5350; }
+.admin-legend .admin-dot.blue  { background: #42a5f5; }
+.admin-legend .admin-dot.green { background: #66bb6a; }
 
 .admin-sums {
     display: grid;
@@ -338,4 +338,36 @@
     margin: 4px 0 0 0;
     font-size: 13px;
     color: #222;
+}
+
+/* Tabs (no :root or * selectors) */
+.admin-tabs {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 12px;
+  flex-wrap: wrap;
+}
+
+.admin-tab {
+  padding: 8px 12px;
+  border-radius: 9999px;
+  border: 1px solid #e5e7eb;      /* gray-200 */
+  background: #fff;
+  color: #374151;                  /* gray-700 */
+  font-weight: 500;
+  line-height: 1;
+  transition: all .15s ease;
+}
+
+.admin-tab:hover {
+  border-color: #9ca3af;           /* gray-400 */
+}
+
+/* === 포인트 컬러만 바꾸려면 이 세 줄 수정 === */
+.admin-tab.on {
+  background: rgba(37, 99, 235, 0.08);  /* 포인트 배경 */
+  border-color: #2563eb;                 /* 포인트 보더 */
+  color: #374151;                        /* 포인트 텍스트 */
+  font-weight: 700;
+  box-shadow: inset 0 0 0 2px rgba(37, 99, 235, 0.08);
 }

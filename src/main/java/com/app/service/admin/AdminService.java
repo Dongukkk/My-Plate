@@ -2,6 +2,7 @@ package com.app.service.admin;
 
 import java.util.List;
 
+import com.app.dto.admin.AdminActionDTO;
 import com.app.dto.admin.AdminReportDTO;
 import com.app.dto.admin.AdminRestaurantDTO;
 import com.app.dto.admin.AdminUserDTO;
@@ -41,4 +42,10 @@ public interface AdminService {
 	AdminReportDTO searchIPCReportsById(long id);
 	int updateIPCReport(AdminReportDTO dto);
 	
+	//최근 처리 이력
+    List<AdminActionDTO> findRecentActionsUR(); 
+    List<AdminActionDTO> findRecentActionsOHT();  
+    List<AdminActionDTO> findRecentActionsRER();  
+    List<AdminActionDTO> findRecentActionsIPC();  
+    int processReport(AdminReportDTO dto);
 }

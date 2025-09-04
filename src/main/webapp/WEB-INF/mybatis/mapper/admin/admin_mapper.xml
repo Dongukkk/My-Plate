@@ -338,6 +338,110 @@
 
 
 
+	<!-- ================= 최근 처리 이력 ================= -->
+	<!-- 사용자 신고 (UR) -->
+	<select id="findRecentActionsUR" resultType="AdminAction">
+	    SELECT
+	        a.id,
+	        a.report_id     AS reportId,
+	        a.item_type     AS itemType,
+	        a.reporter_id   AS reporterId,
+	        a.action        AS action,
+	        a.status_after  AS statusAfter,
+	        a.memo,
+	        a.excerpt,
+	        TO_CHAR(a.created_at, 'YYYY-MM-DD"T"HH24:MI:SS') AS createdAt
+	    FROM MP_REPORT_ACTION a
+	    WHERE a.item_type = 'UR'
+	    ORDER BY a.created_at DESC
+	</select>
+	
+	<!-- 기타 문의 (OHT) -->
+	<select id="findRecentActionsOHT" resultType="AdminAction">
+	    SELECT
+	        a.id,
+	        a.report_id     AS reportId,
+	        a.item_type     AS itemType,
+	        a.reporter_id   AS reporterId,
+	        a.action        AS action,
+	        a.status_after  AS statusAfter,
+	        a.memo,
+	        a.excerpt,
+	        TO_CHAR(a.created_at, 'YYYY-MM-DD"T"HH24:MI:SS') AS createdAt,
+	        r.reason        AS reason
+	    FROM MP_REPORT_ACTION a
+	    LEFT JOIN MP_REPORT r ON r.id = a.report_id
+	    WHERE a.item_type = 'OTH'
+	    ORDER BY a.created_at DESC
+	</select>
+	
+	<!-- 가게 정보 수정 요청 (RER) -->
+	<select id="findRecentActionsRER" resultType="AdminAction">
+	    SELECT
+	        a.id,
+	        a.report_id     AS reportId,
+	        a.item_type     AS itemType,
+	        a.reporter_id   AS reporterId,
+	        a.action        AS action,
+	        a.status_after  AS statusAfter,
+	        a.memo,
+	        a.excerpt,
+	        TO_CHAR(a.created_at, 'YYYY-MM-DD"T"HH24:MI:SS') AS createdAt,
+	        r.reason        AS reason
+	    FROM MP_REPORT_ACTION a
+	    LEFT JOIN MP_REPORT r ON r.id = a.report_id
+	    WHERE a.item_type = 'RER'
+	    ORDER BY a.created_at DESC
+	</select>
+	
+	<!-- 부적절 콘텐츠 (IPC) -->
+	<select id="findRecentActionsIPC" resultType="AdminAction">
+	    SELECT
+	        a.id,
+	        a.report_id     AS reportId,
+	        a.item_type     AS itemType,
+	        a.reporter_id   AS reporterId,
+	        a.action        AS action,
+	        a.status_after  AS statusAfter,
+	        a.memo,
+	        a.excerpt,
+	        TO_CHAR(a.created_at, 'YYYY-MM-DD"T"HH24:MI:SS') AS createdAt,
+	        r.reason        AS reason
+	    FROM MP_REPORT_ACTION a
+	    LEFT JOIN MP_REPORT r ON r.id = a.report_id
+	    WHERE a.item_type = 'IPC'
+	    ORDER BY a.created_at DESC
+	</select>
+	
+	<update id="updateReport" parameterType="AdminReportDTO">
+	    UPDATE MP_REPORT
+	    SET
+	        status = #{status},
+	        decision = #{decision},
+	        memo = #{memo, jdbcType=VARCHAR},
+	        excerpt = #{excerpt, jdbcType=VARCHAR},
+	        updated_at = SYSTIMESTAMP
+	    WHERE id = #{id}
+	      AND reported_item_type = #{reportedItemType}
+	</update>
+	
+	<insert id="insertReportAction" parameterType="AdminReportDTO">
+	    INSERT INTO MP_REPORT_ACTION (
+	        id, report_id, item_type, reporter_id,
+	        action, status_after, memo, excerpt, created_at
+	    ) VALUES (
+	        MP_REPORT_ACTION_SEQ.NEXTVAL,
+	        #{id},
+	        #{reportedItemType}, 
+	        #{reporterId},
+	        #{decision},     
+	        #{status}, 
+	        #{memo, jdbcType=VARCHAR},
+	        #{excerpt, jdbcType=VARCHAR},
+	        SYSTIMESTAMP
+	    )
+	</insert>
+
 
 
 
