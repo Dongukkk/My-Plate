@@ -132,14 +132,17 @@ function RestaurantSearchResult() {
                             ))}
                         </div>
                         <div className="restaurant-grid">
-                            {filteredRestaurants.length > 0 ? (
+                            {filteredRestaurants.length > 0 && (
                                 filteredRestaurants.map(restaurant => (
                                     <RestaurantCard key={restaurant.id} restaurant={restaurant} selectedTags={selectedTags} onTagClick={handleTagClick} />
                                 ))
-                            ) : (
-                                <div>검색 결과가 없습니다.</div>
                             )}
                         </div>
+                        {filteredRestaurants.length == 0 && (
+                            <div style={{ textAlign: 'center', marginTop:'5%' }}>
+                                <img src={`${process.env.PUBLIC_URL}/images/icon/noresult/SEARCH_NORESULT.png`} style={{width:'60%', margin: '0 auto'}}></img>
+                            </div>
+                        )}           
                     </div>
                 </main>
             </div>

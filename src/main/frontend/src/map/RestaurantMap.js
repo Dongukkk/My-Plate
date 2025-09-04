@@ -145,7 +145,11 @@ function RestaurantMap() {
                 </div>
               ))
             ) : (
-              <p>지도를 움직여 주변 식당을 찾아보세요.</p>
+              <>
+                <p>지도를 움직여 주변 식당을 찾아보세요.</p>
+                <img src={`${process.env.PUBLIC_URL}/images/icon/noresult/MAP_NORESULT.png`} style={{width:'100%'}}></img>
+              </>
+              
             )}
           </div>
         </div>
