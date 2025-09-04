@@ -82,4 +82,9 @@ public class RestaurantDAOImpl implements RestaurantDAO {
 		return sqlSessionTemplate.selectList("restaurant_mapper.getAllTagCodes");
 	}
 
+	@Override
+	public int updateAllRatingCounts() {
+		return sqlSessionTemplate.update("restaurant_mapper.updateAllRatingCounts");
+	}
+
 }

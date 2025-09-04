@@ -19,4 +19,6 @@ public interface RestaurantDAO {
 	public List<RestaurantTagDTO> getTagsByRestaurantId(long restaurantId);
 	
 	public List<TagCodeDTO> getAllTagCodes();
+	
+	public int updateAllRatingCounts(); 
 }

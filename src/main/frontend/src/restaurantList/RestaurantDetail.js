@@ -7,7 +7,8 @@ import KakaoMap from "../components/KakaoMap";
 import {DEFAULT_IMAGE_URL} from "./RestaurantCard"
 
 import { useSelector } from 'react-redux';
-import { getMyBookmarks, toggleBookmark, getRestaurantDetail } from "../api/api";
+import { getMyBookmarks, toggleBookmark, getRestaurantDetail, getRestaurantReviews } from "../api/api";
+import ReviewModal from "../modal/ReviewModal";
 
 
 function RestaurantDetail() {
@@ -24,6 +25,9 @@ function RestaurantDetail() {
     : "/images/restaurant/bookmark/BOOKMARK_OFF.png";
 
   const shareURL = "/images/restaurant/bookmark/BOOKMARK_SHARE.png";
+
+  const [reviews, setReviews] = useState([]);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   useEffect(() => {
     const fetchRestaurantData = async () => {
@@ -50,6 +54,22 @@ function RestaurantDetail() {
     fetchRestaurantData();
   }, [id, user]);
 
+  useEffect(() => {
+        const fetchReviews = async () => {
+            if (!id) {
+                return;
+            }
+            try {
+                const data = await getRestaurantReviews(id);
+                setReviews(data);
+            } catch (e) {
+              console.error("리뷰를 가져오는 데 실패했습니다:", e);
+            }
+        };
+
+        fetchReviews();
+    }, [id]);
+
   const bookMarkToggle = async () => {
     if (!user || !user.id) {
       alert("로그인 후 이용 가능합니다.");
@@ -71,98 +91,125 @@ function RestaurantDetail() {
   const sampleImageUrl = restaurant && (restaurant.photoUrl || DEFAULT_IMAGE_URL);
 
   return (
-    <div className="restaurantDetail-page">
-      <SideBarMenu/>
-      <div className="rd-container">
-        <div className="rd-represent">
-          <div className="rd-restaurant-header">
-            <div>
-              <h2>{restaurant.restrntNm}</h2>
-              <p>{restaurant.tags && restaurant.tags.length > 0
-                                    ? restaurant.tags.join(' · ')
-                                    : ''} ⭐ {restaurant.avgrating} ({restaurant.ratingCount} 리뷰)</p>
+    <>
+      <div className="restaurantDetail-page">
+        <SideBarMenu/>
+        <div className="rd-container">
+          <div className="rd-represent">
+            <div className="rd-restaurant-header">
+              <div>
+                <h2>{restaurant.restrntNm}</h2>
+                <p>{restaurant.tags && restaurant.tags.length > 0
+                                      ? restaurant.tags.join(' · ')
+                                      : ''} ⭐ {restaurant.avgRating} ({restaurant.ratingCount} 리뷰)</p>
+              </div>
+              <div style={{display:"flex",   alignItems: "center"}}>
+                <div className="rd-bookmark" style={{ backgroundImage: `url(${shareURL})`}} title="공유"></div>
+                <div className="rd-bookmark" style={{ backgroundImage: `url(${bookmarkURL})`}} title="북마크" onClick={bookMarkToggle}></div>
+                
+              </div>
             </div>
-            <div style={{display:"flex",   alignItems: "center"}}>
-              <div className="rd-bookmark" style={{ backgroundImage: `url(${shareURL})`}} title="공유"></div>
-              <div className="rd-bookmark" style={{ backgroundImage: `url(${bookmarkURL})`}} title="북마크" onClick={bookMarkToggle}></div>
-              
-            </div>
+            <div className="rd-repr-image" style={{ backgroundImage: `url(${sampleImageUrl})`}}></div>
+            
           </div>
-          <div className="rd-repr-image" style={{ backgroundImage: `url(${sampleImageUrl})`}}></div>
+          <div className="rd-info">
+              <main className="rd-main">
+              <div className="rd-card">
+                <h3>혼밥 지수 <span className="rd-badge">{restaurant.soloIndex}/2</span></h3>
+                <p>혼자 식사하는 손님에게 받은 평점 기반입니다. 혼밥 포인트가 있는 박 수석이 있습니다.</p>
+                <ul>
+                  <li>쾌적 배치: 1인 테이블, 바 좌석, 개인 공간 배려</li>
+                  <li>설명기: 친절한 직원 서비스</li>
+                  <li>취향 옵션: 1인 메뉴, 소포장 제공</li>
+                </ul>
+              </div>
+
+
+              <div className="rd-card">
+                <h3>메뉴 하이라이트</h3>
+                <div className="rd-menu-item">시그니처 스시 플래터 - ₩32,000</div>
+                <div className="rd-menu-item">육즙 테리아키 - ₩38,000</div>
+                <div className="rd-menu-item">프리미엄 세트 - ₩25,000</div>
+                <div className="rd-menu-item">말차 티라미수 - ₩12,000</div>
+              </div>
+
+              <div className="rd-card">
+                <h3>특별 이벤트</h3>
+                <div className="rd-event-item">스시 만들기 클래스 - 1인 ₩35,000</div>
+                <div className="rd-event-item">사케 시음의 밤 - 1인 ₩45,000</div>
+              </div>
+
+              <div className="rd-card" style={{minHeight:'300px'}}>
+                <h3>리뷰 ({restaurant.ratingCount})</h3>
+                {reviews.length > 0 ? (
+                    <ul style={{ listStyleType: 'none', padding: 0, minHeight:'200px' }}>
+                        {reviews.slice(0, 3).map((review) => (
+                            <li key={review.id} className="rd-review-item">
+                                <div className="review-header">
+                                    <div className="review-author" style={{display:'flex', padding:'10px 0', justifyContent:'space-between'}}>
+                                      <div style={{display:'flex'}}>
+                                        <div style={{fontSize:'24px'}}>{review.userId}</div>
+                                        <div style={{display:'flex', alignItems:'end'}}>
+                                          {review.menuScore === 0 && <span className="review-solo-feature">혼밥메뉴가 다양함</span>}  
+                                          {review.seatScore === 0 && <span className="review-solo-feature">혼밥좌석이 많음</span>}
+                                        </div>
+                                      </div>
+                                      <div>
+                                        <span className="review-date" style={{fontSize:'14px', color:'gray', marginLeft:'50px'}}>{review.createdAt}</span>
+                                      </div>
+                                      
+                                    </div>
+                                    <span className="review-rating">
+                                      {Array.from({ length: review.rating }, (_, i) => (
+                                          <span key={i} className="star">⭐</span>
+                                      ))}
+                                      <div style={{display:'inline-block', marginLeft:'5px', verticalAlign:'bottom', fontSize:'14px', color:'gray'}}>{`(`+review.rating+`)`}</div></span>
+                                </div>
+                                <p className="review-comment">{review.reviewComment}</p>
+                            </li>
+                        ))}
+                    </ul>
+                ) : (
+                    <div style={{minHeight:'200px'}}>아직 작성된 리뷰가 없습니다.</div>
+                )}
+                {reviews.length > 3 && <button onClick={() => setIsModalOpen(true)}>더 많은 리뷰 보기</button>}
+              </div>
+            </main>
+
+            <aside className="rd-right-info">
+              <h3>영업시간</h3>
+              <p>월~금: 오전 11시 - 오후 10시<br/>토: 오전 12시 - 오후 10시<br/>일: 오전 12시 - 오후 9시</p>
+              <h3>주소</h3>
+              <p>{restaurant.restrntAddr}</p>
+              {restaurant.mapLat && restaurant.mapLot && (
+                <div style={{height:"300px", borderRadius:"5px"}}>
+                  <KakaoMap isSinglePoint={true}
+                    centerLat={restaurant.mapLat}
+                    centerLng={restaurant.mapLot}
+                    level={1}
+                  />
+                </div>
+                
+              )}
+              <h3>전화번호</h3>
+              <p>{restaurant.restrntInqrTel}</p>
+              <button style={{width:"100%"}}>전화하기</button>
+              <button style={{width:"49%", marginRight:"3px"}}>제보하기</button> 
+              <button style={{width:"49%"}}>리뷰 작성하기</button>
+            </aside>
+          </div>
           
         </div>
-        <div className="rd-info">
-            <main className="rd-main">
-            <div className="rd-card">
-              <h3>혼밥 지수 <span className="rd-badge">8.5/10</span></h3>
-              <p>혼자 식사하는 손님에게 받은 평점 기반입니다. 혼밥 포인트가 있는 박 수석이 있습니다.</p>
-              <ul>
-                <li>쾌적 배치: 1인 테이블, 바 좌석, 개인 공간 배려</li>
-                <li>설명기: 친절한 직원 서비스</li>
-                <li>취향 옵션: 1인 메뉴, 소포장 제공</li>
-              </ul>
-            </div>
-
-
-            <div className="rd-card">
-              <h3>메뉴 하이라이트</h3>
-              <div className="rd-menu-item">시그니처 스시 플래터 - ₩32,000</div>
-              <div className="rd-menu-item">육즙 테리아키 - ₩38,000</div>
-              <div className="rd-menu-item">프리미엄 세트 - ₩25,000</div>
-              <div className="rd-menu-item">말차 티라미수 - ₩12,000</div>
-            </div>
-
-            <div className="rd-card">
-              <h3>특별 이벤트</h3>
-              <div className="rd-event-item">스시 만들기 클래스 - 1인 ₩35,000</div>
-              <div className="rd-event-item">사케 시음의 밤 - 1인 ₩45,000</div>
-            </div>
-
-            <div className="rd-card">
-              <h3>리뷰 ({restaurant.ratingCount})</h3>
-              <div className="rd-review-item">
-                <strong>박지훈</strong> ⭐⭐⭐⭐⭐ <br/>
-                “혼자 와서 세트로 즐길 수 있는 구성이 좋습니다. 종종 오겠습니다.”
-              </div>
-              <div className="rd-review-item">
-                <strong>이수연</strong> ⭐⭐⭐⭐ <br/>
-                “음식 퀄리티는 좋아요. 다만 혼자 먹기엔 양이 많네요.”
-              </div>
-              <div className="rd-review-item">
-                <strong>최준호</strong> ⭐⭐⭐⭐⭐ <br/>
-                “사케 시음 이벤트 재밌었어요! 추천합니다.”
-              </div>
-              <button>더 많은 리뷰 보기</button>
-            </div>
-          </main>
-
-          <aside className="rd-right-info">
-            <h3>영업시간</h3>
-            <p>월~금: 오전 11시 - 오후 10시<br/>토: 오전 12시 - 오후 10시<br/>일: 오전 12시 - 오후 9시</p>
-            <h3>주소</h3>
-            <p>{restaurant.restrntAddr}</p>
-            {restaurant.mapLat && restaurant.mapLot && (
-              <div style={{height:"300px", borderRadius:"5px"}}>
-                <KakaoMap isSinglePoint={true}
-                  centerLat={restaurant.mapLat}
-                  centerLng={restaurant.mapLot}
-                  level={1}
-                />
-              </div>
-              
-            )}
-            <h3>전화번호</h3>
-            <p>{restaurant.restrntInqrTel}</p>
-            <button style={{width:"100%"}}>전화하기</button>
-            <button style={{width:"49%", marginRight:"3px"}}>제보하기</button> 
-            <button style={{width:"49%"}}>리뷰 작성하기</button>
-          </aside>
-        </div>
         
-      </div>
 
-    </div>
-    
+      </div>
+      {isModalOpen && (
+          <ReviewModal
+              restaurantId={id}
+              onClose={() => setIsModalOpen(false)}
+          />
+      )}
+    </>
   );
 }
 

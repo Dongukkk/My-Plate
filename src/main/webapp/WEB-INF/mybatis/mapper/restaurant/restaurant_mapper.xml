@@ -168,5 +168,41 @@
     <select id="getAllTagCodes" resultType="TagCode">
     	SELECT * FROM MP_CODE_TAG
     </select>
+    
+    <update id="updateAllRatingCounts">
+        UPDATE MP_RESTAURANT r
+        SET 
+            r.RATING_COUNT = (
+                SELECT COUNT(rw.ID)
+                FROM MP_REVIEW rw
+                WHERE rw.RESTAURANT_ID = r.ID
+                AND rw.DELETED_AT IS NULL
+            ),
+            r.AVG_RATING = (
+                SELECT ROUND(AVG(rw.RATING),1)
+                FROM MP_REVIEW rw
+                WHERE rw.RESTAURANT_ID = r.ID
+                AND rw.DELETED_AT IS NULL
+            ),
+            r.SOLO_INDEX = (
+                SELECT ROUND(AVG(rw.SOLO_SCORE),1)
+                FROM MP_REVIEW rw
+                WHERE rw.RESTAURANT_ID = r.ID
+                AND rw.DELETED_AT IS NULL
+            ),
+            r.AVG_MENU_SCORE = (
+                SELECT ROUND(AVG(rw.MENU_SCORE),1)
+                FROM MP_REVIEW rw
+                WHERE rw.RESTAURANT_ID = r.ID
+                AND rw.DELETED_AT IS NULL
+            ),
+            r.AVG_SEAT_SCORE = (
+                SELECT ROUND(AVG(rw.SEAT_SCORE),1)
+                FROM MP_REVIEW rw
+                WHERE rw.RESTAURANT_ID = r.ID
+                AND rw.DELETED_AT IS NULL
+            ),
+            r.UPDATED_AT = SYSTIMESTAMP
+    </update>
 
 </mapper>

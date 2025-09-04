@@ -57,4 +57,9 @@ public class RestaurantServiceImpl implements RestaurantService{
 	public List<TagCodeDTO> getAllTagCodes() {
 		return restaurantDAO.getAllTagCodes();
 	}
+
+	@Override
+	public int updateAllRatingCounts() {
+		return restaurantDAO.updateAllRatingCounts();
+	}
 }

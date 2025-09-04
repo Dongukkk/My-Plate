@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?> 
+<!DOCTYPE mapper PUBLIC
+		   "-//mybatis.org//DTD Mapper 3.0//EN" 
+		   "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+		   
+<mapper namespace="review_mapper">
+   
+    <select id="getReviewCountByRestaurantId" parameterType="long" resultType="long">
+        SELECT COUNT(*)
+        FROM MP_REVIEW
+        WHERE RESTAURANT_ID = #{restaurantId}
+        AND DELETED_AT IS NULL
+    </select>
+    
+    <select id="getReviewsByRestaurantId" parameterType="long" resultType="Review">
+        SELECT
+            ID,
+            RESTAURANT_ID,
+            USER_ID,
+            RATING,
+            SOLO_SCORE,
+            REVIEW_COMMENT,
+            STATUS,
+            TO_CHAR(CREATED_AT, 'YYYY-MM-DD HH24:MI:SS') as CREATED_AT,
+            TO_CHAR(UPDATED_AT, 'YYYY-MM-DD HH24:MI:SS') as UPDATED_AT,
+            DELETED_AT,
+            MENU_SCORE,
+            SEAT_SCORE
+        FROM mp_review
+        WHERE RESTAURANT_ID = #{restaurantId}
+        AND DELETED_AT IS NULL
+        ORDER BY CREATED_AT DESC
+    </select>
+    
+</mapper>
