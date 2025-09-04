@@ -1,0 +1,89 @@
+.table-wrapper {
+  overflow-x: auto; /* 화면이 좁을 때 가로 스크롤 생성 */
+  border: 1px solid #dee2e6;
+  border-radius: 8px;
+  background-color: #fff;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+.report-table {
+  width: 100%;
+  border-collapse: collapse;
+  /* 테이블 내 모든 텍스트를 가운데 정렬합니다. */
+  text-align: center;
+}
+
+.report-table th,
+.report-table td {
+  padding: 12px 16px;
+  border-bottom: 1px solid #e9ecef;
+  /* 세로 정렬도 가운데로 맞춥니다. */
+  vertical-align: middle;
+  font-size: 0.9rem;
+  color: #495057;
+}
+
+.report-table th {
+  background-color: #f8f9fa;
+  font-weight: 600;
+  color: #343a40;
+}
+
+/* 상태 관리 헤더는 너비를 조금 더 넓게 설정합니다. */
+.report-table .status-management-header {
+  width: 150px;
+}
+
+.report-table tbody tr:last-child td {
+  border-bottom: none; /* 마지막 줄의 하단 테두리 제거 */
+}
+
+.report-table tbody tr:hover {
+  background-color: #f1f3f5;
+}
+
+.status-badge {
+  display: inline-block;
+  padding: 4px 10px;
+  border-radius: 12px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: white;
+}
+
+/* 상태별로 다른 색상 배지 */
+.status-badge.status-new { background-color: #dc3545; }
+.status-badge.status-in_progress { background-color: #ffc107; color: #212529; }
+.status-badge.status-resolved { background-color: #28a745; }
+
+
+/* 상태 변경 드롭다운 스타일 */
+.status-select {
+  padding: 6px 10px;
+  border: 1px solid #ced4da;
+  border-radius: 4px;
+  background-color: #fff;
+  cursor: pointer;
+  font-size: 0.9rem;
+}
+.status-select:focus {
+  outline: none;
+  border-color: #80bdff;
+  box-shadow: 0 0 0 0.2rem rgba(0,123,255,.25);
+}
+
+/* 상세 내용이 길 경우 말 줄임표(...)로 표시 */
+.truncate {
+  max-width: 200px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin: 0 auto;
+}
+
+.no-tickets {
+  text-align: center;
+  padding: 40px 20px;
+  color: #6c757d;
+}
+

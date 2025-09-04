@@ -1,0 +1,98 @@
+/* ==========================================================================
+   신고 모달 오버레이 (배경)
+   ========================================================================== */
+.modal-overlay {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1050;
+}
+
+/* ==========================================================================
+   신고 모달 컨텐츠 (흰색 박스)
+   ========================================================================== */
+.report-modal-content {
+  background-color: white;
+  border-radius: 8px;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+  padding: 24px;
+  width: 90%;
+  max-width: 500px; /* 세로 레이아웃이므로 가로 폭을 조금 줄입니다. */
+  animation: modal-pop 0.2s ease-out forwards;
+  position: relative;
+}
+
+@keyframes modal-pop {
+  from { transform: scale(0.95); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+
+/* ==========================================================================
+   모달 헤더
+   ========================================================================== */
+.report-modal-content .modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid #e5e7eb;
+}
+.report-modal-content .modal-header h2 { font-size: 1.25rem; font-weight: bold; margin: 0; }
+.report-modal-content .close-button { background: none; border: none; cursor: pointer; padding: 4px; color: #9ca3af; font-size: 1.5rem; }
+.report-modal-content .close-button:hover { color: #1f2937; }
+
+/* ==========================================================================
+   모달 바디 (입력 폼 영역)
+   ========================================================================== */
+.report-modal-content .modal-body {
+  display: flex;
+  /* flex 방향을 세로(column)로 변경합니다. */
+  flex-direction: column; 
+  gap: 16px; /* 세로 간격을 조정합니다. */
+  margin-bottom: 24px;
+}
+
+.report-modal-content .form-group label {
+  display: block;
+  font-weight: 600;
+  margin-bottom: 8px;
+  font-size: 0.875rem;
+  color: #374151;
+}
+
+.report-modal-content .form-group select,
+.report-modal-content .form-group textarea {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  box-sizing: border-box;
+}
+
+.report-modal-content .form-group textarea {
+  resize: vertical;
+  min-height: 120px; 
+  overflow-wrap: break-word;
+}
+
+/* ==========================================================================
+   모달 푸터 (버튼 영역)
+   ========================================================================== */
+.report-modal-content .modal-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.report-modal-content .modal-footer .button {
+  font-weight: 600;
+  font-size: 0.875rem;
+  padding: 8px 16px;
+  white-space: nowrap;
+}
+

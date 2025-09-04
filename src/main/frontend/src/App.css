@@ -1,38 +1,366 @@
-.App {
-  text-align: center;
+/* src/App.css */
+
+/* ==========================================================================
+   1. General & Body Styles (일반 및 전체 스타일)
+   ========================================================================== */
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background-color: #f9fafb;
+  color: #1f2937;
 }
 
-.App-logo {
-  height: 40vmin;
-  pointer-events: none;
-}
-
-@media (prefers-reduced-motion: no-preference) {
-  .App-logo {
-    animation: App-logo-spin infinite 20s linear;
-  }
-}
-
-.App-header {
-  background-color: #282c34;
+.app-container {
   min-height: 100vh;
+}
+
+.container {
+  max-width: 1024px;
+  margin: 0 auto;
+  padding: 16px;
+}
+
+
+/* ==========================================================================
+   2. Layout & Card Styles (레이아웃 및 카드 스타일)
+   ========================================================================== */
+.page-header {
+  background-color: white;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+  padding: 16px;
+  margin-bottom: 24px;
+}
+
+.page-header .container {
   display: flex;
-  flex-direction: column;
+  justify-content: space-between;
   align-items: center;
-  justify-content: center;
-  font-size: calc(10px + 2vmin);
+}
+
+.page-header h1 {
+  font-size: 1.5rem;
+  font-weight: bold;
+  margin: 0;
+}
+
+.card {
+  background-color: white;
+  border-radius: 8px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1), 0 1px 2px rgba(0,0,0,0.06);
+  padding: 24px;
+  margin-bottom: 24px;
+}
+
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+/* 카드 내의 제목 스타일 (밑줄 포함) */
+.card h2 {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #374151;
+  margin: 0;
+  padding-bottom: 16px;
+  border-bottom: 1px solid #e5e7eb;
+  width: 100%;
+  margin-bottom: 24px;
+}
+
+/* .card-header 내부의 h2는 이중 스타일 방지 */
+.card .card-header h2 {
+    padding-bottom: 0;
+    border-bottom: none;
+    width: auto;
+    margin-bottom: 0;
+}
+
+
+/* ==========================================================================
+   3. Button Styles (버튼 스타일)
+   ========================================================================== */
+.button {
+  font-weight: bold;
+  padding: 8px 16px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.2s, opacity 0.2s;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  white-space: nowrap;
+}
+.button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.button-primary {
+  background-color: #3b82f6;
   color: white;
 }
-
-.App-link {
-  color: #61dafb;
+.button-primary:hover:not(:disabled) {
+  background-color: #2563eb;
 }
 
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
+.button-secondary {
+  background-color: #e5e7eb;
+  color: #1f2937;
+}
+.button-secondary:hover:not(:disabled) {
+  background-color: #d1d5db;
+}
+
+.button-dark {
+  background-color: #1f2937;
+  color: white;
+}
+.button-dark:hover {
+  background-color: #111827;
+}
+
+.button-report {
+  font-size: 0.875rem;
+  background-color: #fee2e2;
+  color: #b91c1c;
+  font-weight: 600;
+}
+.button-report:hover {
+  background-color: #fecaca;
+}
+
+
+/* ==========================================================================
+   4. Review Form & List Styles (리뷰 작성 폼 및 목록 스타일)
+   ========================================================================== */
+.form-textarea {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  box-shadow: inset 0 1px 2px rgba(0,0,0,0.05);
+  font-size: 1rem;
+  box-sizing: border-box;
+  resize: vertical;
+  min-height: 120px;
+  margin-bottom: 1rem;
+}
+.form-textarea:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.4);
+}
+
+.button-group {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  flex-wrap: nowrap;
+}
+
+.review-list .review-item {
+  border-bottom: 1px solid #e5e7eb;
+  padding-bottom: 16px;
+  margin-bottom: 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+.review-list .review-item:last-child {
+  border-bottom: none;
+  margin-bottom: 0;
+}
+
+.review-content p { margin: 0 0 4px 0; }
+.review-author { font-size: 0.875rem; color: #6b7280; }
+.review-photo-tag { font-size: 0.75rem; color: #3b82f6; display: inline-block; margin-top: 4px; }
+
+.review-report-button {
+  background: none; border: none; padding: 8px;
+  margin-left: 8px; color: #9ca3af; cursor: pointer;
+  transition: color 0.2s;
+}
+.review-report-button:hover { color: #ef4444; }
+
+
+/* ==========================================================================
+   5. Guide Modal Styles (가이드 모달 스타일)
+   ========================================================================== */
+.modal-overlay {
+  position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+  background-color: rgba(0, 0, 0, 0.6);
+  display: flex; justify-content: center; align-items: center;
+  z-index: 1000;
+}
+
+.modal-content {
+  background-color: white; border-radius: 12px;
+  box-shadow: 0 5px 20px rgba(0,0,0,0.2);
+  width: 90%; max-width: 800px;
+  padding: 0; /* 내부에서 패딩 관리 */
+  animation: modal-pop 0.3s ease-out;
+}
+
+@keyframes modal-pop {
+  from { transform: scale(0.9); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+
+.modal-header {
+  display: flex; justify-content: space-between; align-items: center;
+  border-bottom: 1px solid #e5e7eb; padding: 16px 24px;
+}
+.modal-header h2 { margin: 0; font-size: 1.25rem; font-weight: 600; }
+
+.close-button {
+  background: none; border: none; font-size: 28px;
+  cursor: pointer; color: #9ca3af; padding: 4px;
+}
+.close-button:hover { color: #1f2937; }
+
+.modal-body { display: flex; gap: 24px; padding: 24px; }
+.example-column { flex: 1; text-align: center; }
+.example-column h3 { font-size: 1rem; font-weight: 600; margin-top: 0; margin-bottom: 12px; }
+.good-example h3 { color: #166534; }
+.bad-example h3 { color: #991b1b; }
+.example-column img { width: 100%; border-radius: 8px; border: 1px solid #e5e7eb; margin-bottom: 12px; }
+.example-column ul { list-style-type: none; padding: 0; text-align: left; font-size: 0.875rem; color: #4b5563; }
+.example-column ul li { margin-bottom: 8px; }
+
+@media (max-width: 768px) {
+  .modal-body { flex-direction: column; }
+}
+
+
+/* ==========================================================================
+   6. Admin Page Table Styles (관리자 페이지 테이블 스타일)
+   ========================================================================== */
+table-wrapper { overflow-x: auto; }
+.report-table { 
+  width: 100%; 
+  border-collapse: collapse; 
+  font-size: 0.875rem; 
+  text-align: left; 
+  color: #6b7280; 
+}
+.report-table thead { 
+  background-color: #f3f4f6; 
+  text-transform: uppercase; 
+  font-size: 0.75rem; 
+  color: #374151; 
+}
+.report-table th, 
+.report-table td { 
+  padding: 12px 16px; 
+}
+.report-table tbody tr { 
+  background-color: white; 
+  border-bottom: 1px solid #e5e7eb; 
+}
+.report-table tbody tr:hover { 
+  background-color: #f9fafb; 
+}
+
+/* 상태 배지 공통 스타일 */
+.report-table .status-badge {
+  display: inline-block;
+  font-size: 0.75rem;
+  font-weight: 500;
+  padding: 2px 8px;
+  border-radius: 9999px;
+}
+
+/* 상태별 스타일 */
+.report-table .status-new {
+  background-color: #fee2e2; /* 연한 빨강 배경 */
+  color: #dc2626;           /* 진한 빨강 글자 */
+}
+
+.report-table .status-processing {
+  background-color: #fef3c7; /* 연한 주황 배경 */
+  color: #b45309;            /* 진한 주황 글자 */
+}
+
+.report-table .status-complete {
+  background-color: #d1fae5; /* 연한 초록 배경 */
+  color: #059669;            /* 진한 초록 글자 */
+}
+
+.truncate { 
+  max-width: 150px; 
+  white-space: nowrap; 
+  overflow: hidden; 
+  text-overflow: ellipsis; 
+}
+
+/* ==========================================================================
+   7. Report Modal Specific Layout (신고 모달 전용 레이아웃)
+   ========================================================================== */
+
+/* 폼 그룹 전체를 가로로 배치하기 위한 flexbox 컨테이너 */
+.modal-body .form-row {
+  display: flex;
+  gap: 24px; /* 요소들 사이의 가로 간격 */
+  margin-bottom: 24px; /* 아래 버튼 그룹과의 세로 간격 */
+}
+
+/* 각 폼 그룹 (레이블 + 입력창) */
+.modal-body .form-group {
+  flex: 1; /* 가용 공간을 균등하게 차지 */
+  display: flex;
+  flex-direction: column; /* 레이블과 입력창을 세로로 배치 */
+}
+
+/* '신고 사유'와 '상세 내용' 레이블 스타일 */
+.modal-body label {
+  font-weight: 600;
+  margin-bottom: 8px;
+  color: #374151;
+  font-size: 0.875rem;
+}
+
+/* 셀렉트 박스 스타일 */
+.modal-body .form-select {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  font-size: 0.9rem;
+
+}
+
+/* 상세 내용 textarea 스타일 */
+.modal-body .form-textarea-small {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  resize: vertical;
+  min-height: 80px;
+  height: 100%; /* 부모 높이에 맞게 늘어남 */
+}
+
+/* 모달 내 버튼 그룹 정렬 */
+.modal-body .report-buttons {
+  padding-top: 24px;
+  border-top: 1px solid #e5e7eb;
+  /* App.css의 .button-group 스타일(flex, justify-content: flex-end)이 적용됩니다. */
+}
+
+/* 화면이 좁아지면 세로로 쌓이도록 처리 */
+@media (max-width: 600px) {
+  .modal-body .form-row {
+    flex-direction: column;
+    gap: 16px;
   }
 }

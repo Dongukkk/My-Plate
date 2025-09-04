@@ -1,0 +1,11 @@
+/* src/components/ReviewApp.css */
+.review-app-container {
+  width: 100%;
+  max-width: 600px;
+  background-color: #fdfdfd;
+  padding: 20px;
+  border-radius: 10px;
+  border: 1px solid #eee;
+  margin: 20px auto; /* 페이지 내에서 보기 좋게 마진 추가 */
+}
+
