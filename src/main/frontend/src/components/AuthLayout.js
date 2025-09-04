@@ -1,5 +1,6 @@
 import React from 'react';
 import './AuthLayout.css';
+import { useNavigate } from 'react-router-dom';
 
 export default function AuthLayout({
   children,
@@ -8,6 +9,7 @@ export default function AuthLayout({
   imageFit = 'contain',
   imagePosition = 'center',
 }) {
+  const navigate = useNavigate();
   const hasHero = !!imageSrc;
 
   return (
@@ -23,7 +25,7 @@ export default function AuthLayout({
         )}
 
         <div className="lp-auth-panel">
-          <div className="lp-auth-brand">
+          <div className="lp-auth-brand" onClick={() => navigate(`/`)} style={{ cursor: 'pointer' }}>
             <span className="lp-auth-brand-mark">🍽</span>
             <span className="lp-auth-brand-text">{title}</span>
           </div>

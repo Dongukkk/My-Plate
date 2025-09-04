@@ -5,6 +5,9 @@
     align-items: center;
     justify-content: space-between;
     min-width: 600px;
+    position: sticky;
+    top:0;
+    z-index: 100;
 }
 
 .main-header h1 {
