@@ -5,7 +5,7 @@ import { useSelector } from 'react-redux';
 
 export const DEFAULT_IMAGE_URL = "/images/restaurant/BASIC_RESTAURANT_IMAGE.jpg";
 
-const RestaurantCard = ({ restaurant, selectedTags, onTagClick, initialBookmarkStatus }) => {
+const RestaurantCard = ({ restaurant, selectedTags, onTagClick, initialBookmarkStatus, onBookmarkToggle }) => {
   const navigate = useNavigate();
 
   const user = useSelector(state => state.user);
@@ -31,8 +31,12 @@ const RestaurantCard = ({ restaurant, selectedTags, onTagClick, initialBookmarkS
 
     try {
       await toggleBookmark(restaurant.id);
-      
+
       setBookmarked(!bookmarked);
+      
+      if (onBookmarkToggle) {
+        onBookmarkToggle(restaurant.id);
+      }
 
     } catch (error) {
       console.error("북마크 토글 API 호출 실패:", error);

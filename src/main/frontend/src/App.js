@@ -29,6 +29,7 @@ import MyPage from './account/MyPage';
 import Reset from './account/Reset';
 import OAuthCallback from './account/OAuthCallback';
 import Register from './account/Register';
+import BookmarkList from './restaurantList/BookmarkList';
 
 const MainLayout = () => {
 
@@ -45,6 +46,7 @@ const MainLayout = () => {
         <Route path="/RestaurantList" element={<RestaurantList />} />
         <Route path="/restaurants/detail/:id" element={<RestaurantDetail />} />
         <Route path="/map" element={<RestaurantMap />} />
+        <Route path="/bookmarks" element={<BookmarkList />} />
 
         <Route path="/admin" element={<AdminLogin />} />
         <Route path="/adminMain" element={<AdminMain />} />

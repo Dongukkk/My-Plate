@@ -23,8 +23,8 @@ function SideBarMenu(){
                             <span className="main-side-bar-text">지도</span>
                         </Link>
                     </li>
-                    <li className={`main-menu-item ${location.pathname === '/favorites' ? 'active' : ''}`}>
-                        <Link to="/favorites">
+                    <li className={`main-menu-item ${location.pathname === '/bookmarks' ? 'active' : ''}`}>
+                        <Link to="/bookmarks">
                             <span className="main-side-bar-text">즐겨찾기</span>
                         </Link>
                     </li>

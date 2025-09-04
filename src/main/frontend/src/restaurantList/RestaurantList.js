@@ -26,65 +26,68 @@ function RestaurantList() {
     const [tagList, setTagList] = useState(recommendTag);
     const loadingRef = useRef(null);
 
-    useEffect(() => {
-        const fetchRestaurants = async () => {
-            if (page === 1) {
-                setRestaurants([]);
-            }
-            
-            setLoading(true);
-            setError(null);
-            
-            try {
-                const tagsQuery = selectedTags.length > 0 ? selectedTags.join(',') : null;
+    const fetchRestaurants = async () => {
+        if (page === 1) {
+            setRestaurants([]);
+        }
+        
+        setLoading(true);
+        setError(null);
+        
+        try {
+            const tagsQuery = selectedTags.length > 0 ? selectedTags.join(',') : null;
+            const restaurantParams = {
+                sort: sort,
+                direction: direction,
+                page: page,
+                limit: 12,
+                tag: tagsQuery
+            };
 
-                const restaurantParams = {
-                    sort: sort,
-                    direction: direction,
-                    page: page,
-                    limit: 12,
-                    tag: tagsQuery
-                };
+            const response = await getRestaurants(restaurantParams);
 
-                const response = await getRestaurants(restaurantParams);
+            let newRestaurants = response.data;
 
-                let newRestaurants = response.data;
-
-                if (user && user.id) {
-                    try {
-                        const bookmarkResponse = await getMyBookmarks();
-                        const bookmarkedRestaurantIds = new Set(bookmarkResponse.data.map(item => item.restaurantId));
-                        
-                        newRestaurants = newRestaurants.map(restaurant => ({
-                            ...restaurant,
-                            bookmarked: bookmarkedRestaurantIds.has(restaurant.id)
-                        }));
-                    } catch (bookmarkError) {
-                        console.error("북마크 목록을 가져오는 데 실패했습니다:", bookmarkError);
-                    }
-                } else {
+            if (user && user.id) {
+                try {
+                    const bookmarkResponse = await getMyBookmarks();
+                    const bookmarkedRestaurantIds = new Set(bookmarkResponse.data.map(item => item.restaurantId));
+                    
                     newRestaurants = newRestaurants.map(restaurant => ({
                         ...restaurant,
-                        bookmarked: false
+                        bookmarked: bookmarkedRestaurantIds.has(restaurant.id)
                     }));
+                } catch (bookmarkError) {
+                    console.error("북마크 목록을 가져오는 데 실패했습니다:", bookmarkError);
                 }
-
-                setRestaurants(prev => {
-                    return page === 1 ? newRestaurants : [...prev, ...newRestaurants];
-                });
-                
-                if (response.data.length < 12) {
-                    setHasMore(false);
-                } else {
-                    setHasMore(true);
-                }
-            } catch (e) {
-                setError(e);
-            } finally {
-                setLoading(false);
+            } else {
+                newRestaurants = newRestaurants.map(restaurant => ({
+                    ...restaurant,
+                    bookmarked: false
+                }));
             }
-        };
 
+            setRestaurants(prev => {
+                return page === 1 ? newRestaurants : [...prev, ...newRestaurants];
+            });
+            
+            if (response.data.length < 12) {
+                setHasMore(false);
+            } else {
+                setHasMore(true);
+            }
+        } catch (e) {
+            setError(e);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const handleBookmarkToggle = () => {
+      setPage(1);
+    };
+
+    useEffect(() => {
         fetchRestaurants();
     }, [page, sort, direction, selectedTags, user]);
 
@@ -183,7 +186,14 @@ function RestaurantList() {
                         </div>
                         <div className="restaurant-grid">
                             {restaurants.map(restaurant => (
-                                <RestaurantCard key={restaurant.id} restaurant={restaurant} selectedTags={selectedTags} onTagClick={handleTagClick} initialBookmarkStatus={restaurant.bookmarked}/>
+                                <RestaurantCard 
+                                    key={restaurant.id} 
+                                    restaurant={restaurant} 
+                                    selectedTags={selectedTags} 
+                                    onTagClick={handleTagClick} 
+                                    initialBookmarkStatus={restaurant.bookmarked}
+                                    onBookmarkToggle={handleBookmarkToggle}
+                                />
                             ))}
                         </div>
                         
