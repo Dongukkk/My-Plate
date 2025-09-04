@@ -1,17 +1,54 @@
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import api, { toggleBookmark } from "../api/api";
+import { useSelector } from 'react-redux';
 
 export const DEFAULT_IMAGE_URL = "/images/restaurant/BASIC_RESTAURANT_IMAGE.jpg";
 
-const RestaurantCard = ({ restaurant, selectedTags, onTagClick }) => {
+const RestaurantCard = ({ restaurant, selectedTags, onTagClick, initialBookmarkStatus }) => {
   const navigate = useNavigate();
 
+  const user = useSelector(state => state.user);
+
+  const [bookmarked, setBookmarked] = useState(initialBookmarkStatus);
+  const bookmarkURL = bookmarked
+    ? "/images/restaurant/bookmark/BOOKMARK_ON.png"
+    : "/images/restaurant/bookmark/BOOKMARK_OFF.png";
+
   const sampleImageUrl = restaurant.photoUrl || DEFAULT_IMAGE_URL;
+
+  useEffect(() => {
+    setBookmarked(initialBookmarkStatus);
+  }, [initialBookmarkStatus]);
+
+  const bookMarkToggle = async (e) => {
+    e.stopPropagation();
+
+    if (!user || !user.id) {
+      alert("로그인 후 이용 가능합니다.");
+      return;
+    }
+
+    try {
+      await toggleBookmark(restaurant.id);
+      
+      setBookmarked(!bookmarked);
+
+    } catch (error) {
+      console.error("북마크 토글 API 호출 실패:", error);
+      alert("즐겨찾기 상태 변경에 실패했습니다. 다시 시도해주세요.");
+    }
+  };
 
   return (
     <div className="restaurant-card" onClick={() => navigate(`/restaurants/detail/${restaurant.id}`)}>
       <div className="rc-card-image" style={{ backgroundImage: `url(${sampleImageUrl})` }}></div>
       <div className="rc-card-content">
-        <h3>{restaurant.restrntNm}</h3>
+        <div className="rc-card-title" style={{display:'flex', justifyContent:'space-between'}}>
+          <h3>{restaurant.restrntNm}</h3>
+          <div className="rc-bookmark" style={{ backgroundImage: `url(${bookmarkURL})`}} title="북마크" onClick={bookMarkToggle}></div>
+        </div>
+        
         <div className="rc-tags-container" style={{ marginBottom: "8px" }}>
           {restaurant.tags && restaurant.tags.map((t, idx) => (
             <span 

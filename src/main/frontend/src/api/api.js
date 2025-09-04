@@ -9,7 +9,9 @@ api.interceptors.request.use((cfg) => {
     const bearer = /^Bearer\s/i.test(access) ? access : `Bearer ${access}`;
     cfg.headers = cfg.headers ?? {};
     // 이미 Authorization가 있으면 덮어쓰지 않음
-    if (!cfg.headers.Authorization) cfg.headers.Authorization = bearer;
+    if (!cfg.headers.Authorization) {
+      cfg.headers.Authorization = bearer;
+    }
   }
   return cfg;
 });
@@ -59,7 +61,7 @@ api.interceptors.response.use(
     if (!refresh) {
       // 토큰 없음 → 바로 로그아웃
       localStorage.removeItem('access');
-      if (window.location.pathname !== '/login') window.location.href = '/login';
+      // if (window.location.pathname !== '/login') window.location.href = '/login';
       return Promise.reject(err);
     }
 
@@ -112,5 +114,35 @@ api.interceptors.response.use(
     }
   }
 );
+
+// 식당 목록 가져오기
+export const getRestaurants = (params) => {
+  return api.get('/restaurants/getAllRestaurants', { params });
+};
+
+// 식당 상세 정보 가져오기
+export const getRestaurantDetail = (id) => {
+  return api.get(`/restaurants/${id}`);
+};
+
+// 식당 태그 정보 가져오기
+export const getRestaurantTags = (id) => {
+  return api.get(`/restaurants/${id}/tags`);
+};
+
+// 모든 태그 코드 가져오기
+export const getAllTagCodes = () => {
+  return api.get('/restaurants/tagCodes');
+};
+
+// 북마크 토글하기 (POST 요청)
+export const toggleBookmark = (restaurantId) => {
+  return api.post(`/bookmarks/${restaurantId}`);
+};
+
+// 내 북마크 목록 가져오기 (GET 요청)
+export const getMyBookmarks = () => {
+  return api.get('/bookmarks/me');
+};
 
 export default api;

@@ -13,4 +13,5 @@ public interface UserService {
 	
 	UserResponse me(String accessToken);
 	
+	public Long getUserIdByEmail(String email);
 }
