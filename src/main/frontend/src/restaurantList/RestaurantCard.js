@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import api, { toggleBookmark } from "../api/api";
 import { useSelector } from 'react-redux';
+import { calculateSoloLevel } from "../utils/calculate";
 
 export const DEFAULT_IMAGE_URL = "/images/restaurant/BASIC_RESTAURANT_IMAGE.jpg";
 
@@ -44,9 +45,41 @@ const RestaurantCard = ({ restaurant, selectedTags, onTagClick, initialBookmarkS
     }
   };
 
+  const levelColors = {
+  1: '#fd6c65', // 레벨 1 빨강
+  2: '#f5a623', // 레벨 2 주황
+  3: '#4cd964', // 레벨 3 초록
+};
+
+const badgeSize = 30;
   return (
     <div className="restaurant-card" onClick={() => navigate(`/restaurants/detail/${restaurant.id}`)}>
-      <div className="rc-card-image" style={{ backgroundImage: `url(${sampleImageUrl})` }}></div>
+      <div className="rc-card-image" 
+        style={{
+            position: 'relative',
+            backgroundImage: `url(${sampleImageUrl})`,
+            backgroundSize: 'cover',
+            backgroundPosition: 'center',
+          }}
+        >
+        <span class="rc-badge" style={{
+          position: 'absolute',
+          top: '5px',
+          right: '5px',
+          display: 'flex',
+          width: `${badgeSize}px`,
+          height: `${badgeSize}px`,
+          fontSize: '14px',
+          fontWeight: 'bold',
+          color: 'white',
+          backgroundColor: levelColors[calculateSoloLevel(restaurant.soloIndex)] || '#999',
+          borderRadius: '50%',
+          justifyContent: 'center',
+          alignItems: 'center',
+          textAlign: 'center',
+          boxShadow: '0 2px 6px rgba(0,0,0,0.3)',
+        }}>{calculateSoloLevel(restaurant.soloIndex)}</span>
+      </div>
       <div className="rc-card-content">
         <div className="rc-card-title" style={{display:'flex', justifyContent:'space-between'}}>
           <h3>{restaurant.restrntNm}</h3>
