@@ -4,7 +4,7 @@ import axios from "axios";
 import SideBarMenu from "../components/SideBarMenu";
 import "../restaurantList/RestaurantDetail.css";
 import KakaoMap from "../components/KakaoMap";
-import {DEFAULT_IMAGE_URL} from "./RestaurantCard"
+import { DEFAULT_IMAGE_URL } from "./RestaurantCard"
 
 import { useSelector } from 'react-redux';
 import { getMyBookmarks, toggleBookmark, getRestaurantDetail, getRestaurantReviews } from "../api/api";
@@ -19,8 +19,8 @@ function RestaurantDetail() {
   const user = useSelector(state => state.user);
 
   const { id } = useParams();
-  const [restaurant, setRestaurant] = useState(null);
-  const [bookmarked, setBookmarked] = useState(false);
+  const [ restaurant, setRestaurant ] = useState(null);
+  const [ bookmarked, setBookmarked ] = useState(false);
 
   const bookmarkURL = bookmarked
     ? "/images/restaurant/bookmark/BOOKMARK_ON.png"
@@ -28,21 +28,21 @@ function RestaurantDetail() {
 
   const shareURL = "/images/restaurant/bookmark/BOOKMARK_SHARE.png";
 
-  const [reviews, setReviews] = useState([]);
-  const [isModalOpen, setIsModalOpen] = useState(false);  //리뷰 더보기 모달
-  const [isWriteReviewModalOpen, setIsWriteReviewModalOpen] = useState(false);  //리뷰 작성 모달
-  const [reviewToEdit, setReviewToEdit] = useState(null)
+  const [ reviews, setReviews ] = useState([]);
+  const [ isModalOpen, setIsModalOpen ] = useState(false);  //리뷰 더보기 모달
+  const [ isWriteReviewModalOpen, setIsWriteReviewModalOpen ] = useState(false);  //리뷰 작성 모달
+  const [ reviewToEdit, setReviewToEdit ] = useState(null)
 
-  const [selectedReviewId, setSelectedReviewId] = useState(null);
+  const [ selectedReviewId, setSelectedReviewId ] = useState(null);
   const menuRef = useRef(null);
 
   const fetchReviews = async () => {
     if (!id) {
-        return;
+      return;
     }
     try {
-        const data = await getRestaurantReviews(id);
-        setReviews(data);
+      const data = await getRestaurantReviews(id);
+      setReviews(data);
     } catch (e) {
       console.error("리뷰를 가져오는 데 실패했습니다:", e);
     }
@@ -72,8 +72,8 @@ function RestaurantDetail() {
           ? response.data.tags
           : [];
         setRestaurant({ ...response.data, tags });
-        
-                console.log(response);
+
+        console.log(response);
 
         if (user && user.id) {
           const bookmarks = await getMyBookmarks();
@@ -90,9 +90,9 @@ function RestaurantDetail() {
     };
     fetchRestaurantData();
     fetchReviews();
-  }, [id, user]);
+  }, [ id, user ]);
 
-  
+
 
   const handleReviewClick = () => {
     if (!user || !user.id) {
@@ -105,14 +105,14 @@ function RestaurantDetail() {
 
   const handleReviewSubmitted = () => {
     setRestaurant(prevRestaurant => ({
-          ...prevRestaurant,
-          ratingCount: prevRestaurant.ratingCount + 1
-      }));
+      ...prevRestaurant,
+      ratingCount: prevRestaurant.ratingCount + 1
+    }));
 
     fetchReviews();
   };
 
-  
+
 
   const bookMarkToggle = async () => {
     if (!user || !user.id) {
@@ -145,8 +145,8 @@ function RestaurantDetail() {
       fetchReviews();
 
       setRestaurant(prevRestaurant => ({
-          ...prevRestaurant,
-          ratingCount: prevRestaurant.ratingCount - 1
+        ...prevRestaurant,
+        ratingCount: prevRestaurant.ratingCount - 1
       }));
     } catch (error) {
       console.error("리뷰 삭제 실패:", error);
@@ -156,7 +156,7 @@ function RestaurantDetail() {
 
   const handleEditReview = (review) => {
     setReviewToEdit(review);
-    setIsWriteReviewModalOpen(true);
+    setIsWriteReviewModalOpen(true);
   };
 
   if (!restaurant) {
@@ -167,27 +167,27 @@ function RestaurantDetail() {
   return (
     <>
       <div className="restaurantDetail-page">
-        <SideBarMenu/>
+        <SideBarMenu />
         <div className="rd-container">
           <div className="rd-represent">
             <div className="rd-restaurant-header">
               <div>
                 <h2>{restaurant.restrntNm}</h2>
                 <p>{restaurant.tags && restaurant.tags.length > 0
-                                      ? restaurant.tags.join(' · ')
-                                      : ''} ⭐ {restaurant.avgRating} ({restaurant.ratingCount} 리뷰)</p>
+                  ? restaurant.tags.join(' · ')
+                  : ''} ⭐ {restaurant.avgRating} ({restaurant.ratingCount} 리뷰)</p>
               </div>
-              <div style={{display:"flex",   alignItems: "center"}}>
-                <div className="rd-bookmark" style={{ backgroundImage: `url(${shareURL})`}} title="공유"></div>
-                <div className="rd-bookmark" style={{ backgroundImage: `url(${bookmarkURL})`}} title="북마크" onClick={bookMarkToggle}></div>
-                
+              <div style={{ display: "flex", alignItems: "center" }}>
+                <div className="rd-bookmark" style={{ backgroundImage: `url(${shareURL})` }} title="공유"></div>
+                <div className="rd-bookmark" style={{ backgroundImage: `url(${bookmarkURL})` }} title="북마크" onClick={bookMarkToggle}></div>
+
               </div>
             </div>
-            <div className="rd-repr-image" style={{ backgroundImage: `url(${sampleImageUrl})`}}></div>
-            
+            <div className="rd-repr-image" style={{ backgroundImage: `url(${sampleImageUrl})` }}></div>
+
           </div>
           <div className="rd-info">
-              <main className="rd-main">
+            <main className="rd-main">
               <div className="rd-card">
                 <h3>혼밥 지수 <span className="rd-badge">{restaurant.soloIndex}/2</span></h3>
                 <p>혼자 식사하는 손님에게 받은 평점 기반입니다. 혼밥 포인트가 있는 박 수석이 있습니다.</p>
@@ -233,71 +233,71 @@ function RestaurantDetail() {
                 <div className="rd-event-item">사케 시음의 밤 - 1인 ₩45,000</div>
               </div>
 
-              <div className="rd-card" style={{minHeight:'300px'}}>
+              <div className="rd-card" style={{ minHeight: '300px' }}>
                 <h3>리뷰 ({restaurant.ratingCount})</h3>
                 {reviews.length > 0 ? (
-                    <ul style={{ listStyleType: 'none', padding: 0, minHeight:'200px' }}>
-                        {reviews.slice(0, 3).map((review) => (
-                            <li key={review.id} className="rd-review-item">
-                                <div className="review-header">
-                                    <div className="review-author" style={{display:'flex', padding:'10px 0', justifyContent:'space-between'}}>
-                                      <div style={{display:'flex'}}>
-                                        <div style={{fontSize:'24px'}}>{review.userId}</div>
-                                        <div style={{display:'flex', alignItems:'end'}}>
-                                          {review.menuScore === 0 && <span className="review-solo-feature">혼밥메뉴가 다양함</span>}  
-                                          {review.seatScore === 0 && <span className="review-solo-feature">혼밥좌석이 많음</span>}
-                                        </div>
-                                      </div>
-                                      {(user && user.id && user.id === review.userId) &&
-                                      <div style={{cursor:'pointer', position: 'relative', alignContent:'center'}}>
-                                        <p style={{writingMode:'vertical-rl', letterSpacing:'1px', margin:'auto'}} 
-                                          onClick={(e) => {
-                                            e.stopPropagation(); 
-                                            handleMenuClick(review.id);
-                                          }}
-                                        >
-                                            •••
-                                        </p>
+                  <ul style={{ listStyleType: 'none', padding: 0, minHeight: '200px' }}>
+                    {reviews.slice(0, 3).map((review) => (
+                      <li key={review.id} className="rd-review-item">
+                        <div className="review-header">
+                          <div className="review-author" style={{ display: 'flex', padding: '10px 0', justifyContent: 'space-between' }}>
+                            <div style={{ display: 'flex' }}>
+                              <div style={{ fontSize: '24px' }}>{review.userId}</div>
+                              <div style={{ display: 'flex', alignItems: 'end' }}>
+                                {review.menuScore === 0 && <span className="review-solo-feature">혼밥메뉴가 다양함</span>}
+                                {review.seatScore === 0 && <span className="review-solo-feature">혼밥좌석이 많음</span>}
+                              </div>
+                            </div>
+                            {(user && user.id && user.id === review.userId) &&
+                              <div style={{ cursor: 'pointer', position: 'relative', alignContent: 'center' }}>
+                                <p style={{ writingMode: 'vertical-rl', letterSpacing: '1px', margin: 'auto' }}
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    handleMenuClick(review.id);
+                                  }}
+                                >
+                                  •••
+                                </p>
 
-                                        {selectedReviewId === review.id && (
-                                          <div className="review-menu-dropdown" ref={menuRef} >
-                                            <div className="review-menu-item" 
-                                              onClick={(e)=>{
-                                                e.stopPropagation();
-                                                handleEditReview(review);
-                                              }}
-                                            >
-                                              수정
-                                            </div>
-                                            <div className="review-menu-item"
-                                              onClick={(e)=>{
-                                                e.stopPropagation();
-                                                handleDeleteReview(review.id);
-                                              }}
-                                            >
-                                              삭제
-                                            </div>
-                                          </div>
-                                        )}
-                                      </div>
-                                      } 
+                                {selectedReviewId === review.id && (
+                                  <div className="review-menu-dropdown" ref={menuRef} >
+                                    <div className="review-menu-item"
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        handleEditReview(review);
+                                      }}
+                                    >
+                                      수정
                                     </div>
-                                    <span className="review-rating">
-                                      {Array.from({ length: review.rating }, (_, i) => (
-                                          <span key={i} className="star">⭐</span>
-                                      ))}
-                                      <div style={{display:'inline-block', marginLeft:'5px', verticalAlign:'bottom', fontSize:'14px', color:'gray'}}>{`(`+review.rating+`)`}</div></span>
-                                </div>
-                                <p className="review-comment">{review.reviewComment}</p>
-                                <div style={{width:'100%', textAlign:'end'}}>
-                                  <span className="review-date" style={{fontSize:'14px', color:'gray'}}>{review.updatedAt ? review.updatedAt+`(수정됨)` : review.createdAt}</span>
-                                </div>
+                                    <div className="review-menu-item"
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        handleDeleteReview(review.id);
+                                      }}
+                                    >
+                                      삭제
+                                    </div>
+                                  </div>
+                                )}
+                              </div>
+                            }
+                          </div>
+                          <span className="review-rating">
+                            {Array.from({ length: review.rating }, (_, i) => (
+                              <span key={i} className="star">⭐</span>
+                            ))}
+                            <div style={{ display: 'inline-block', marginLeft: '5px', verticalAlign: 'bottom', fontSize: '14px', color: 'gray' }}>{`(` + review.rating + `)`}</div></span>
+                        </div>
+                        <p className="review-comment">{review.reviewComment}</p>
+                        <div style={{ width: '100%', textAlign: 'end' }}>
+                          <span className="review-date" style={{ fontSize: '14px', color: 'gray' }}>{review.updatedAt ? review.updatedAt + `(수정됨)` : review.createdAt}</span>
+                        </div>
 
-                            </li>
-                        ))}
-                    </ul>
+                      </li>
+                    ))}
+                  </ul>
                 ) : (
-                    <div style={{minHeight:'200px'}}>아직 작성된 리뷰가 없습니다.</div>
+                  <div style={{ minHeight: '200px' }}>아직 작성된 리뷰가 없습니다.</div>
                 )}
                 {reviews.length > 3 && <button onClick={() => setIsModalOpen(true)}>더 많은 리뷰 보기</button>}
               </div>
@@ -305,36 +305,37 @@ function RestaurantDetail() {
 
             <aside className="rd-right-info">
               <h3>영업시간</h3>
-              <p>월~금: 오전 11시 - 오후 10시<br/>토: 오전 12시 - 오후 10시<br/>일: 오전 12시 - 오후 9시</p>
+              <p>월~금: 오전 11시 - 오후 10시<br />토: 오전 12시 - 오후 10시<br />일: 오전 12시 - 오후 9시</p>
               <h3>주소</h3>
               <p>{restaurant.restrntAddr}</p>
               {restaurant.mapLat && restaurant.mapLot && (
-                <div style={{height:"300px", borderRadius:"5px"}}>
+                <div style={{ height: "300px", borderRadius: "5px" }}>
                   <KakaoMap isSinglePoint={true}
                     centerLat={restaurant.mapLat}
                     centerLng={restaurant.mapLot}
                     level={1}
                   />
                 </div>
-                
+
               )}
               <h3>전화번호</h3>
               <p>{restaurant.restrntInqrTel}</p>
-              <button style={{width:"100%"}}>전화하기</button>
-              <button style={{width:"49%", marginRight:"3px"}}>제보하기</button> 
-              <button style={{width:"49%"}} onClick={handleReviewClick}>리뷰 작성하기</button>
+              <button style={{ width: "100%" }}>전화하기</button>
+              <button style={{ width: "49%", marginRight: "3px" }}>제보하기</button>
+              <button style={{ width: "49%" }} onClick={handleReviewClick}>리뷰 작성하기</button>
             </aside>
           </div>
-          
+
         </div>
-        
+
 
       </div>
       {isModalOpen && (
-          <ReviewModal
-              restaurantId={id}
-              onClose={() => setIsModalOpen(false)}
-          />
+        <ReviewModal
+          restaurantId={id}
+          onClose={() => setIsModalOpen(false)}
+          onReviewSubmitted={handleReviewSubmitted}
+        />
       )}
 
       {isWriteReviewModalOpen && (

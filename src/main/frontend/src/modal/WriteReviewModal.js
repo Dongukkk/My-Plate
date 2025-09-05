@@ -43,13 +43,11 @@ function WriteReviewModal({ restaurantId, initialReviewData, onClose, onReviewSu
     try {
       const access = localStorage.getItem('access');
         if (initialReviewData) {
-            // 💡 리뷰 수정 (PUT)
             await axios.put(`/api/reviews/${initialReviewData.id}`, reviewData, {
                 headers: { 'Authorization': `Bearer ${access}` }
             });
             alert("리뷰가 성공적으로 수정되었습니다!");
         } else {
-            // 💡 리뷰 작성 (POST)
             await axios.post(`/api/restaurants/${restaurantId}/reviews`, reviewData, {
                 headers: { 'Authorization': `Bearer ${access}` }
             });
