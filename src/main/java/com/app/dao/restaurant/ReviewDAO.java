@@ -16,4 +16,12 @@ public interface ReviewDAO {
 	public ReviewDTO createReview(ReviewDTO review);
 	
 	void incrementReviewCount(long restaurantId);
+	
+	void decrementReviewCount(long restaurantId);
+	
+	ReviewDTO updateReview(ReviewDTO review);
+	
+	int markReviewAsDeleted(long id);
+	
+	ReviewDTO getReviewById(long id);
 }

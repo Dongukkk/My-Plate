@@ -39,5 +39,30 @@ public class ReviewDAOImpl implements ReviewDAO {
 		sqlSessionTemplate.update("review_mapper.incrementReviewCount", restaurantId);
 		
 	}
+	
+	@Override
+	public void decrementReviewCount(long restaurantId) {
+		sqlSessionTemplate.update("review_mapper.decrementReviewCount", restaurantId);
+		
+	}
+	
+	@Override
+	public ReviewDTO updateReview(ReviewDTO review) {
+		System.out.println(review);
+		sqlSessionTemplate.update("review_mapper.updateReview", review);
+	return review;
+	}
+
+	@Override
+	public int markReviewAsDeleted(long id) {
+		return sqlSessionTemplate.update("review_mapper.markReviewAsDeleted", id);
+	}
+
+	@Override
+	public ReviewDTO getReviewById(long id) {
+		return sqlSessionTemplate.selectOne("review_mapper.getReviewById", id);
+	}
+
+	
 
 }

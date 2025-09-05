@@ -11,7 +11,11 @@ public interface ReviewService {
 	
 	public long getReviewCountByRestaurantId(long restaurantId);
 
-	List<ReviewDTO> getReviewsByRestaurantId(@Param("restaurantId") Long restaurantId);
+	public List<ReviewDTO> getReviewsByRestaurantId(@Param("restaurantId") Long restaurantId);
 	
 	public ReviewDTO createReview(ReviewDTO review);
+	
+	public ReviewDTO updateReview(ReviewDTO review);
+	
+    public int markReviewAsDeleted(long id);
 }

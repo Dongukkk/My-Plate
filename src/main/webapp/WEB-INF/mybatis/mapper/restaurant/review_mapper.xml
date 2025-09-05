@@ -53,7 +53,7 @@
 			#{menuScore},
 			#{seatScore},
 			#{reviewComment},
-			'active',
+			'ACTIVE',
 			SYSTIMESTAMP
 		)
 	</insert>
@@ -63,4 +63,40 @@
         SET rating_count = rating_count + 1
         WHERE id = #{restaurantId}
     </update>
+    
+    <update id="decrementReviewCount" parameterType="long">
+        UPDATE mp_restaurant
+        SET rating_count = rating_count - 1
+        WHERE id = #{restaurantId}
+    </update>
+    
+    <update id="updateReview" parameterType="Review">
+        UPDATE mp_review
+        SET
+            rating = #{rating},
+            review_comment = #{reviewComment},
+            menu_score = #{menuScore},
+            seat_score = #{seatScore},
+            solo_score = #{soloScore},
+            updated_at = SYSTIMESTAMP
+        WHERE
+            id = #{id}
+    </update>
+    
+    <update id="markReviewAsDeleted" parameterType="long">
+        UPDATE mp_review
+        SET 
+            status = 'DELETED',
+            deleted_at = SYSTIMESTAMP
+        WHERE id = #{id}
+    </update>
+    
+    <select id="getReviewById" parameterType="long" resultType="Review">
+        SELECT
+            *
+        FROM mp_review
+        WHERE ID = #{id}
+    </select>
+    
+    
 </mapper>

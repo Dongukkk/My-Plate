@@ -33,5 +33,18 @@ public class ReviewSerivceImpl implements ReviewService {
 		return updatedReview;
 	}
 
+	@Override
+	public ReviewDTO updateReview(ReviewDTO review) {
+		return reviewDAO.updateReview(review);
+	}
+
+	@Override
+	public int markReviewAsDeleted(long id) {
+		ReviewDTO review = reviewDAO.getReviewById(id);
+		int result = reviewDAO.markReviewAsDeleted(id);
+		reviewDAO.decrementReviewCount(review.getRestaurantId());		
+		return result;
+	}
+
 	
 }

@@ -1,14 +1,24 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import "./WriteReviewModal.css";
 import axios from "axios";
 import { useSelector } from 'react-redux';
 
-function WriteReviewModal({ restaurantId, onClose, onReviewSubmitted }) {
+function WriteReviewModal({ restaurantId, initialReviewData, onClose, onReviewSubmitted }) {
   const user = useSelector(state => state.user);
-  const [rating, setRating] = useState(0);
-  const [menuScore, setMenuScore] = useState(1);
-  const [seatScore, setSeatScore] = useState(1);
-  const [reviewComment, setReviewComment] = useState("");
+  const [rating, setRating] = useState(initialReviewData ? initialReviewData.rating : 0);
+  const [menuScore, setMenuScore] = useState(initialReviewData ? initialReviewData.menuScore : 1);
+  const [seatScore, setSeatScore] = useState(initialReviewData ? initialReviewData.seatScore : 1);
+  const [reviewComment, setReviewComment] = useState(initialReviewData ? initialReviewData.reviewComment : "");
+
+
+    useEffect(() => {
+        if (initialReviewData) {
+            setRating(initialReviewData.rating);
+            setMenuScore(initialReviewData.menuScore);
+            setSeatScore(initialReviewData.seatScore);
+            setReviewComment(initialReviewData.reviewComment);
+        }
+    }, [ initialReviewData ]);
 
   const handleSubmit = async () => {
     if (!reviewComment) {
@@ -21,8 +31,8 @@ function WriteReviewModal({ restaurantId, onClose, onReviewSubmitted }) {
     return;
 }
     
-    const newReview = {
-      restaurantId,
+    const reviewData = {
+      restaurantId: Number(restaurantId),
       userId: user.id,
       rating,
       menuScore,
@@ -32,12 +42,19 @@ function WriteReviewModal({ restaurantId, onClose, onReviewSubmitted }) {
 
     try {
       const access = localStorage.getItem('access');
-      await axios.post(`/api/restaurants/${restaurantId}/reviews`, newReview, {
-        headers: {
-          'Authorization': `Bearer ${access}`
+        if (initialReviewData) {
+            // 💡 리뷰 수정 (PUT)
+            await axios.put(`/api/reviews/${initialReviewData.id}`, reviewData, {
+                headers: { 'Authorization': `Bearer ${access}` }
+            });
+            alert("리뷰가 성공적으로 수정되었습니다!");
+        } else {
+            // 💡 리뷰 작성 (POST)
+            await axios.post(`/api/restaurants/${restaurantId}/reviews`, reviewData, {
+                headers: { 'Authorization': `Bearer ${access}` }
+            });
+            alert("리뷰가 성공적으로 등록되었습니다!");
         }
-      });
-      alert("리뷰가 성공적으로 등록되었습니다!");
       onClose();
       if (onReviewSubmitted) {
         onReviewSubmitted();
@@ -51,7 +68,7 @@ function WriteReviewModal({ restaurantId, onClose, onReviewSubmitted }) {
   return (
     <div className="wr-modal-backdrop">
       <div className="wr-modal-content">
-        <h2>리뷰 작성</h2>
+        <h2>{initialReviewData ? "리뷰 수정" : "리뷰 작성"}</h2>
         <div className="wr-review-form">
           <label>
             <label>
@@ -91,7 +108,7 @@ function WriteReviewModal({ restaurantId, onClose, onReviewSubmitted }) {
           </label>
         </div>
         <div className="wr-modal-actions">
-          <button onClick={handleSubmit}>제출</button>
+          <button onClick={handleSubmit}>{initialReviewData ? "수정" : "제출"}</button>
           <button onClick={onClose}>취소</button>
         </div>
       </div>
