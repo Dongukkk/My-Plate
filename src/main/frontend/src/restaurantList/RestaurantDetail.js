@@ -9,6 +9,8 @@ import {DEFAULT_IMAGE_URL} from "./RestaurantCard"
 import { useSelector } from 'react-redux';
 import { getMyBookmarks, toggleBookmark, getRestaurantDetail, getRestaurantReviews } from "../api/api";
 import ReviewModal from "../modal/ReviewModal";
+import { calculateSoloIndex, calculateSoloIndexPercent } from "../utils/calculate";
+import WriteReviewModal from "../modal/WriteReviewModal";
 
 
 function RestaurantDetail() {
@@ -27,7 +29,21 @@ function RestaurantDetail() {
   const shareURL = "/images/restaurant/bookmark/BOOKMARK_SHARE.png";
 
   const [reviews, setReviews] = useState([]);
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);  //리뷰 더보기 모달
+  const [isWriteReviewModalOpen, setIsWriteReviewModalOpen] = useState(false);  //리뷰 작성 모달
+
+
+  const fetchReviews = async () => {
+    if (!id) {
+        return;
+    }
+    try {
+        const data = await getRestaurantReviews(id);
+        setReviews(data);
+    } catch (e) {
+      console.error("리뷰를 가져오는 데 실패했습니다:", e);
+    }
+  };
 
   useEffect(() => {
     const fetchRestaurantData = async () => {
@@ -37,6 +53,8 @@ function RestaurantDetail() {
           ? response.data.tags
           : [];
         setRestaurant({ ...response.data, tags });
+        
+                console.log(response);
 
         if (user && user.id) {
           const bookmarks = await getMyBookmarks();
@@ -52,23 +70,24 @@ function RestaurantDetail() {
       }
     };
     fetchRestaurantData();
+    fetchReviews();
   }, [id, user]);
 
-  useEffect(() => {
-        const fetchReviews = async () => {
-            if (!id) {
-                return;
-            }
-            try {
-                const data = await getRestaurantReviews(id);
-                setReviews(data);
-            } catch (e) {
-              console.error("리뷰를 가져오는 데 실패했습니다:", e);
-            }
-        };
+  
 
-        fetchReviews();
-    }, [id]);
+  const handleReviewClick = () => {
+    if (!user || !user.id) {
+      alert("로그인 후 리뷰를 작성할 수 있습니다.");
+      return;
+    }
+    setIsWriteReviewModalOpen(true);
+  };
+
+  const handleReviewSubmitted = () => {
+    fetchReviews();
+  };
+
+  
 
   const bookMarkToggle = async () => {
     if (!user || !user.id) {
@@ -117,11 +136,31 @@ function RestaurantDetail() {
               <div className="rd-card">
                 <h3>혼밥 지수 <span className="rd-badge">{restaurant.soloIndex}/2</span></h3>
                 <p>혼자 식사하는 손님에게 받은 평점 기반입니다. 혼밥 포인트가 있는 박 수석이 있습니다.</p>
-                <ul>
-                  <li>쾌적 배치: 1인 테이블, 바 좌석, 개인 공간 배려</li>
-                  <li>설명기: 친절한 직원 서비스</li>
-                  <li>취향 옵션: 1인 메뉴, 소포장 제공</li>
-                </ul>
+                <div className="rd-gauge">
+                  <div className="rd-gauge-header">
+                    <span>혼밥 메뉴 만족도</span>
+                    <span>{calculateSoloIndex(restaurant.avgMenuScore)}%</span>
+                  </div>
+                  <div className="rd-gauge-bar">
+                    <div
+                      className="rd-gauge-fill"
+                      style={{ width: `${calculateSoloIndex(restaurant.avgMenuScore)}%` }}
+                    ></div>
+                  </div>
+                </div>
+
+                <div className="rd-gauge">
+                  <div className="rd-gauge-header">
+                    <span>혼밥 좌석 만족도</span>
+                    <span>{calculateSoloIndex(restaurant.avgSeatScore)}%</span>
+                  </div>
+                  <div className="rd-gauge-bar">
+                    <div
+                      className="rd-gauge-fill rd-gauge-green"
+                      style={{ width: `${calculateSoloIndex(restaurant.avgSeatScore)}%` }}
+                    ></div>
+                  </div>
+                </div>
               </div>
 
 
@@ -195,7 +234,7 @@ function RestaurantDetail() {
               <p>{restaurant.restrntInqrTel}</p>
               <button style={{width:"100%"}}>전화하기</button>
               <button style={{width:"49%", marginRight:"3px"}}>제보하기</button> 
-              <button style={{width:"49%"}}>리뷰 작성하기</button>
+              <button style={{width:"49%"}} onClick={handleReviewClick}>리뷰 작성하기</button>
             </aside>
           </div>
           
@@ -208,6 +247,14 @@ function RestaurantDetail() {
               restaurantId={id}
               onClose={() => setIsModalOpen(false)}
           />
+      )}
+
+      {isWriteReviewModalOpen && (
+        <WriteReviewModal
+          restaurantId={id}
+          onClose={() => setIsWriteReviewModalOpen(false)}
+          onReviewSubmitted={handleReviewSubmitted}
+        />
       )}
     </>
   );

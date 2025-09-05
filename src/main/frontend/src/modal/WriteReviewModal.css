@@ -1,0 +1,142 @@
+.wr-modal-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.wr-modal-content {
+  background: #fff;
+  border-radius: 12px;
+  padding: 24px;
+  width: 400px;
+  max-width: 90%;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
+  animation: wr-fadeIn 0.3s ease-out;
+}
+
+.wr-modal-content h2 {
+  margin-top: 0;
+  margin-bottom: 16px;
+  font-size: 20px;
+  font-weight: bold;
+  text-align: center;
+}
+
+.wr-review-form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.wr-review-form label {
+  font-size: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.wr-review-form input[type="number"],
+.wr-review-form textarea {
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  font-size: 14px;
+  resize: vertical;
+}
+
+.wr-review-form input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+}
+
+.wr-modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 20px;
+}
+
+.wr-modal-actions button {
+  padding: 8px 14px;
+  font-size: 14px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.wr-modal-actions button:first-child {
+  background: var(--primary-color);;
+  color: white;
+}
+
+.wr-modal-actions button:first-child:hover {
+  background: rgb(255, 60, 60);
+}
+
+.wr-modal-actions button:last-child {
+  background: #e5e7eb;
+  color: #374151;
+}
+
+.wr-modal-actions button:last-child:hover {
+  background: #d1d5db;
+}
+
+@keyframes wr-fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+
+.wr-star-rating {
+  font-size: 28px;
+  color: #d1d5db;
+  cursor: pointer;
+}
+
+.wr-star {
+  margin-right: 6px;
+  transition: color 0.2s;
+}
+
+.wr-star.active {
+  color: #facc15;
+}
+
+.wr-score-box {
+  padding: 10px 14px;
+  margin-top: 8px;
+  width: 40%;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  background: #f9fafb;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-size: 14px;
+  text-align: center;
+}
+
+.wr-score-box:hover {
+  background: #f3f4f6;
+}
+
+.wr-score-box.active {
+  background: #ffe0e0;
+  border-color: #f16363;
+  font-weight: 600;
+  color: var(--primary-color);
+}

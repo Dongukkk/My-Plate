@@ -32,4 +32,35 @@
         ORDER BY CREATED_AT DESC
     </select>
     
+    <insert id="createReview" parameterType="Review">
+		INSERT INTO mp_review (
+			id,
+			restaurant_id,
+			user_id,
+			rating,
+			solo_score,
+			menu_score,
+			seat_score,
+			review_comment,
+			status,
+			created_at
+		) VALUES (
+			mp_reviews_seq.NEXTVAL,
+			#{restaurantId},
+			#{userId},
+			#{rating},
+			#{menuScore} + #{seatScore},
+			#{menuScore},
+			#{seatScore},
+			#{reviewComment},
+			'active',
+			SYSTIMESTAMP
+		)
+	</insert>
+	
+	<update id="incrementReviewCount" parameterType="long">
+        UPDATE mp_restaurant
+        SET rating_count = rating_count + 1
+        WHERE id = #{restaurantId}
+    </update>
 </mapper>

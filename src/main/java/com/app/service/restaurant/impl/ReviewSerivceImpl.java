@@ -1,6 +1,7 @@
 package com.app.service.restaurant.impl;
 
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -22,8 +23,14 @@ public class ReviewSerivceImpl implements ReviewService {
 
 	@Override
 	public List<ReviewDTO> getReviewsByRestaurantId(Long restaurantId) {
-		System.out.println("Service");
 		return reviewDAO.getReviewsByRestaurantId(restaurantId);
+	}
+
+	@Override
+	public ReviewDTO createReview(ReviewDTO review) {
+		ReviewDTO updatedReview = reviewDAO.createReview(review);
+		reviewDAO.incrementReviewCount(review.getRestaurantId());
+		return updatedReview;
 	}
 
 	

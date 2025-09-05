@@ -1,6 +1,7 @@
 package com.app.controller.restaurant;
 
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -9,6 +10,7 @@ import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -163,7 +165,6 @@ public class RestaurantRestController {
             @RequestParam(defaultValue = "10") int size) {
         try {
             List<ReviewDTO> reviews = reviewService.getReviewsByRestaurantId(restaurantId);
-            System.out.println("1");
             
             int start = page * size;
             int end = Math.min(start + size, reviews.size());
@@ -172,8 +173,19 @@ public class RestaurantRestController {
             return ResponseEntity.status(HttpStatus.OK).body(paginatedReviews);
             
         } catch (Exception e) {
-        	System.out.println("4");
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
+    }
+	
+	@PostMapping("/api/restaurants/{restaurantId}/reviews")
+	public ResponseEntity<ReviewDTO> createReview(
+        @PathVariable Long restaurantId, 
+        @RequestBody ReviewDTO reviewDTO) {
+        
+        reviewDTO.setRestaurantId(restaurantId);
+
+        ReviewDTO createdReview = reviewService.createReview(reviewDTO);
+
+        return ResponseEntity.status(HttpStatus.CREATED).body(createdReview);
     }
 }

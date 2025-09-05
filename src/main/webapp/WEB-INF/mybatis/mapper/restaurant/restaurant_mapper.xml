@@ -139,7 +139,9 @@
         LATITUDE,
         LONGITUDE,
         ADDRESS,
-        PHONE
+        PHONE,
+        AVG_MENU_SCORE,
+        AVG_SEAT_SCORE
         FROM MP_RESTAURANT
         WHERE ID = #{id}
 	</select>
