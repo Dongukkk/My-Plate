@@ -86,9 +86,9 @@ public class AdminDAOImpl implements AdminDAO {
 		return findUserReportList;
 	}
 	@Override
-	public List<AdminReportDTO> findOHTReportList() {
-		List<AdminReportDTO> findOHTReportList = sqlSessionTemplate.selectList(AM + "findOHTReportList");
-		return findOHTReportList;
+	public List<AdminReportDTO> findOTHReportList() {
+		List<AdminReportDTO> findOTHReportList = sqlSessionTemplate.selectList(AM + "findOTHReportList");
+		return findOTHReportList;
 	}
 	@Override
 	public List<AdminReportDTO> findRERReportList() {
@@ -112,13 +112,13 @@ public class AdminDAOImpl implements AdminDAO {
 	}
 
 	@Override
-	public AdminReportDTO searchOHTReportsById(long id) {
-		return sqlSessionTemplate.selectOne(AM + "searchOHTReportsById", id);
+	public AdminReportDTO searchOTHReportsById(long id) {
+		return sqlSessionTemplate.selectOne(AM + "searchOTHReportsById", id);
 	}
 
 	@Override
-	public int updateOHTReport(AdminReportDTO dto) {
-		 return sqlSessionTemplate.update(AM + "updateOHTReport", dto);
+	public int updateOTHReport(AdminReportDTO dto) {
+		 return sqlSessionTemplate.update(AM + "updateOTHReport", dto);
 	}
 
 	@Override
@@ -148,9 +148,9 @@ public class AdminDAOImpl implements AdminDAO {
 	}
 
 	@Override
-	public List<AdminActionDTO> findRecentActionsOHT() {
-		List<AdminActionDTO> findRecentActionsOHT = sqlSessionTemplate.selectList(AM + "findRecentActionsOHT");
-		return findRecentActionsOHT;
+	public List<AdminActionDTO> findRecentActionsOTH() {
+		List<AdminActionDTO> findRecentActionsOTH = sqlSessionTemplate.selectList(AM + "findRecentActionsOTH");
+		return findRecentActionsOTH;
 	}
 
 	@Override

@@ -211,7 +211,7 @@ export default function AdminUser() {
     const [reports, setReports] = useState([]);
     const [reportState, setReportState] = useState("모든 상태");
     const [reportPage, setReportPage] = useState(1);
-    const reportPageSize = 4;
+    const reportPageSize = 5;
 
     /* 신고 모달 */
     const [reportOpen, setReportOpen] = useState(false);

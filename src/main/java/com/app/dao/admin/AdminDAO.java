@@ -25,7 +25,7 @@ public interface AdminDAO {
 	//신고관리
 	//목록관리
 	List <AdminReportDTO> findUserReportList();
-	List <AdminReportDTO> findOHTReportList();
+	List <AdminReportDTO> findOTHReportList();
 	List <AdminReportDTO> findRERReportList();
 	List <AdminReportDTO> findIPCReportList();
 	
@@ -33,8 +33,8 @@ public interface AdminDAO {
 	AdminReportDTO searchURReportsById(long id);
 	int updateURReport(AdminReportDTO dto);
 	
-	AdminReportDTO searchOHTReportsById(long id);
-	int updateOHTReport(AdminReportDTO dto);
+	AdminReportDTO searchOTHReportsById(long id);
+	int updateOTHReport(AdminReportDTO dto);
 	
 	AdminReportDTO searchRERReportsById(long id);
 	int updateRERReport(AdminReportDTO dto);
@@ -44,7 +44,7 @@ public interface AdminDAO {
 	
 	//최근 처리 이력
     List<AdminActionDTO> findRecentActionsUR(); 
-    List<AdminActionDTO> findRecentActionsOHT();  
+    List<AdminActionDTO> findRecentActionsOTH();  
     List<AdminActionDTO> findRecentActionsRER();  
     List<AdminActionDTO> findRecentActionsIPC();  
     int updateReport(AdminReportDTO dto);
