@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.app.dto.restaurant.BookmarkDTO;
+import com.app.dto.restaurant.MenuDTO;
 import com.app.dto.restaurant.RestaurantDTO;
 import com.app.dto.restaurant.RestaurantTagDTO;
 import com.app.dto.restaurant.ReviewDTO;
@@ -160,6 +161,14 @@ public class RestaurantRestController {
             return "저장 중 오류 발생: " + e.getMessage();
         }
 	}
+	
+	@GetMapping("/api/restaurants/{restaurantId}/menus")
+    public List<MenuDTO> getMenusByRestaurant(@PathVariable Long restaurantId) {
+        List<MenuDTO> menus = restaurantService.findMenusByRestaurantId(restaurantId);
+        
+        // DTO로 변환하여 민감한 정보 노출 방지
+        return menus;
+    }
 	
 	@GetMapping("/api/reviews/{restaurantId}")
     public ResponseEntity<List<ReviewDTO>> getReviewsByRestaurantId(

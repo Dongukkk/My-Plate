@@ -22,6 +22,8 @@ function RestaurantDetail() {
   const [ restaurant, setRestaurant ] = useState(null);
   const [ bookmarked, setBookmarked ] = useState(false);
 
+  const [menus, setMenus] = useState([]);
+
   const bookmarkURL = bookmarked
     ? "/images/restaurant/bookmark/BOOKMARK_ON.png"
     : "/images/restaurant/bookmark/BOOKMARK_OFF.png";
@@ -73,7 +75,8 @@ function RestaurantDetail() {
           : [];
         setRestaurant({ ...response.data, tags });
 
-        console.log(response);
+        const menusResponse = await axios.get(`/api/restaurants/${id}/menus`);
+        setMenus(menusResponse.data);
 
         if (user && user.id) {
           const bookmarks = await getMyBookmarks();
@@ -220,17 +223,21 @@ function RestaurantDetail() {
 
 
               <div className="rd-card">
-                <h3>메뉴 하이라이트</h3>
-                <div className="rd-menu-item">시그니처 스시 플래터 - ₩32,000</div>
-                <div className="rd-menu-item">육즙 테리아키 - ₩38,000</div>
-                <div className="rd-menu-item">프리미엄 세트 - ₩25,000</div>
-                <div className="rd-menu-item">말차 티라미수 - ₩12,000</div>
-              </div>
-
-              <div className="rd-card">
-                <h3>특별 이벤트</h3>
-                <div className="rd-event-item">스시 만들기 클래스 - 1인 ₩35,000</div>
-                <div className="rd-event-item">사케 시음의 밤 - 1인 ₩45,000</div>
+                <h3>메뉴</h3>
+                {menus.length > 0 ? (
+                  menus.map((menu) => (
+                    <div key={menu.id} className="rd-menu-item">
+                      <div className="rd-menu-item-name" style={{display:'flex', justifyContent:'space-between'}}>
+                        <span style={{fontSize:'16px', fontWeight:'bold'}}>{menu.menu}</span><span>₩{menu.price.toLocaleString()}</span>
+                      </div>
+                      <div className="rd-menu-item-info">
+                        <span style={{fontSize:'12px', color:'gray'}}>{menu.description}</span> | <span style={{fontSize:'10px', color:'gray'}}>{menu.originInfo}</span>
+                      </div>
+                    </div>
+                  ))
+                ) : (
+                  <p>메뉴 정보가 없습니다.</p>
+                )}
               </div>
 
               <div className="rd-card" style={{ minHeight: '300px' }}>

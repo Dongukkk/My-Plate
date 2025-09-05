@@ -207,4 +207,16 @@
             r.UPDATED_AT = SYSTIMESTAMP
     </update>
 
+	<select id="findMenusByRestaurantId" parameterType="Long" resultType="Menu">
+        SELECT
+            id,
+            restaurant_id AS restaurantId,
+            menu AS menu,
+            price,
+            description,
+            origin_info AS originInfo,
+            status
+        FROM mp_restaurant_menu
+        WHERE restaurant_id = #{restaurantId}
+    </select>
 </mapper>
