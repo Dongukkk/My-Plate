@@ -5,6 +5,7 @@ import PrettyAlert from "./pretty-alert";
 import "./admin-restaurant.css";
 
 axios.defaults.baseURL = "http://localhost:8080";
+axios.defaults.withCredentials = true;
 
 /* 상태 뱃지 */
 const StatusPill = ({ status }) => {
@@ -30,9 +31,7 @@ const Pagination = ({ page, pages, onChange, windowSize = 5 }) => {
         <div className="admin-pg">
             <button className="admin-pg-item admin-ghost" onClick={() => onChange(current - 1)} disabled={current === 1}>이전</button>
             {start > 1 && (<button className="admin-pg-item admin-ghost" onClick={() => onChange(start - 1)} title="이전 구간">…</button>)}
-            {nums.map((p) => (
-                <button key={p} className={`admin-pg-item ${current === p ? "admin-active" : ""}`} onClick={() => onChange(p)} aria-current={current === p ? "page" : undefined}>{p}</button>
-            ))}
+            {nums.map((p) => (<button key={p} className={`admin-pg-item ${current === p ? "admin-active" : ""}`} onClick={() => onChange(p)} aria-current={current === p ? "page" : undefined}>{p}</button>))}
             {end < pages && (<button className="admin-pg-item admin-ghost" onClick={() => onChange(end + 1)} title="다음 구간">…</button>)}
             <button className="admin-pg-item admin-ghost" onClick={() => onChange(current + 1)} disabled={current === pages}>다음</button>
         </div>
@@ -72,15 +71,8 @@ const StackedBars = ({ items }) => (
                 <div className="admin-bar-row" key={row.label}>
                     <div className="admin-bar-label">{row.label}</div>
                     <div className="admin-bar-track" role="list">
-                        {row.segments.map((s, i) => (
-                            <div
-                                key={i}
-                                role="listitem"
-                                className="admin-bar-seg"
-                                style={{ width: `${(s.value / total) * 100}%` }}
-                                title={`${row.label} · ${s.title} ${s.value}`}
-                            />
-                        ))}
+                        {row.segments.map((s, i) => ( <div key={i} role="listitem" className="admin-bar-seg" 
+                                style={{ width: `${(s.value / total) * 100}%` }} title={`${row.label} · ${s.title} ${s.value}`} /> ))}
                     </div>
                 </div>
             );
@@ -294,7 +286,7 @@ export default function AdminRestaurant() {
                 arr.sort((a, b) => (a.name || "").localeCompare(b.name || ""));
                 break;
             default:
-                arr.sort((a, b) => toKey(b) - toKey(a)); // 최신순: createdAt > id
+                arr.sort((a, b) => toKey(b) - toKey(a));
         }
         return arr;
     }, [filtered, sort]);
@@ -304,7 +296,7 @@ export default function AdminRestaurant() {
     const view = sorted.slice((page - 1) * pageSize, page * pageSize);
     useEffect(() => setPage(1), [query, category, sort]);
 
-    /* ===== 차트 데이터 (rows → 집계) ===== */
+    /* 차트 데이터 (rows → 집계) */
 
     // 파이차트: 카테고리 분포
     const pieData = useMemo(() => {
@@ -372,9 +364,7 @@ export default function AdminRestaurant() {
     return (
         <div className="admin-container">
             <aside className="admin-sidebar">
-                <h2 className="admin-logo">
-                    <img src={"https://i.imgur.com/tiY7WKl.png"} alt="My Plate Logo" className="admin-logo-img" />
-                </h2>
+                <h2 className="admin-logo"><img src={"https://i.imgur.com/tiY7WKl.png"} alt="My Plate Logo" className="admin-logo-img" /></h2>
                 <nav>
                     <ul>
                         <li onClick={() => navigate("/adminMain")}>홈</li>
@@ -400,18 +390,11 @@ export default function AdminRestaurant() {
 
                     <div className="admin-controls">
                         <div className="admin-search">
-                            <input
-                                value={query}
-                                onChange={(e) => setQuery(e.target.value)}
-                                onKeyDown={(e) => e.key === "Enter" && handleSearch()}
-                                placeholder="음식, 식당 또는 메뉴 검색..."
-                                aria-label="식당 검색"
-                            />
+                            <input value={query} onChange={(e) => setQuery(e.target.value)} onKeyDown={(e) => e.key === "Enter" && handleSearch()} placeholder="음식, 식당 또는 메뉴 검색..." aria-label="식당 검색"/>
                             <button type="button" className="admin-search-btn" onClick={handleSearch} aria-label="검색" title="검색">검색</button>
                         </div>
                         <select value={category} onChange={(e) => setCategory(e.target.value)} aria-label="카테고리 필터">
-                            {categories.map((c) => (<option key={c} value={c}>{c === "ALL" ? "모든 카테고리" : c}</option>))}
-                        </select>
+                                        {categories.map((c) => (<option key={c} value={c}>{c === "ALL" ? "모든 카테고리" : c}</option>))}</select>
                         <select value={sort} onChange={(e) => setSort(e.target.value)} aria-label="정렬">
                             <option value="latest">최신순</option>
                             <option value="ratingDesc">평점높은순</option>
@@ -423,36 +406,21 @@ export default function AdminRestaurant() {
                     <div className="admin-table-wrap">
                         <table className="admin-rest-table">
                             <thead>
-                                <tr>
-                                    <th>식당 이름</th><th>카테고리</th><th>위치</th><th>혼밥레벨</th><th>평점</th><th>복지카드</th><th>상태</th><th>작업</th>
-                                </tr>
+                                <tr><th>식당 이름</th><th>카테고리</th><th>위치</th><th>혼밥레벨</th><th>평점</th><th>복지카드</th><th>상태</th><th>작업</th></tr>
                             </thead>
                             <tbody>
                                 {view.map((r) => (
                                     <tr key={r.id}>
-                                        <td>
-                                            <div className="admin-name-col">
-                                                <strong className="admin-link" onClick={() => navigate(`/adminrestaurants/${r.id}`)}>{r.name}</strong>
-                                            </div>
-                                        </td>
+                                        <td><div className="admin-name-col"><strong className="admin-link" onClick={() => navigate(`/adminrestaurants/${r.id}`)}>{r.name}</strong></div></td>
                                         <td>{r.category}</td>
                                         <td className="admin-truncate">{r.address}</td>
-                                        <td>
-                                            <span className={`admin-busy ${safeNum(r.solo_index) >= 9 ? "admin-high" : safeNum(r.solo_index) >= 8 ? "admin-mid" : ""}`}>
-                                                {safeNum(r.solo_index).toFixed(1)}
-                                            </span>
-                                        </td>
-                                        <td>
-                                            {safeNum(r.avgRating ?? r.avg_rating).toFixed(1)}{" "}
-                                            <span className="admin-muted">({r.rating_count || 0})</span>
-                                        </td>
+                                        <td><span className={`admin-busy ${safeNum(r.solo_index) >= 9 ? "admin-high" : safeNum(r.solo_index) >= 8 ? "admin-mid" : ""}`}>{safeNum(r.solo_index).toFixed(1)}</span></td>
+                                        <td>{safeNum(r.avgRating ?? r.avg_rating).toFixed(1)}{" "}<span className="admin-muted">({r.rating_count || 0})</span></td>
                                         <td><WelfareDot ok={false} /></td>
                                         <td><StatusPill status={statusKo(r.status)} /></td>
                                         <td className="admin-row-actions">
                                             <button className="admin-mini" onClick={() => openEdit(r.id)}>수정</button>
-                                            <button className="admin-mini admin-danger" disabled={deletingId === r.id} onClick={() => onDelete(r)}>
-                                                {deletingId === r.id ? "삭제 중..." : "삭제"}
-                                            </button>
+                                            <button className="admin-mini admin-danger" disabled={deletingId === r.id} onClick={() => onDelete(r)}>{deletingId === r.id ? "삭제 중..." : "삭제"}</button>
                                         </td>
                                     </tr>
                                 ))}
@@ -511,7 +479,6 @@ export default function AdminRestaurant() {
                                 </div>
                             )}
                         </div>
-
                         <div className="admin-modal-foot">
                             <button className="admin-btn admin-ghost" onClick={closeEdit} disabled={saving}>취소</button>
                             <button className="admin-btn admin-primary" onClick={saveEdit} disabled={saving || editLoading}>{saving ? "저장 중..." : "저장"}</button>
@@ -525,7 +492,6 @@ export default function AdminRestaurant() {
                 <div className="admin-modal-backdrop" onClick={closeCreate}>
                     <div className="admin-modal" onClick={(e) => e.stopPropagation()}>
                         <div className="admin-modal-head"><h3>새 식당 추가</h3><button className="admin-close" onClick={closeCreate} disabled={creating}>×</button></div>
-
                         <div className="admin-modal-body">
                             <div className="admin-form-grid">
                                 <label>이름*<input value={createData.name} onChange={(e) => setCreateData(d => ({ ...d, name: e.target.value }))} placeholder="예) 김밥천국" /></label>
@@ -546,14 +512,7 @@ export default function AdminRestaurant() {
 
                         <div className="admin-modal-foot">
                             <button className="admin-btn admin-ghost" onClick={closeCreate} disabled={creating}>취소</button>
-                            <button
-                                className="admin-btn admin-primary"
-                                onClick={saveCreate}
-                                disabled={creating || !createData.name?.trim() || !createData.category?.trim() || !createData.address?.trim()}
-                                title="이름/카테고리/주소는 필수"
-                            >
-                                {creating ? "저장 중..." : "저장"}
-                            </button>
+                            <button className="admin-btn admin-primary" onClick={saveCreate} disabled={creating || !createData.name?.trim() || !createData.category?.trim() || !createData.address?.trim()} title="이름/카테고리/주소는 필수">{creating ? "저장 중..." : "저장"}</button>
                         </div>
                     </div>
                 </div>

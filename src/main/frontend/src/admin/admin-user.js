@@ -4,6 +4,7 @@ import axios from "axios";
 import "./admin-user.css";
 
 axios.defaults.baseURL = "http://localhost:8080";
+axios.defaults.withCredentials = true;
 
 /* 유틸/매핑 */
 const toDateStr = (v) => (v ? String(v).slice(0, 10) : "-");
@@ -113,7 +114,6 @@ const LineChart = ({ series, height = 200, xLabels = [] }) => {
     // 전체 데이터 범위
     const flat = series.flatMap((s) => s.data);
     const maxV = Math.max(1, ...flat, 1);
-    const minV = 0;
 
     // y축 "예쁜" 틱 계산 (5등분)
     const tickCount = 5;
@@ -135,9 +135,7 @@ const LineChart = ({ series, height = 200, xLabels = [] }) => {
                     return (
                         <g key={`yt-${i}`} opacity={i === 0 ? 0.6 : 0.2}>
                             <line x1={padding.left} x2={width - padding.right} y1={yy} y2={yy} stroke="#000" />
-                            <text x={padding.left - 8} y={yy} textAnchor="end" dominantBaseline="central" fontSize="10" fill="#555">
-                                {t}
-                            </text>
+                            <text x={padding.left - 8} y={yy} textAnchor="end" dominantBaseline="central" fontSize="10" fill="#555">{t}</text>
                         </g>
                     );
                 })}
@@ -317,7 +315,7 @@ export default function AdminUser() {
             days.push(d.toISOString().slice(0, 10));
         }
 
-        // 도우미: 특정 리스트에서 dateKey 추출하여 일자별 카운트
+        // 특정 리스트에서 dateKey 추출하여 일자별 카운트
         const countByDay = (list, picker) => {
             const base = Object.fromEntries(days.map((k) => [k, 0]));
             list.forEach((item) => {
@@ -582,13 +580,9 @@ export default function AdminUser() {
                                 <h3>최근 처리 이력</h3>
                                 <button className="admin-view"
                                     onClick={async () => {
-                                        try {
-                                            await loadActionsFromServer();
-                                        } catch {
-                                            await loadActionsFallbackLocal();
-                                        }
-                                        setActionModalOpen(true);
-                                    }} > 모두 보기 </button>
+                                        try { await loadActionsFromServer(); } 
+                                        catch { await loadActionsFallbackLocal(); }
+                                        setActionModalOpen(true); }} > 모두 보기 </button>
                             </div>
                             <ul className="admin-feed">
                                 {recentActions.length > 0 ? (
@@ -598,8 +592,7 @@ export default function AdminUser() {
                                                 <div className="admin-feed-head"><strong>신고자 ID:{a.userId}</strong></div>
                                                 <p> 신고 #{a.reportId} · <ActionBadge action={a.action} /> <StatusPill status={reportStatusToPill(a.status)} /> {a.memo ? <> · {a.memo}</> : null}</p>
                                             </div>
-                                        </li>
-                                    )) ) : ( <li className="admin-empty">처리 이력이 없습니다.</li> )}
+                                        </li> )) ) : ( <li className="admin-empty">처리 이력이 없습니다.</li> )}
                             </ul>
                         </section>
                     </aside>

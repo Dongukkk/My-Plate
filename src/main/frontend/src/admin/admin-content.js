@@ -4,6 +4,7 @@ import axios from "axios";
 import "./admin-content.css";
 
 axios.defaults.baseURL = "http://localhost:8080";
+axios.defaults.withCredentials = true;
 
 const arr = (p) => (Array.isArray(p) ? p : (p?.items || p?.list || p?.rows || []));
 const fmtDate = (v) => (v ? String(v).slice(0, 10) : "-");
@@ -41,15 +42,8 @@ const Pager = ({ page, total, onPage }) => {
         <div className="admin-pager">
             <button className="admin-pagebtn" disabled={page <= 1} onClick={() => onPage(page - 1)}>이전</button>
             {items.map((it, idx) =>
-                it === "..." ? (
-                    <span key={`e-${idx}`} className="admin-ellipsis-btn">…</span>
-                ) : (
-                    <button key={it} className={`admin-pagebtn ${page === it ? "on" : ""}`} onClick={() => onPage(it)}>
-                        {it}
-                    </button>
-                )
-            )}
-            <button className="admin-pagebtn" disabled={page >= total} onClick={() => onPage(page + 1)}>다음</button>
+                it === "..." ? (<span key={`e-${idx}`} className="admin-ellipsis-btn">…</span>) : ( <button key={it} className={`admin-pagebtn ${page === it ? "on" : ""}`} onClick={() => onPage(it)}>{it}</button> )
+            )} <button className="admin-pagebtn" disabled={page >= total} onClick={() => onPage(page + 1)}>다음</button>
         </div>
     );
 };
@@ -66,12 +60,8 @@ const compact = (obj = {}) => {
 };
 const updateReport = async (type, id, payload) => {
     const k = String(type).toLowerCase();
-    const t = (k === "oht" ? "oth" : k);  // ← OHT → OTH 보정
-    return axios.post(
-        `/api/reports/${t}/${id}`,
-        compact(payload),
-        { headers: { "Content-Type": "application/json" } }
-    );
+    const t = (k === "oht" ? "oth" : k);
+    return axios.post( `/api/reports/${t}/${id}`, compact(payload), { headers: { "Content-Type": "application/json" } } );
 };
 
 export default function AdminContent() {
@@ -308,9 +298,7 @@ export default function AdminContent() {
     return (
         <div className="admin-container">
             <aside className="admin-sidebar">
-                <h2 className="admin-logo">
-                    <img src="https://i.imgur.com/tiY7WKl.png" alt="My Plate Logo" className="admin-logo-img" />
-                </h2>
+                <h2 className="admin-logo"><img src="https://i.imgur.com/tiY7WKl.png" alt="My Plate Logo" className="admin-logo-img" /></h2>
                 <nav>
                     <ul>
                         <li onClick={() => navigate("/adminMain")}>홈</li>
@@ -360,9 +348,7 @@ export default function AdminContent() {
                                         <td className="ta-center"><StatusTag status={row.status3} /></td>
                                         <td className="ta-center">{row.date || "-"}</td>
                                         <td className="ta-center">
-                                            <div className="admin-actions">
-                                                <button className="admin-bttn admin-bttn--xs admin-bttn--primary" onClick={() => setPendingModal(row)}>확인</button>
-                                            </div>
+                                            <div className="admin-actions"><button className="admin-bttn admin-bttn--xs admin-bttn--primary" onClick={() => setPendingModal(row)}>확인</button></div>
                                         </td>
                                     </tr>
                                 ))}
@@ -381,10 +367,8 @@ export default function AdminContent() {
                             {ipcView.map((r) => (
                                 <article key={r.id} className="admin-report-card">
                                     <div className="admin-report-top">
-                                        <div className="admin-report-title"><span className="admin-flag" /> {r.title}</div>
-                                        <div className="admin-report-meta">
-                                            <button className="admin-bttn admin-bttn--sm admin-bttn--danger" onClick={() => setIpcModal(r)}>내용</button>
-                                        </div>
+                                        <div className="admin-report-title"><span className="admin-flag" />{r.title}</div>
+                                        <div className="admin-report-meta"><button className="admin-bttn admin-bttn--sm admin-bttn--danger" onClick={() => setIpcModal(r)}>내용</button></div>
                                     </div>
                                     <p className="admin-report-reason">{r.reason}</p>
                                     <div className="admin-report-target"><b>리포터 ID</b>: {r.reporterId ?? "-"}</div>
@@ -407,9 +391,7 @@ export default function AdminContent() {
                                 {oht.slice(0, 5).map((q) => (
                                     <li key={q.id} onClick={() => openOhtDetail(q)} style={{ cursor: "pointer" }}>
                                         <div>
-                                            <div className="admin-feed-head">
-                                                <strong>리포터 ID: {q.reporterId ?? "-"}</strong>
-                                            </div>
+                                            <div className="admin-feed-head"><strong>리포터 ID: {q.reporterId ?? "-"}</strong></div>
                                             <p className="admin-ellipsis">{q.text}</p>
                                         </div>
                                     </li>
@@ -536,9 +518,7 @@ export default function AdminContent() {
                                 {oht.map((q) => (
                                     <li key={q.id} onClick={() => openOhtDetail(q)} style={{ cursor: "pointer" }}>
                                         <div>
-                                            <div className="admin-feed-head">
-                                                <strong>리포터 ID: {q.reporterId ?? "-"}</strong>
-                                            </div>
+                                            <div className="admin-feed-head"><strong>리포터 ID: {q.reporterId ?? "-"}</strong></div>
                                             <p>{q.text}</p>
                                             {q.status === "완료" && <div className="admin-chip admin-chip--done">완료</div>}
                                         </div>
@@ -589,17 +569,8 @@ export default function AdminContent() {
                             <button className="admin-modal-close" onClick={() => setActionModalOpen(false)} aria-label="닫기">×</button>
                         </div>
                         <div className="admin-modal-body">
-                            <div className="admin-tabs">
-                                {["RER", "IPC", "OHT"].map((t) => (
-                                    <button
-                                        key={t}
-                                        className={`admin-tab ${actionTab === t ? "on" : ""}`}
-                                        onClick={() => setActionTab(t)}
-                                    >
-                                        {t === "RER" ? "수정요청" : t === "IPC" ? "부적절 신고" : "기타 문의"}
-                                    </button>
-                                ))}
-                            </div>
+                            <div className="admin-tabs">{["RER", "IPC", "OHT"].map((t) => (<button key={t} className={`admin-tab ${actionTab === t ? "on" : ""}`} 
+                                            onClick={() => setActionTab(t)}>{t === "RER" ? "수정요청" : t === "IPC" ? "부적절 신고" : "기타 문의"}</button>))}</div>
                             <table className="admin-table">
                                 <thead>
                                     <tr><th>날짜</th><th>리포터ID</th><th>조치</th><th>상태</th><th>리포트</th></tr>
@@ -614,15 +585,11 @@ export default function AdminContent() {
                                             <td>#{a.reportId}</td>
                                         </tr>
                                     ))}
-                                    {actionFiltered.length === 0 && (
-                                        <tr><td colSpan={5} className="admin-empty">표시할 이력이 없습니다.</td></tr>
-                                    )}
+                                    {actionFiltered.length === 0 && ( <tr><td colSpan={5} className="admin-empty">표시할 이력이 없습니다.</td></tr> )}
                                 </tbody>
                             </table>
                         </div>
-                        <div className="admin-modal-footer">
-                            <button className="admin-bttn admin-bttn--primary" onClick={() => setActionModalOpen(false)}>닫기</button>
-                        </div>
+                        <div className="admin-modal-footer"><button className="admin-bttn admin-bttn--primary" onClick={() => setActionModalOpen(false)}>닫기</button></div>
                     </div>
                 </div>
             )}
