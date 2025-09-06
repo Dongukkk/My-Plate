@@ -73,11 +73,10 @@ const MiniLine = ({ title, series1 = [], series2 = [], legend1 = "주 지표", l
                 <polyline className="mini-line red" points={buildPath(series1)} />
             </svg>
         </div>
-        <div className="mini-legend">
-            <span className="mini-dot red" /> {legend1}
-            {series2.length > 0 && (<><span className="mini-dot teal" /> {legend2}</>)}
-        </div>
         {xLabels.length > 0 && (<div className="mini-x">{xLabels.map((l, i) => ( <span key={i}>{l}</span>))}</div>)}
+                <div className="mini-legend">
+            <span className="mini-dot red" /> {legend1} {series2.length > 0 && (<><span className="mini-dot teal" /> {legend2}</>)}
+        </div>
     </div>
 );
 
