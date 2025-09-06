@@ -1,22 +1,32 @@
+/* =========================================================
+   Admin Analysis — Clean, Single Source of Truth (CSS)
+   - 마크업 변경 없이 드롭인 교체 가능
+   - 중복 제거 / 우선순위 정리 / 축 스타일 일치
+   ========================================================= */
+
+/* ── Root */
 .admin-analysis-page {
     --admin-red: #e74c3c;
     --admin-red-weak: #fca09a;
     --admin-teal: #20b2aa;
     --admin-orange: #ff7f50;
     --admin-gray: #6b7280;
-    --admin-bg: #f5f5f5;
+    --admin-bg: #f5f7fb;
     --admin-card: #ffffff;
+    --admin-border: #eaeef3;
 
-    flex:1;     
+    flex: 1;
     font-family: "Noto Sans KR", sans-serif;
     color: #1f2937;
-    background: var(--admin-bg);
-    padding: 16px 20px 28px;
+    background:
+        radial-gradient(120vmax 60vmax at -10% -20%, rgba(255, 255, 255, .7), transparent 60%),
+        linear-gradient(180deg, #f7fafc 0%, #f5f7fb 100%);
+    padding: 14px 18px 22px;
     min-height: 100vh;
     box-sizing: border-box;
 }
 
-/* 상단 타이틀/액션 */
+/* ── Header / Controls */
 .admin-analysis-top {
     display: flex;
     align-items: flex-end;
@@ -28,12 +38,7 @@
 .admin-analysis-title {
     margin: 0;
     font-size: 22px;
-}
-
-.admin-analysis-desc {
-    margin: 4px 0 0;
-    color: #6b7280;
-    font-size: 13px;
+    letter-spacing: -.01em;
 }
 
 .admin-analysis-actions {
@@ -42,47 +47,39 @@
 }
 
 .admin-select {
-    height: 36px;
-    padding: 0 10px;
-    border-radius: 8px;
-    border: 1px solid #e5e7eb;
+    height: 34px;
+    padding: 0 12px;
+    border-radius: 10px;
+    border: 1px solid var(--admin-border);
     background: #fff;
     font-size: 13px;
+    box-shadow: 0 1px 0 rgba(17, 24, 39, .02);
 }
 
 .admin-select.small {
-    height: 30px;
+    height: 28px;
 }
 
-.admin-btn-primary {
-    height: 36px;
-    padding: 0 14px;
-    border: none;
-    border-radius: 8px;
-    background: var(--admin-red);
-    color: #fff;
-    font-weight: 700;
-    cursor: pointer;
-}
-
-.admin-btn-primary:hover {
-    filter: brightness(0.96);
-}
-
-/* KPI */
+/* ── KPI (4-up) */
 .admin-kpi-grid {
     display: grid;
-    grid-template-columns: repeat(4, 1fr);
+    grid-template-columns: repeat(4, minmax(0, 1fr));
     gap: 12px;
     margin-bottom: 12px;
 }
 
 .admin-kpi-slot {
     background: var(--admin-card);
-    border: 1px solid #eee;
-    border-radius: 12px;
-    padding: 14px;
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.03);
+    border: 1px solid var(--admin-border);
+    border-radius: 14px;
+    padding: 12px;
+    box-shadow: 0 1px 0 rgba(17, 24, 39, .03), 0 6px 14px rgba(17, 24, 39, .06);
+    transition: transform .15s ease, box-shadow .15s ease;
+}
+
+.admin-kpi-slot:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 1px 0 rgba(17, 24, 39, .03), 0 12px 28px rgba(17, 24, 39, .10);
 }
 
 .admin-kpi-top {
@@ -91,11 +88,6 @@
     gap: 8px;
     color: #6b7280;
     font-size: 12px;
-    text-align: center;
-}
-
-.admin-kpi-icon {
-    font-size: 16px;
 }
 
 .admin-kpi-label {
@@ -103,9 +95,11 @@
 }
 
 .admin-kpi-value {
-    font-size: 22px;
+    font-variant-numeric: tabular-nums;
+    font-size: 20px;
     font-weight: 800;
     margin: 6px 0;
+    letter-spacing: -.02em;
 }
 
 .admin-kpi-foot {
@@ -124,13 +118,13 @@
     color: #6b7280;
 }
 
-/* 공통 카드 */
+/* ── Card */
 .admin-slot {
     background: var(--admin-card);
-    border: 1px solid #eee;
-    border-radius: 12px;
-    padding: 14px;
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.03);
+    border: 1px solid var(--admin-border);
+    border-radius: 14px;
+    padding: 12px;
+    box-shadow: 0 1px 0 rgba(17, 24, 39, .03), 0 6px 14px rgba(17, 24, 39, .05);
     margin-top: 12px;
 }
 
@@ -150,25 +144,21 @@
     margin: 0;
     font-size: 16px;
     font-weight: 800;
+    letter-spacing: -.01em;
 }
 
-.admin-link {
-    color: var(--admin-red);
-    text-decoration: none;
-    font-weight: 700;
-    font-size: 12px;
-}
-
-.admin-link:hover {
-    text-decoration: underline;
-}
-
-/* 2컬럼 기본 그리드 */
+/* ── Grid 2col */
 .admin-grid-2col {
     display: grid;
-    grid-template-columns: 1.2fr 0.8fr;
+    grid-template-columns: 1.2fr .8fr;
     gap: 12px;
     align-items: start;
+}
+
+@media (max-width:1200px) {
+    .admin-grid-2col {
+        grid-template-columns: 1fr;
+    }
 }
 
 .admin-col {
@@ -180,47 +170,47 @@
     gap: 12px;
 }
 
-/* 세그먼트 버튼 */
-.admin-segment {
-    display: inline-flex;
-    background: #f3f4f6;
-    border-radius: 8px;
-    padding: 2px;
-    gap: 2px;
-}
-
-/* ───── Line Chart (SVG) ───── */
+/* ── Line Chart (SVG) */
 .admin-linechart {
     width: 100%;
 }
 
 .admin-linechart svg {
-    width: 100%;
-    height: 180px;
-    border-radius: 10px;
+    width: 150%;
+    height: 160px;
     background: linear-gradient(#fff, #fff);
 }
 
 .admin-grid-lines line {
-    stroke: #f1f5f9;
-    stroke-width: 0.6;
+    stroke: #eff3f8;
+    stroke-width: .8;
+}
+
+/* lines */
+.admin-line-red,
+.admin-line-teal {
+    fill: none;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    vector-effect: non-scaling-stroke;
+    filter: drop-shadow(0 1px 0 rgba(0, 0, 0, .04));
 }
 
 .admin-line-red {
-    fill: none;
     stroke: var(--admin-red);
-    stroke-width: 2;
+    stroke-width: 3.2;
 }
 
 .admin-line-teal {
-    fill: none;
     stroke: var(--admin-teal);
-    stroke-width: 2;
+    stroke-width: 2.4;
+    opacity: .95;
 }
 
+/* legend / x-axis */
 .admin-linechart-legend {
     display: flex;
-    gap: 14px;
+    gap: 16px;
     align-items: center;
     font-size: 12px;
     margin-top: 8px;
@@ -228,6 +218,7 @@
 }
 
 .admin-linechart-x {
+    width: 90%;
     display: flex;
     justify-content: space-between;
     font-size: 11px;
@@ -235,7 +226,22 @@
     margin-top: 6px;
 }
 
-/* 공통 도트 */
+/* y-axis */
+.admin-analysis-page .admin-linechart svg text:not(.admin-point-label) {
+    font-family: "Noto Sans KR", sans-serif !important;
+    font-weight: 500 !important;
+    font-size: 11px !important;
+    letter-spacing: -.01em !important;
+    fill: #94a3b8 !important;
+    opacity: .95 !important;
+    dominant-baseline: middle;
+    text-anchor: start;
+    stroke: none !important;
+    paint-order: normal !important;
+    transform: translateX(2px);
+}
+
+/* legend dots */
 .admin-dot {
     display: inline-block;
     width: 10px;
@@ -260,109 +266,135 @@
     background: #cbd5e1;
 }
 
-/* 파이 */
+/* generic legend list */
+.admin-legend {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: 6px;
+    font-size: 12px;
+    color: #6b7280;
+}
+
+.admin-legend li {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+/* Pie */
 .admin-pie-wrap {
     display: flex;
     align-items: center;
     gap: 16px;
+    margin-left: 15px;
 }
 
 .admin-pie {
     width: 160px;
     height: 160px;
     border-radius: 50%;
-    border: 8px solid #fff;
-    box-shadow: inset 0 0 0 1px #eee;
+    border: 10px solid #fff;
+    box-shadow: inset 0 0 0 1px var(--admin-border);
+    -webkit-mask: radial-gradient(circle 56px at 50% 50%, transparent 55px, #000 56px);
+    mask: radial-gradient(circle 56px at 50% 50%, transparent 55px, #000 56px);
 }
 
-.admin-story {
-    list-style: none;
-    margin: 0;
-    padding: 0;
-    font-size: 12px;
-    color: #6b7280;
-    display: grid;
-    gap: 6px;
-}
-
-/* 세로 막대 */
+/* ── Vertical Bars (TOP5) */
 .admin-barchart-vert {
     display: flex;
-    gap: 12px;
     align-items: flex-end;
-    height: 200px;
-    padding: 6px 2px;
+    gap: 14px;
+    height: 210px;
+    padding: 8px 4px 0;
 }
 
 .admin-barv {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    min-width: 0;
     text-align: center;
-    flex: 1;
+    height: 100%;
+    justify-content: flex-end;
 }
 
 .admin-barv-stick {
-    position: relative;
-    width: 26px;
-    margin: 0 auto;
+    width: 20px;
     background: #f3f4f6;
-    border-radius: 8px;
+    border-radius: 12px;
+    overflow: hidden;
     display: flex;
     align-items: flex-end;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, .45);
 }
 
 .admin-barv-red {
     width: 100%;
-    background: var(--admin-red);
-    border-radius: 8px;
-    height: 50%;
+    background: linear-gradient(180deg, #ff8a80, var(--admin-red));
+    border-radius: 12px 12px 0 0;
+    transition: height .35s ease;
 }
 
 .admin-barv-label {
-    display: block;
-    font-size: 12px;
-    color: #6b7280;
     margin-top: 6px;
+    font-size: 9px;
+    color: #6b7280;
+    text-align: center;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    line-height: 1.15;
+    max-height: calc(1.15em * 2);
+    white-space: normal;
 }
 
-/* 가로 막대 (두 지표) */
+/* ── Horizontal Bars (dual metrics) */
 .admin-barchart-hori {
     display: grid;
-    gap: 10px;
+    gap: 12px;
+    margin-bottom: 10px;
 }
 
 .admin-barh-label {
     font-size: 12px;
     color: #374151;
-    margin-bottom: 4px;
+    margin-bottom: 6px;
 }
 
 .admin-barh-track {
     background: #f3f4f6;
     border-radius: 999px;
-    height: 12px;
+    height: 10px;
     position: relative;
     overflow: hidden;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, .7);
 }
 
-.admin-barh-red {
-    position: absolute;
-    left: 0;
-    top: 0;
-    bottom: 0;
-    background: var(--admin-red);
-    border-radius: 999px;
-}
-
+.admin-barh-red,
 .admin-barh-teal {
     position: absolute;
     left: 0;
     top: 0;
     bottom: 0;
-    background: var(--admin-teal);
-    opacity: .35;
     border-radius: 999px;
+    transition: width .35s ease;
 }
 
-/* 리스트형 가로 막대 */
+.admin-barh-red {
+    background: var(--admin-red);
+}
+
+.admin-barh-teal {
+    background: var(--admin-teal);
+    opacity: .35;
+}
+
+/* ── Region list bars */
 .admin-barchart-list {
     display: grid;
     gap: 10px;
@@ -370,7 +402,7 @@
 
 .admin-bar-list-row {
     display: grid;
-    grid-template-columns: 80px 1fr 38px;
+    grid-template-columns: 86px 1fr 42px;
     align-items: center;
     gap: 10px;
 }
@@ -378,14 +410,18 @@
 .admin-bar-list-name {
     font-size: 12px;
     color: #374151;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 .admin-bar-list-track {
     background: #f3f4f6;
     border-radius: 999px;
-    height: 10px;
+    height: 8px;
     position: relative;
     overflow: hidden;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, .7);
 }
 
 .admin-bar-list-fill {
@@ -395,6 +431,7 @@
     bottom: 0;
     background: var(--admin-red);
     border-radius: 999px;
+    transition: width .35s ease;
 }
 
 .admin-bar-list-val {
@@ -403,72 +440,86 @@
     text-align: right;
 }
 
-/* 혼잡지수 */
+/* ── Congestion */
 .admin-congestion {
+    --cg-gutter: 112px;
     position: relative;
 }
 
 .admin-congestion-grid {
     height: 120px;
     background: #fff;
-    border: 1px dashed #eef2f7;
-    border-radius: 10px;
+    border: 1px dashed var(--admin-border);
+    border-radius: 12px;
     position: relative;
     overflow: hidden;
 }
 
 .admin-cong-row {
-    height: 24px;
-    border-bottom: 1px solid #f1f5f9;
+    height: 22px;
+    border-bottom: 1px solid #f3f6fb;
 }
 
 .admin-congestion-lines {
     position: absolute;
-    inset: 12px 12px auto 12px;
+    inset: 12px 12px auto calc(12px + var(--cg-gutter));
     display: grid;
-    gap: 12px;
+    gap: 14px;
+    padding-right: 6px;
+    margin-top: 17px;
 }
 
 .admin-cong-line {
-    height: 8px;
-    background: linear-gradient(90deg, var(--admin-red), var(--admin-red-weak));
+    height: 10px;
     border-radius: 999px;
-    opacity: .75;
+    opacity: .8;
+    background: linear-gradient(90deg, var(--admin-red), var(--admin-red-weak));
+    box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .35);
 }
 
-.admin-congestion-x {
-    display: flex;
-    justify-content: space-between;
-    color: #9ca3af;
-    font-size: 11px;
-    margin-top: 6px;
+.admin-congestion-lines .admin-cong-line {
+    position: relative;
 }
 
-/* 탭 */
-.admin-tabs {
-    display: inline-flex;
-    gap: 6px;
-    background: #f3f4f6;
-    padding: 2px;
-    border-radius: 8px;
-}
-
-.admin-tab {
-    border: none;
-    background: transparent;
-    padding: 6px 10px;
-    border-radius: 6px;
+.admin-congestion-lines .admin-cong-line::before {
+    content: "";
+    position: absolute;
+    left: calc(-1 * var(--cg-gutter) + 2px);
+    top: 50%;
+    transform: translateY(-50%);
     font-size: 12px;
-    cursor: pointer;
-    color: #374151;
+    color: #6b7280;
+    letter-spacing: -.01em;
+    white-space: nowrap;
 }
 
-.admin-tab.active {
-    background: #fff;
-    border: 1px solid #e5e7eb;
+.admin-congestion-lines .admin-cong-line {
+    position: relative;
 }
 
-/* 키워드 리스트 */
+.admin-congestion-lines .admin-cong-xlabel {
+    position: absolute;
+    right: 8px;
+    top: 50%;
+    transform: translate(100%, -50%);
+    font-size: 11px;
+    color: #6b7280;
+    white-space: nowrap;
+}
+
+.admin-congestion-lines .admin-cong-line:nth-child(1)::before {
+    content: "총 사용자";
+}
+
+.admin-congestion-lines .admin-cong-line:nth-child(2)::before {
+    content: "등록된 식당";
+}
+
+.admin-congestion-lines .admin-cong-line:nth-child(3)::before {
+    content: "활성 비율";
+}
+
+/* ── Keyword List */
 .admin-keyword-list {
     list-style: none;
     margin: 0;
@@ -479,12 +530,14 @@
 
 .admin-keyword-item {
     display: grid;
-    grid-template-columns: 26px 1fr 110px 54px;
+    grid-template-columns: 28px 1fr 110px 54px;
     align-items: center;
-    gap: 8px;
-    padding: 8px 8px;
-    border: 1px solid #f1f5f9;
-    border-radius: 10px;
+    gap: 10px;
+    padding: 10px;
+    border: 1px solid var(--admin-border);
+    border-radius: 12px;
+    background: #fff;
+    box-shadow: 0 1px 0 rgba(17, 24, 39, .02);
 }
 
 .admin-keyword-rank {
@@ -522,68 +575,115 @@
     color: #ef4444;
 }
 
-.admin-right {
-    display: flex;
-    justify-content: flex-end;
-    margin-top: 8px;
-}
-
-.admin-btn-ghost {
-    background: #fff;
-    color: var(--admin-red);
-    border: 1px solid #f7c6c1;
-    border-radius: 8px;
-    height: 34px;
-    padding: 0 12px;
-    font-weight: 700;
-    cursor: pointer;
-}
-
-.admin-btn-ghost:hover {
-    background: #fff5f4;
-}
-
-/* 인사이트 */
-.admin-insights-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-}
-
-.admin-insights-note {
-    font-size: 12px;
-    color: #ef4444;
-    background: #ffe6e3;
-    padding: 2px 8px;
-    border-radius: 999px;
-}
-
-.admin-insight-grid {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 10px;
-    margin-top: 10px;
-}
-
-.admin-insight-slot {
-    display: flex;
-    gap: 10px;
-    background: #fff7f6;
-    border: 1px solid #ffe1dd;
+/* ── Skeleton */
+.skeleton {
+    position: relative;
     border-radius: 12px;
-    padding: 12px;
+    background: #f3f4f6;
+    overflow: hidden;
+    min-height: 88px;
 }
 
-.admin-insight-icon {
-    font-size: 18px;
+.skeleton::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, .55), transparent);
+    transform: translateX(-100%);
+    animation: shimmer 1.2s infinite;
 }
 
-.admin-insight-title {
-    font-weight: 800;
-    margin-bottom: 4px;
+@keyframes shimmer {
+    to {
+        transform: translateX(100%);
+    }
 }
 
-.admin-insight-desc {
-    color: #6b7280;
-    font-size: 12px;
+/* ── Reduced motion */
+@media (prefers-reduced-motion:reduce) {
+
+    .admin-kpi-slot,
+    .admin-barv-red,
+    .admin-barh-red,
+    .admin-barh-teal,
+    .admin-bar-list-fill,
+    .skeleton::after {
+        transition: none;
+        animation: none;
+    }
+}
+
+/* ── (A) 라인차트: 포인트/라벨 */
+.admin-linechart .admin-point { pointer-events: none; }
+.admin-linechart .admin-point-dot { r: 1.6; }
+.admin-linechart .admin-point-label {
+  display: inline;              /* 이전에 display:none 넣었으면 제거/덮어쓰기 */
+  font-size: 3.6px;             /* 작고 단정하게 */
+  fill: #6b7280;
+  paint-order: stroke; stroke: #fff; stroke-width: 1px;
+}
+
+/* ── (B) 가로 막대(인기 기능/리스트 등) 끝값 라벨 */
+.admin-barh-track, .admin-bar-list-track { position: relative; }
+.admin-barh-val, .admin-bar-list-val-in {
+  position: absolute; top: 50%; transform: translateY(-50%);
+  right: -6px; white-space: nowrap; font-size: 11px; color: #6b7280;
+}
+
+/* ── (C) 세로 막대(TOP5) 막대 위 라벨 */
+.admin-barv-stick { position: relative; }
+.admin-barv-val {
+  position: absolute; left: 50%; transform: translate(-50%, 0);
+  font-size: 11px; color: #6b7280; white-space: nowrap;
+}
+
+/* ── (D) 도넛(파이) 라벨 배치 */
+.admin-pie-wrap { position: relative; }
+.admin-pie-anno { position: absolute; inset: 0; pointer-events: none; }
+.admin-pie-badge{
+  position: absolute; left: 50%; top: 50%;
+  transform: rotate(var(--deg)) translate(84px) rotate(calc(-1 * var(--deg)));
+  background: #fff; border: 1px solid var(--admin-border);
+  border-radius: 999px; padding: 2px 6px; font-size: 11px; color:#6b7280;
+}
+
+
+/* TOP5 세로막대: 스틱은 전체 높이, 라벨은 막대 끝에 */
+.admin-barchart-vert{
+  height: 210px;            /* 기존 값 유지해도 됨 */
+}
+
+.admin-barv{
+  position: relative;       /* 라벨의 기준이 될 컨테이너 */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  height: 100%;
+}
+
+.admin-barv-stick{
+  height: 100%;             /* 트랙은 항상 전체 높이 */
+  overflow: visible;        /* 상단으로 튀어나오는 라벨 안 잘리게 */
+  display: flex;
+  align-items: flex-end;
+}
+
+.admin-barv-red{
+  width: 100%;
+  border-radius: 12px 12px 0 0;
+  background: linear-gradient(180deg, #ff8a80, var(--admin-red));
+  /* height는 JSX에서 %로 주입 */
+}
+
+/* 막대 상단 값(리뷰 수) */
+.admin-barv-val{
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 11px;
+  color: #6b7280;
+  line-height: 1;
+  white-space: nowrap;
+  pointer-events: none;
+  /* bottom 은 JSX에서 calc(%)로 주입 */
 }
