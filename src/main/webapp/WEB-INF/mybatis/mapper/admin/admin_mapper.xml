@@ -442,6 +442,20 @@
 	    )
 	</insert>
 
+  <!-- 로그인 -->
+  <select id="findAdminForLoginByEmail" parameterType="string" resultType="AdminUser">
+    SELECT
+      U.ID        AS id,
+      U.EMAIL     AS email,
+      U.PASSWORD  AS password,
+      U.USERNAME  AS username,
+      U.ROLE      AS role,
+      U.STATUS    AS status
+    FROM MP_USER U
+    WHERE U.EMAIL = #{email}
+      AND U.ROLE = 'ADM'
+      AND U.STATUS = 'ACTIVE'
+  </select>
 
 
 

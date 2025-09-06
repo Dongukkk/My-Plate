@@ -197,5 +197,12 @@ public class AdminServiceImpl implements AdminService {
 	}
 	
 	
+	//로그인
+    @Override
+    public AdminUserDTO findAdminForLoginByEmail(String email) {
+        if (email == null || email.isBlank()) return null;
+        return adminDAO.findAdminForLoginByEmail(email);
+    }
+	
 
 }

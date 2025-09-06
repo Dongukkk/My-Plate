@@ -48,4 +48,8 @@ public interface AdminService {
     List<AdminActionDTO> findRecentActionsRER();  
     List<AdminActionDTO> findRecentActionsIPC();  
     int processReport(AdminReportDTO dto);
+    
+    //로그인
+    AdminUserDTO findAdminForLoginByEmail(String email);
+    
 }

@@ -50,4 +50,7 @@ public interface AdminDAO {
     int updateReport(AdminReportDTO dto);
     int insertReportAction(AdminReportDTO dto);
     
+    //로그인
+    AdminUserDTO findAdminForLoginByEmail(String email);
+    
 }

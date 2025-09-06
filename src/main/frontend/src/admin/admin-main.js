@@ -5,6 +5,7 @@ import PrettyAlert from "./pretty-alert";
 import "./admin-main.css";
 
 axios.defaults.baseURL = "http://localhost:8080";
+axios.defaults.withCredentials = true;
 
 /* 공통 유틸 */
 const safeGet = async (url) => {
@@ -12,7 +13,9 @@ const safeGet = async (url) => {
         const { data } = await axios.get(url);
         const list = Array.isArray(data) ? data : data?.items || data?.rows || data?.list || [];
         return list || [];
-    } catch { return []; }
+    } catch {
+        return [];
+    }
 };
 const normStatus = (s = "") => {
     const k = String(s).toUpperCase();
@@ -41,17 +44,24 @@ const LogoutModal = ({ isOpen, onClose, onConfirm }) =>
             <div className="admin-modal-content">
                 <p>정말 로그아웃하시겠습니까?</p>
                 <div className="admin-modal-actions">
-                    <button onClick={onConfirm} className="admin-btn-logout">로그아웃</button>
-                    <button onClick={onClose} className="admin-btn-cancel">취소</button>
+                    <button onClick={onConfirm} className="admin-btn-logout">
+                        로그아웃
+                    </button>
+                    <button onClick={onClose} className="admin-btn-cancel">
+                        취소
+                    </button>
                 </div>
             </div>
         </div>
     );
 
 const StatsCard = ({ title, value, change, onClick }) => (
-    <div className="admin-card" onClick={onClick} style={{ cursor: "pointer" }}>{title}
-        <br /><span className="admin-value">{Number(value || 0).toLocaleString()}</span>
-        <br /><span className="admin-change">{change}</span>
+    <div className="admin-card" onClick={onClick} style={{ cursor: "pointer" }}>
+        {title}
+        <br />
+        <span className="admin-value">{Number(value || 0).toLocaleString()}</span>
+        <br />
+        <span className="admin-change">{change}</span>
     </div>
 );
 
@@ -66,15 +76,15 @@ const MiniLine = ({ title, series1 = [], series2 = [], legend1 = "주 지표", l
     <div className="mini-linechart" aria-label={title}>
         <div className="mini-title">{title}</div>
         <div className="mini-plot">
-            <div className="mini-y"> {[100, 75, 50, 25, 0].map((v) => ( <span key={v}>{v}</span> ))} </div>
+            <div className="mini-y">{[100, 75, 50, 25, 0].map((v) => (<span key={v}>{v}</span>))}</div>
             <svg viewBox="0 0 100 100" preserveAspectRatio="none" className="mini-svg">
-                <g className="mini-grid"> {[20, 40, 60, 80].map((y) => ( <line key={y} x1="0" y1={y} x2="100" y2={y} /> ))} </g>
+                <g className="mini-grid">{[20, 40, 60, 80].map((y) => (<line key={y} x1="0" y1={y} x2="100" y2={y} />))}</g>
                 {series2.length > 0 && <polyline className="mini-line teal" points={buildPath(series2)} />}
                 <polyline className="mini-line red" points={buildPath(series1)} />
             </svg>
         </div>
-        {xLabels.length > 0 && (<div className="mini-x">{xLabels.map((l, i) => ( <span key={i}>{l}</span>))}</div>)}
-                <div className="mini-legend">
+        {xLabels.length > 0 && <div className="mini-x">{xLabels.map((l, i) => (<span key={i}>{l}</span>))}</div>}
+        <div className="mini-legend">
             <span className="mini-dot red" /> {legend1} {series2.length > 0 && (<><span className="mini-dot teal" /> {legend2}</>)}
         </div>
     </div>
@@ -89,7 +99,8 @@ const MiniPie = ({ data }) => {
             acc += d.value;
             const to = (acc / total) * 360;
             return `${d.color} ${from}deg ${to}deg`;
-        }) .join(", ");
+        })
+        .join(", ");
     return (
         <div className="mini-pie-wrap">
             <div className="mini-pie" style={{ background: `conic-gradient(${stops})` }} />
@@ -108,6 +119,9 @@ const MiniPie = ({ data }) => {
 export default function AdminMain() {
     const navigate = useNavigate();
 
+    // 세션 정보
+    const [me, setMe] = useState(null);
+
     // 원본 데이터
     const [users, setUsers] = useState([]);
     const [restaurants, setRestaurants] = useState([]);
@@ -121,6 +135,15 @@ export default function AdminMain() {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [logoutAlertOpen, setLogoutAlertOpen] = useState(false);
 
+    /* 세션 확인 */
+    useEffect(() => {
+        axios
+            .get("/api/admin/me")
+            .then((r) => setMe(r.data))
+            .catch(() => navigate("/admin", { replace: true }));
+    }, [navigate]);
+
+    /* 대시보드 데이터 로딩 */
     useEffect(() => {
         (async () => {
             setLoading(true);
@@ -185,10 +208,7 @@ export default function AdminMain() {
             address: r.address || "-",
             rating: Number(r.avgRating ?? r.avg_rating ?? 0) || 0,
         }));
-        return items
-            .filter((x) => x.rating > 0)
-            .sort((a, b) => b.rating - a.rating)
-            .slice(0, 5);
+        return items.filter((x) => x.rating > 0).sort((a, b) => b.rating - a.rating).slice(0, 5);
     }, [restaurants]);
 
     // 사용자 관리
@@ -284,17 +304,24 @@ export default function AdminMain() {
 
     const stats = { totalUsers, activeUsers, restaurants: totalRestaurants, reviews: totalReviews };
 
-    const handleConfirmLogout = () => {
+    /* 로그아웃 */
+    const handleLogout = async () => {
         setIsModalOpen(false);
-        setLogoutAlertOpen(true);
+        try {
+            await axios.post("/api/admin/logout");
+        } catch {
+        } finally {
+            localStorage.removeItem("mp_admin_authed");
+            setMe(null);
+            setLogoutAlertOpen(true);
+            navigate("/admin");
+        }
     };
 
     return (
         <div className="admin-container">
             <aside className="admin-sidebar">
-                <h2 className="admin-logo">
-                    <img src={"https://i.imgur.com/tiY7WKl.png"} alt="My Plate Logo" className="admin-logo-img" />
-                </h2>
+                <h2 className="admin-logo"><img src={"https://i.imgur.com/tiY7WKl.png"} alt="My Plate Logo" className="admin-logo-img" /></h2>
                 <nav>
                     <ul>
                         <li onClick={() => navigate("/adminMain")}>홈</li>
@@ -309,23 +336,23 @@ export default function AdminMain() {
             <main className="admin-main-content">
                 <div className="admin-topbar">
                     <div className="admin-profile-container">
-                        <div className="admin-profile" onClick={() => setIsDropdownOpen(!isDropdownOpen)}>관리자</div>
-                        {isDropdownOpen && (<div className="admin-dropdown-menu"><button onClick={() => { setIsDropdownOpen(false); setIsModalOpen(true); }} >로그아웃</button></div>)}
+                        <div className="admin-profile" onClick={() => setIsDropdownOpen(!isDropdownOpen)}>{me?.username ?? "관리자"}</div>
+                        {isDropdownOpen && (<div className="admin-dropdown-menu"><button onClick={() => { setIsDropdownOpen(false); setIsModalOpen(true); }}>로그아웃</button></div>)}
                     </div>
                 </div>
 
                 {/* KPI */}
                 <section className="admin-stats">
-                    <StatsCard title="총 사용자" value={loading ? 0 : stats.totalUsers} change={loading ? "—" : statsChange.totalUsers} onClick={() => navigate("/adminUser")}/>
-                    <StatsCard title="활성 사용자" value={loading ? 0 : stats.activeUsers} change={loading ? "—" : statsChange.activeUsers} onClick={() => navigate("/adminUser")}/>
-                    <StatsCard title="등록된 레스토랑" value={loading ? 0 : stats.restaurants} change={loading ? "—" : statsChange.restaurants} onClick={() => navigate("/adminrestaurants")}/>
-                    <StatsCard title="리뷰 수" value={loading ? 0 : stats.reviews} change={loading ? "—" : statsChange.reviews} onClick={() => navigate("/adminContent")}/>
+                    <StatsCard title="총 사용자" value={loading ? 0 : stats.totalUsers} change={loading ? "—" : statsChange.totalUsers} onClick={() => navigate("/adminUser")} />
+                    <StatsCard title="활성 사용자" value={loading ? 0 : stats.activeUsers} change={loading ? "—" : statsChange.activeUsers} onClick={() => navigate("/adminUser")} />
+                    <StatsCard title="등록된 레스토랑" value={loading ? 0 : stats.restaurants} change={loading ? "—" : statsChange.restaurants} onClick={() => navigate("/adminrestaurants")} />
+                    <StatsCard title="리뷰 수" value={loading ? 0 : stats.reviews} change={loading ? "—" : statsChange.reviews} onClick={() => navigate("/adminContent")} />
                 </section>
 
                 {/* 상단 차트 */}
                 <section className="admin-charts">
                     <div className="admin-chart-box" onClick={() => navigate("/adminanalysis")}>
-                        <MiniLine title="사용자 등록 추이 (최근 8주)" legend1="신규 가입" series1={signupSeries} xLabels={weekLabels}/>
+                        <MiniLine title="사용자 등록 추이 (최근 8주)" legend1="신규 가입" series1={signupSeries} xLabels={weekLabels} />
                     </div>
                     <div className="admin-chart-box" onClick={() => navigate("/adminanalysis")}>
                         <MiniLine title="사용자 활동 분석 (최근 8주)" legend1="활성 사용자" legend2="비활성/정지" series1={activeSeries.red} series2={activeSeries.teal} xLabels={weekLabels}/>
@@ -368,6 +395,7 @@ export default function AdminMain() {
                             </table>
                         </div>
                     </section>
+
                     {/* 사용자 관리 */}
                     <section className="admin-grid-item">
                         <div className="admin-section-header">
@@ -375,8 +403,8 @@ export default function AdminMain() {
                             <button className="admin-section-btn" onClick={() => navigate("/adminUser")}>사용자 관리</button>
                         </div>
                         <div className="admin-user-stats">
-                            <p>신규 가입자 (이번 주): <strong className="num">{loading ? "—" : weeklyNewUsers.toLocaleString()}</strong></p>
-                            <p>활성 사용자 (일간): <strong className="num">{loading ? "—" : dailyActiveUsers.toLocaleString()}</strong></p>
+                            <p>신규 가입자 (이번 주):{" "}<strong className="num">{loading ? "—" : weeklyNewUsers.toLocaleString()}</strong></p>
+                            <p>활성 사용자 (일간):{" "}<strong className="num">{loading ? "—" : dailyActiveUsers.toLocaleString()}</strong></p>
                         </div>
                         <div className="admin-recent-users">
                             <h4>최근 가입한 사용자</h4>
@@ -393,6 +421,7 @@ export default function AdminMain() {
                             </ul>
                         </div>
                     </section>
+
                     {/* 콘텐츠 관리 */}
                     <section className="admin-grid-item">
                         <div className="admin-section-header">
@@ -405,19 +434,18 @@ export default function AdminMain() {
                             <p>신고된 콘텐츠: <strong className="num">{loading ? "—" : totalReported.toLocaleString()}</strong></p>
                         </div>
                     </section>
+
                     {/* 분석 및 통계 */}
                     <section className="admin-grid-item">
                         <div className="admin-section-header">
                             <h3>분석 및 통계</h3>
                             <button className="admin-section-btn" onClick={() => navigate("/adminanalysis")}>자세한 분석</button>
                         </div>
-                        <div className="admin-analysis-charts">
-                            <div className="admin-chart-box"><MiniPie data={pieData} /></div>
-                        </div>
+                        <div className="admin-analysis-charts"><div className="admin-chart-box"><MiniPie data={pieData} /></div></div>
                     </section>
                 </div>
             </main>
-            <LogoutModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} onConfirm={handleConfirmLogout} />
+            <LogoutModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} onConfirm={handleLogout}/>
             <PrettyAlert open={logoutAlertOpen} message="로그아웃되었습니다." onClose={() => setLogoutAlertOpen(false)} />
         </div>
     );

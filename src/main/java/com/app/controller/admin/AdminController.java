@@ -19,7 +19,7 @@ import com.app.dto.admin.AdminRestaurantDTO;
 import com.app.dto.admin.AdminUserDTO;
 import com.app.service.admin.AdminService;
 
-@CrossOrigin(origins = "http://localhost:3000")
+@CrossOrigin(origins = "http://localhost:3000", allowCredentials = "true")
 @RestController
 public class AdminController {
 	

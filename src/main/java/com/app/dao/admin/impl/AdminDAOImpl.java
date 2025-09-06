@@ -174,6 +174,12 @@ public class AdminDAOImpl implements AdminDAO {
     public int insertReportAction(AdminReportDTO dto) {
         return sqlSessionTemplate.insert(AM + "insertReportAction", dto);
     }
+    
+    //로그인
+    @Override
+    public AdminUserDTO findAdminForLoginByEmail(String email) {
+        return sqlSessionTemplate.selectOne(AM + "findAdminForLoginByEmail", email);
+    }
 	
 
 }
