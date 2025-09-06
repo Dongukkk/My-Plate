@@ -88,7 +88,7 @@ const StackedBars = ({ items }) => (
     </div>
 );
 
-/* ===== 유틸(NEW) ===== */
+/* 유틸(NEW) */
 const safeNum = (v, d = 0) => (Number.isFinite(+v) ? +v : d);
 const statusKo = (s = "") =>
     ({ ACTIVE: "활성", INACTIVE: "비활성", NEEDS_FIX: "수정 필요", DELETED: "비활성" }[String(s).toUpperCase()] || s || "비활성");
