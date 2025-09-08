@@ -239,12 +239,10 @@ public class RestaurantRestController {
     public ResponseEntity<List<OperationTimeDTO>> getOperationTimesForToday(@PathVariable long restaurantId) {
         int todayOfWeek = java.time.LocalDate.now().getDayOfWeek().getValue();
         if (todayOfWeek == 7) todayOfWeek = 0;
-        System.out.println("1");
         List<OperationTimeDTO> operationTimes = operationTimeService.findByRestaurantIdAndDayOfWeek(restaurantId, todayOfWeek);
         if (operationTimes.isEmpty()) {
             return ResponseEntity.notFound().build();
         }
-        System.out.println("2");
         return ResponseEntity.ok(operationTimes);
     }
 }

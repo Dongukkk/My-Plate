@@ -7,7 +7,7 @@ import KakaoMap from "../components/KakaoMap";
 import { DEFAULT_IMAGE_URL } from "./RestaurantCard"
 
 import { useSelector } from 'react-redux';
-import { getMyBookmarks, toggleBookmark, getRestaurantDetail, getRestaurantReviews, getOperationTimesByRestaurantId, getOperationTimesForToday } from "../api/api";
+import { getMyBookmarks, toggleBookmark, getRestaurantDetail, getRestaurantTags, getRestaurantReviews, getOperationTimesByRestaurantId, getOperationTimesForToday } from "../api/api";
 import ReviewModal from "../modal/ReviewModal";
 import { calculateSoloIndex, calculateSoloLevel } from "../utils/calculate";
 import WriteReviewModal from "../modal/WriteReviewModal";
@@ -74,15 +74,14 @@ function RestaurantDetail() {
   useEffect(() => {
     const fetchRestaurantData = async () => {
       try {
+
         const response = await getRestaurantDetail(id);
-        const tags = Array.isArray(response.data.tags)
-          ? response.data.tags
-          : [];
+        const tagResponse = await getRestaurantTags(id);
+        const tags = tagResponse.data?.map(item => item.tag) ?? [];
+
         setRestaurant({ ...response.data, tags });
-        console.log('start');
 
         const menusResponse = await axios.get(`/api/restaurants/${id}/menus`);
-        console.log('end');
         setMenus(menusResponse.data);
 
         const operationTimesData = await getOperationTimesByRestaurantId(id);
@@ -245,10 +244,14 @@ function RestaurantDetail() {
           <div className="rd-represent">
             <div className="rd-restaurant-header">
               <div>
-                <h2>{restaurant.restrntNm}</h2>
+                <div style={{display:'flex'}}>
+                  <h2 style={{marginRight:'20px'}}>{restaurant.restrntNm}</h2>
+                  <p>⭐ {restaurant.avgRating} ({restaurant.ratingCount} 리뷰)</p>
+                </div>
                 <p>{restaurant.tags && restaurant.tags.length > 0
                   ? restaurant.tags.join(' · ')
-                  : ''} ⭐ {restaurant.avgRating} ({restaurant.ratingCount} 리뷰)</p>
+                  : ''}
+                </p>
               </div>
               <div style={{ display: "flex", alignItems: "center" }}>
                 <div className="rd-bookmark" style={{ backgroundImage: `url(${shareURL})` }} title="공유"></div>
