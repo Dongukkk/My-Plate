@@ -11,7 +11,7 @@ export default function Footer() {
                         <h4 className="footer-head">MY PLATE</h4>
                         <ul className="footer-links">
                             <li><a className="footer-link">공지사항</a></li>
-                            <li><a className="footer-link">서비스 소개</a></li>
+                            <li><a href="/siteIntro" className="footer-link">서비스 소개</a></li>
                             <li><a className="footer-link">채용</a></li>
                         </ul>
                     </div>
@@ -19,7 +19,7 @@ export default function Footer() {
                         <h4 className="footer-head">이용안내</h4>
                         <ul className="footer-links">
                             <li><a className="footer-link">헬프 센터</a></li>
-                            <li><a className="footer-link">제휴 · 협력</a></li>
+                            <li><a href="/cardIntro" className="footer-link">제휴 · 협력</a></li>
                         </ul>
                     </div>
                     <div className="footer-col">
@@ -47,9 +47,6 @@ export default function Footer() {
                         <p>© 2025 Myplate.kr Inc.</p>
                     </div>
                     <div className="footer-social">
-                        <a href="/chat" aria-label="문의 채팅" className="footer-sns">
-                            <svg viewBox="0 0 24 24"><path d="M4 4h16v12H7l-3 3V4z" /></svg>
-                        </a>
                         <a href="https://facebook.com" aria-label="Facebook" className="footer-sns">
                             <svg viewBox="0 0 24 24"><path d="M14 9h3V6h-3c-1.7 0-3 1.3-3 3v2H8v3h3v7h3v-7h3l1-3h-4V9c0-.6.4-1 1-1z" /></svg>
                         </a>

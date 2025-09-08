@@ -15,6 +15,8 @@ import AdminRestaurant from "./admin/admin-restaurant";
 import AdminLogin from "./admin/admin-login";
 import AdminRequest from "./admin/admin-request";
 import TermsPage from "./admin/terms-page";
+import SiteIntro from './introduce/site-intro';
+import CardIntro from './introduce/card-intro';
 
 import MainPage from './mainpage/MainPage';
 import RestaurantList from './restaurantList/RestaurantList';
@@ -57,6 +59,8 @@ const MainLayout = () => {
         <Route path="/adminanalysis" element={<AdminAnalysis />} />
         <Route path="/adminRequest" element={<AdminRequest />} />
 
+        <Route path="/cardIntro" element={<CardIntro />} />
+        <Route path="/siteIntro" element={<SiteIntro />} />
         <Route path="/termsOfUse" element={<TermsPage />} />
 
         <Route path="/login" element={<Login />} />
