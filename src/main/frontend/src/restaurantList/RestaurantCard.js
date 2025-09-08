@@ -45,13 +45,14 @@ const RestaurantCard = ({ restaurant, selectedTags, onTagClick, initialBookmarkS
     }
   };
 
-  const levelColors = {
-  1: '#fd6c65', // 레벨 1 빨강
-  2: '#f5a623', // 레벨 2 주황
-  3: '#4cd964', // 레벨 3 초록
+  const levelBadge = {
+  1: "/images/icon/soloBadge/SOLO_BADGE_1.png",
+  2: "/images/icon/soloBadge/SOLO_BADGE_2.png",
+  3: "/images/icon/soloBadge/SOLO_BADGE_3.png",
 };
 
-const badgeSize = 30;
+const badgeSize = 40;
+const soloLevel = calculateSoloLevel(restaurant.soloIndex);
   return (
     <div className="restaurant-card" onClick={() => navigate(`/restaurants/detail/${restaurant.id}`)}>
       <div className="rc-card-image" 
@@ -62,23 +63,29 @@ const badgeSize = 30;
             backgroundPosition: 'center',
           }}
         >
-        <span class="rc-badge" style={{
+        <div className="rc-badge" style={{
           position: 'absolute',
           top: '5px',
           right: '5px',
           display: 'flex',
           width: `${badgeSize}px`,
-          height: `${badgeSize}px`,
+          height: `${badgeSize*1.5}px`,
           fontSize: '14px',
           fontWeight: 'bold',
           color: 'white',
-          backgroundColor: levelColors[calculateSoloLevel(restaurant.soloIndex)] || '#999',
           borderRadius: '50%',
           justifyContent: 'center',
           alignItems: 'center',
           textAlign: 'center',
           boxShadow: '0 2px 6px rgba(0,0,0,0.3)',
-        }}>{calculateSoloLevel(restaurant.soloIndex)}</span>
+          zIndex:'10',
+        }}>
+          <img
+            src={levelBadge[soloLevel]}
+            alt={`Solo Badge Level ${soloLevel}`}
+            style={{ width: '100%', height: '100%', borderRadius: '50%' }}
+          />
+        </div>
       </div>
       <div className="rc-card-content">
         <div className="rc-card-title" style={{display:'flex', justifyContent:'space-between'}}>

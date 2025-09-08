@@ -120,8 +120,8 @@
             <when test="sort == 'solo_index'">r.SOLO_INDEX</when>
             <otherwise>r.NAME</otherwise>
         </choose>
-        <if test="direction == 'DESC'">DESC</if>
-        <if test="direction == 'ASC'">ASC</if>
+        <if test="direction == 'DESC'">DESC NULLS LAST</if>
+        <if test="direction == 'ASC'">ASC NULLS LAST</if>
     </if>
     OFFSET #{offset} ROWS FETCH NEXT #{limit} ROWS ONLY
 	</select>
