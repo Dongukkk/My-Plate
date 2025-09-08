@@ -82,7 +82,7 @@ export default function AdminLogin() {
                 </form>
                 <div className="admin-divider" role="separator" />
                 <p className="admin-help">관리자 계정이 필요하신가요?{" "}
-                    <button type="button" className="admin-link-btn strong" onClick={() => nav("/admin/request-account")}>관리자 계정 요청하기</button>
+                    <button type="button" className="admin-link-btn strong" onClick={() => nav("/adminRequest")}>관리자 계정 요청하기</button>
                 </p>
             </div>
         </div>

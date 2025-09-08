@@ -1,0 +1,303 @@
+@import url("https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;800&family=Noto+Serif+KR:wght@600;700&display=swap");
+
+.admin-auth-wrap {
+    --admin-primary: #e74c3c;
+    --admin-primary-rgb: 231,76,60; 
+    --admin-primary-700: #cf3f32;
+    --admin-primary-50: #fff0ee;
+
+    --admin-ink: #274159;
+    --admin-ink-60: rgba(39, 65, 89, .6);
+    --admin-line: #dbe6ef;
+    --admin-bg-soft: #fbfdff;
+
+    --admin-radius: 14px;
+    --admin-shadow: 0 10px 30px rgba(18, 43, 77, .10);
+    --admin-ring: 0 0 0 4px rgba(231, 76, 60, .16);
+}
+
+/* 배경 / 헤더 */
+.admin-auth-wrap {
+    min-height: 100vh;
+    background:
+        radial-gradient(80vmax 50vmax at 20% 10%, rgba(255, 255, 255, .55), transparent 60%),
+        linear-gradient(180deg, #eaf3ff 0%, #f6fbff 40%, #ffffff 68%, #eef8ff 100%);
+    color: var(--admin-ink);
+    font-family: "Noto Serif KR", "Nanum Myeongjo", serif;
+    padding-bottom: clamp(96px, 12vh, 160px);
+}
+
+.admin-auth-hero {
+    text-align: center;
+    padding: 56px 20px 12px;
+}
+
+.admin-auth-title {
+    margin: 0;
+    font-family: "Playfair Display", "Noto Serif KR", serif;
+    font-weight: 800;
+    font-size: clamp(28px, 5vw, 44px);
+    letter-spacing: .15px;
+}
+
+.admin-auth-desc {
+    margin: 10px 0 0;
+    color: var(--admin-ink-60);
+    font-size: 14px;
+}
+
+.admin-auth-main {
+    display: flex;
+    justify-content: center;
+    padding: 18px 20px 40px;
+}
+
+/* 카드 */
+.admin-auth-card {
+    width: 100%;
+    max-width: 860px;
+    background: #fff;
+    border-radius: 20px;
+    box-shadow: var(--admin-shadow);
+    padding: clamp(18px, 2.4vw, 28px);
+    border: 1px solid rgba(39, 65, 89, .06);
+}
+
+/* 폼/필드 */
+.admin-auth-form {
+    display: grid;
+    gap: 18px;
+}
+
+.admin-auth-field {
+    display: block;
+}
+
+.admin-auth-label {
+    font-weight: 700;
+    margin-bottom: 8px;
+    margin-right: 10px;
+    display: inline-block;
+}
+
+.admin-auth-select {
+    width: 100%;
+}
+
+.admin-auth-input,
+.admin-auth-textarea,
+.admin-auth-select {
+    border: 1px solid var(--admin-line);
+    border-radius: var(--admin-radius);
+    padding: 12px 14px;
+    background: var(--admin-bg-soft);
+    color: var(--admin-ink);
+    outline: none;
+    transition: box-shadow .15s ease, border-color .15s ease, background .15s ease;
+}
+
+.admin-auth-input {
+    width: 90%;
+}
+
+.admin-auth-textarea {
+    width: 95%;
+}
+
+.admin-auth-input:focus,
+.admin-auth-textarea:focus,
+.admin-auth-select:focus {
+    box-shadow: var(--admin-ring);
+    border-color: var(--admin-primary);
+    background: #fff;
+}
+
+.admin-auth-textarea {
+    resize: vertical;
+    min-height: 140px;
+}
+
+.admin-auth-grid-2 {
+    display: grid;
+    gap: 12px;
+    grid-template-columns: 1fr 1fr;
+}
+
+.admin-auth-help {
+    margin: 6px 0 16px;
+    font-size: 12px;
+    color: var(--admin-ink-60);
+}
+
+/* 셀렉트 네이티브 커스텀 */
+.admin-auth-select-wrap {
+    position: relative;
+}
+
+.admin-auth-select {
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    line-height: 1.35;
+    height: 46px;
+    padding-right: 44px;
+}
+
+.admin-auth-select-wrap::after {
+    content: "";
+    position: absolute;
+    right: 14px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 10px;
+    height: 10px;
+    border-right: 2px solid var(--admin-ink-60);
+    border-bottom: 2px solid var(--admin-ink-60);
+    rotate: 45deg;
+    pointer-events: none;
+}
+
+/* 파일 */
+.admin-auth-file {
+    display: inline-flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.admin-auth-file input {
+    display: none;
+}
+
+.admin-auth-file-btn {
+    display: inline-block;
+    padding: 4px 10px;
+    border-radius: 10px;
+    border: 1px dashed #9db8cf;
+    background: #f5f9ff;
+    cursor: pointer;
+    font-size: 12px;
+}
+
+.admin-auth-file-hint {
+    font-size: 12px;
+    color: var(--admin-ink-60);
+}
+
+.admin-auth-filelist {
+    margin: 10px 0 0;
+    padding-left: 16px;
+}
+
+.admin-auth-filelist li {
+    font-size: 13px;
+    padding: 2px 0;
+}
+
+.admin-auth-filelist em {
+    font-style: normal;
+    opacity: .6;
+}
+
+/* 체크박스 라인 간격 */
+.admin-auth-agree label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    line-height: 1.4;
+}
+
+/* 버튼 */
+.admin-auth-actions {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.admin-auth-btn {
+    height: 44px;
+    padding: 0 18px;
+    border-radius: 12px;
+    border: 1px solid transparent;
+    cursor: pointer;
+    font-weight: 700;
+    transition: transform .05s ease, box-shadow .15s, background .15s, color .15s;
+}
+
+.admin-auth-btn:active {
+    transform: translateY(1px);
+}
+
+.admin-auth-btn:disabled {
+    opacity: .55;
+    cursor: not-allowed;
+}
+
+.admin-auth-btn-primary {
+    background: var(--admin-primary);
+    color: #fff;
+    box-shadow: 0 6px 20px rgba(231, 76, 60, .25);
+}
+
+.admin-auth-btn-primary:hover {
+    background: var(--admin-primary-700);
+}
+
+.admin-auth-btn-secondary {
+    background: var(--admin-primary-50);
+    color: var(--admin-primary);
+    border-color: var(--admin-primary);
+}
+
+.admin-auth-btn-secondary:hover {
+    background: #ffe4e0;
+}
+
+.admin-auth-btn-ghost {
+    background: #f3f7fb;
+    border-color: #e2ecf6;
+    color: var(--admin-ink);
+}
+
+.admin-auth-btn-ghost:hover {
+    background: #ebf3fc;
+}
+
+/* 토스트 */
+.admin-auth-toast {
+    position: fixed;
+    left: 50%;
+    bottom: 24px;
+    transform: translateX(-50%);
+    padding: 12px 16px;
+    border-radius: 12px;
+    color: #fff;
+    font-weight: 700;
+    box-shadow: 0 10px 30px rgba(18, 43, 77, .18);
+    z-index: 50;
+    background: #2e7d32;
+}
+
+.admin-auth-toast.is-error {
+    background: #c62828;
+}
+
+/* 반응형 */
+@media (max-width: 820px) {
+    .admin-auth-card {
+        border-radius: 16px;
+    }
+}
+
+@media (max-width: 720px) {
+    .admin-auth-grid-2 {
+        grid-template-columns: 1fr;
+    }
+
+    .admin-auth-actions {
+        flex-direction: column;
+    }
+
+    .admin-auth-btn {
+        width: 100%;
+    }
+}
