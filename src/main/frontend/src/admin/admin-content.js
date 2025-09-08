@@ -4,11 +4,10 @@ import axios from "axios";
 import "./admin-content.css";
 
 axios.defaults.baseURL = "http://localhost:8080";
+axios.defaults.withCredentials = true;
 
-/* helpers */
 const arr = (p) => (Array.isArray(p) ? p : (p?.items || p?.list || p?.rows || []));
 const fmtDate = (v) => (v ? String(v).slice(0, 10) : "-");
-const today = () => new Date().toISOString().slice(0, 10);
 const pickDate = (x) => x?.updatedAt || x?.updated_at || x?.createdAt || x?.created_at || null;
 
 const mapStatus = (s = "") => {
@@ -18,12 +17,18 @@ const mapStatus = (s = "") => {
     if (k.includes("REJECT")) return "반려";
     return "대기";
 };
-const toServerStatus = (label = "") =>
-    ({ "대기": "PENDING", "처리중": "IN_PROGRESS", "완료": "RESOLVED", "반려": "REJECTED" }[label] || "PENDING");
-const toServerDecision = (label = "") =>
-    ({ "무시": "IGNORE", "경고": "WARN", "컨텐츠 숨기기": "HIDE", "승인": "APPROVE", "거절": "REJECT" }[label] || "IGNORE");
+const mapRerStatus3 = (s = "") => {
+    const k = String(s).toUpperCase();
+    if (k.includes("IN_PROGRESS")) return "처리중";
+    if (k.includes("RESOLVED") || k.includes("REJECT")) return "완료";
+    return "대기";
+};
 
-/* 페이저 */
+const toServerStatus = (label = "") =>
+    ({ 대기: "PENDING", 처리중: "IN_PROGRESS", 완료: "RESOLVED", 반려: "REJECTED" }[label] || "PENDING");
+const toServerDecision = (label = "") =>
+    ({ 무시: "IGNORE", 경고: "WARN", "컨텐츠 숨기기": "HIDE", 승인: "APPROVE", 거절: "REJECT" }[label] || "IGNORE");
+
 function buildPageWindow(cur, total, maxNums = 5) {
     if (total <= maxNums) return Array.from({ length: total }, (_, i) => i + 1);
     if (cur <= 3) return [1, 2, 3, 4, 5, "..."];
@@ -37,23 +42,31 @@ const Pager = ({ page, total, onPage }) => {
         <div className="admin-pager">
             <button className="admin-pagebtn" disabled={page <= 1} onClick={() => onPage(page - 1)}>이전</button>
             {items.map((it, idx) =>
-                it === "..." ? (
-                    <span key={`e-${idx}`} className="admin-ellipsis-btn">…</span>
-                ) : (
-                    <button key={it} className={`admin-pagebtn ${page === it ? "on" : ""}`} onClick={() => onPage(it)}>
-                        {it}
-                    </button>
-                )
-            )}
-            <button className="admin-pagebtn" disabled={page >= total} onClick={() => onPage(page + 1)}>다음</button>
+                it === "..." ? (<span key={`e-${idx}`} className="admin-ellipsis-btn">…</span>) : ( <button key={it} className={`admin-pagebtn ${page === it ? "on" : ""}`} onClick={() => onPage(it)}>{it}</button> )
+            )} <button className="admin-pagebtn" disabled={page >= total} onClick={() => onPage(page + 1)}>다음</button>
         </div>
     );
+};
+const StatusTag = ({ status = "대기" }) => <span className="admin-approved-tag">{status}</span>;
+
+const compact = (obj = {}) => {
+    const out = {};
+    Object.entries(obj).forEach(([k, v]) => {
+        if (v === undefined) return;
+        if (typeof v === "string" && v.trim() === "") return;
+        out[k] = v;
+    });
+    return out;
+};
+const updateReport = async (type, id, payload) => {
+    const k = String(type).toLowerCase();
+    const t = (k === "oht" ? "oth" : k);
+    return axios.post( `/api/reports/${t}/${id}`, compact(payload), { headers: { "Content-Type": "application/json" } } );
 };
 
 export default function AdminContent() {
     const navigate = useNavigate();
 
-    // RER / IPC / OHT
     const [pending, setPending] = useState([]);
     const [ipc, setIpc] = useState([]);
     const [oht, setOht] = useState([]);
@@ -61,12 +74,13 @@ export default function AdminContent() {
     const [loadingIpc, setLoadingIpc] = useState(false);
     const [loadingOht, setLoadingOht] = useState(false);
 
-    // 모달
     const [pendingModal, setPendingModal] = useState(null);
     const [ipcModal, setIpcModal] = useState(null);
     const [ohtModalOpen, setOhtModalOpen] = useState(false);
 
-    // 최근 처리 이력
+    const [ohtDetail, setOhtDetail] = useState(null);
+    const [ohtReply, setOhtReply] = useState("");
+
     const [recentActions, setRecentActions] = useState([]);
     const [actionsRer, setActionsRer] = useState([]);
     const [actionsIpc, setActionsIpc] = useState([]);
@@ -74,7 +88,6 @@ export default function AdminContent() {
     const [actionTab, setActionTab] = useState("RER");
     const [actionModalOpen, setActionModalOpen] = useState(false);
 
-    // IPC 폼
     const [ipcDecision, setIpcDecision] = useState("무시");
     const [ipcState, setIpcState] = useState("처리중");
     const [ipcMemo, setIpcMemo] = useState("");
@@ -86,45 +99,81 @@ export default function AdminContent() {
         setIpcMemo(ipcModal.memo || "");
     }, [ipcModal]);
 
-    /* 데이터 로드 */
+    const reloadActions = async () => {
+        const [rerAct, ipcAct, ohtAct] = await Promise.all([
+            axios.get("/api/adminActions/RER"),
+            axios.get("/api/adminActions/IPC"),
+            axios.get("/api/adminActions/OTH"),
+        ]);
+        const all = [
+            ...arr(rerAct.data).map((a) => ({ ...a, type: "RER" })),
+            ...arr(ipcAct.data).map((a) => ({ ...a, type: "IPC" })),
+            ...arr(ohtAct.data).map((a) => ({ ...a, type: "OHT" })),
+        ].sort((a, b) => String(b.createdAt).localeCompare(String(a.createdAt)));
+
+        setRecentActions(all.slice(0, 2));
+        setActionsRer(arr(rerAct.data));
+        setActionsIpc(arr(ipcAct.data));
+        setActionsOht(arr(ohtAct.data));
+    };
+
     useEffect(() => {
         (async () => {
             try {
+                setLoadingPending(true);
                 const rerRes = await axios.get("/api/adminContent/RER");
-                setPending(arr(rerRes.data).map(x => ({
-                    id: x.id, status: mapStatus(x.status), text: x.reason ?? "-", reporterId: x.reporterId ?? null,
-                    place: x.placeName ?? "-", date: fmtDate(pickDate(x)), type: "가게정보"
-                })));
-
-                const ipcRes = await axios.get("/api/adminContent/IPC");
-                setIpc(arr(ipcRes.data).map(x => ({
-                    id: x.id, title: "부적절한 콘텐츠 신고", reason: x.reason ?? "-", reporterId: x.reporterId ?? null,
-                    date: fmtDate(pickDate(x)), excerpt: x.excerpt ?? "", memo: x.memo ?? "", status: mapStatus(x.status)
-                })));
-
-                const ohtRes = await axios.get("/api/adminContent/OHT");
-                setOht(arr(ohtRes.data).map(x => ({
-                    id: x.id, text: x.reason ?? x.text ?? "-", reporterId: x.reporterId ?? null, date: fmtDate(pickDate(x))
-                })));
-
-                const [rerAct, ipcAct, ohtAct] = await Promise.all([
-                    axios.get("/api/adminActions/RER"),
-                    axios.get("/api/adminActions/IPC"),
-                    axios.get("/api/adminActions/OHT")
-                ]);
-                const all = [
-                    ...arr(rerAct.data).map(a => ({ ...a, type: "RER" })),
-                    ...arr(ipcAct.data).map(a => ({ ...a, type: "IPC" })),
-                    ...arr(ohtAct.data).map(a => ({ ...a, type: "OHT" })),
-                ].sort((a, b) => String(b.createdAt).localeCompare(String(a.createdAt)));
-
-                setRecentActions(all.slice(0, 3));
-                setActionsRer(arr(rerAct.data));
-                setActionsIpc(arr(ipcAct.data));
-                setActionsOht(arr(ohtAct.data));
-            } catch (e) {
-                console.error("데이터 로드 실패", e);
+                setPending(
+                    arr(rerRes.data).map((x) => ({
+                        id: x.id,
+                        status3: mapRerStatus3(x.status),
+                        text: x.reason ?? "-",
+                        reporterId: x.reporterId ?? null,
+                        place: x.placeName ?? "-",
+                        date: fmtDate(pickDate(x)),
+                        type: "가게정보",
+                    }))
+                );
+            } finally {
+                setLoadingPending(false);
             }
+
+            try {
+                setLoadingIpc(true);
+                const ipcRes = await axios.get("/api/adminContent/IPC");
+                setIpc(
+                    arr(ipcRes.data).map((x) => ({
+                        id: x.id,
+                        title: "부적절한 콘텐츠 신고",
+                        reason: x.reason ?? "-",
+                        reporterId: x.reporterId ?? null,
+                        date: fmtDate(pickDate(x)),
+                        excerpt: x.excerpt ?? "",
+                        memo: x.memo ?? "",
+                        status: mapStatus(x.status),
+                    }))
+                );
+            } finally {
+                setLoadingIpc(false);
+            }
+
+            try {
+                setLoadingOht(true);
+                const ohtRes = await axios.get("/api/adminContent/OTH");
+                setOht(
+                    arr(ohtRes.data).map((x) => ({
+                        id: x.id,
+                        text: x.reason ?? x.text ?? "-",
+                        reporterId: x.reporterId ?? null,
+                        date: fmtDate(pickDate(x)),
+                        status: mapStatus(x.status),
+                        memo: x.memo ?? "",
+                    }))
+                );
+            } finally {
+                setLoadingOht(false);
+            }
+
+            await reloadActions();
         })();
     }, []);
 
@@ -135,18 +184,12 @@ export default function AdminContent() {
         return [];
     }, [actionTab, actionsRer, actionsIpc, actionsOht]);
 
-    /* 공통 업데이트 */
-    const updateReport = async (type, id, payload) => {
-        const t = String(type).toLowerCase();
-        return axios.post(`/api/reports/${t}/${id}`, payload, { headers: { "Content-Type": "application/json" } });
-    };
-
-    /* RER 승인/거절 */
     const approvePending = async (row) => {
         const prev = pending;
         setPending((list) => list.filter((p) => p.id !== row.id));
         try {
-            await updateReport("rer", row.id, { status: "RESOLVED", decision: "APPROVE", memo: "프론트 승인 처리" });
+            await updateReport("rer", row.id, { status: "RESOLVED", decision: "APPROVE" });
+            await reloadActions();
         } catch {
             alert("승인 저장 실패. 되돌립니다.");
             setPending(prev);
@@ -156,14 +199,14 @@ export default function AdminContent() {
         const prev = pending;
         setPending((list) => list.filter((p) => p.id !== row.id));
         try {
-            await updateReport("rer", row.id, { status: "REJECTED", decision: "REJECT", memo: "프론트 거절 처리" });
+            await updateReport("rer", row.id, { status: "REJECTED", decision: "REJECT" });
+            await reloadActions();
         } catch {
             alert("거절 저장 실패. 되돌립니다.");
             setPending(prev);
         }
     };
 
-    /* IPC 저장 */
     const saveIpcAction = async () => {
         if (!ipcModal) return;
         const payload = {
@@ -175,6 +218,7 @@ export default function AdminContent() {
         setIpc((rows) => rows.map((r) => (r.id === ipcModal.id ? { ...r, status: ipcState, memo: ipcMemo } : r)));
         try {
             await updateReport("ipc", ipcModal.id, payload);
+            await reloadActions();
             setIpcModal(null);
         } catch {
             alert("저장 실패. 되돌립니다.");
@@ -182,7 +226,65 @@ export default function AdminContent() {
         }
     };
 
-    /* 페이징 */
+    const openOhtDetail = async (item) => {
+        try {
+            const { data } = await axios.get(`/api/reports/oth/${item.id}`);
+            const full = {
+                id: data?.id ?? item.id,
+                reporterId: data?.reporterId ?? item.reporterId ?? null,
+                date: fmtDate(pickDate(data) || item.date),
+                text: data?.reason ?? data?.text ?? item.text ?? "-",
+                memo: data?.memo ?? item.memo ?? "",
+                status: mapStatus(data?.status ?? item.status),
+            };
+            setOhtDetail(full);
+            setOhtReply(full.memo || "");
+        } catch {
+            setOhtDetail(item);
+            setOhtReply(item.memo || "");
+        }
+    };
+
+    const saveOhtAnswer = async () => {
+        if (!ohtDetail) return;
+        const id = ohtDetail.id;
+        const prev = oht;
+        setOht((rows) => rows.map((r) => (r.id === id ? { ...r, status: "완료", memo: ohtReply } : r)));
+        try {
+            await updateReport("oth", id, { status: "RESOLVED", decision: "NONE", memo: ohtReply?.trim() || null });
+            await reloadActions();
+            setOhtDetail(null);
+            setOhtReply("");
+            return;
+        } catch { }
+        try {
+            await updateReport("oth", id, {
+                status: "RESOLVED",
+                decision: "NONE",
+                memo: ohtReply?.trim() || null,
+            });
+            await reloadActions();
+            setOhtDetail(null);
+            setOhtReply("");
+            return;
+        } catch { }
+        try {
+            await updateReport("oth", id, {
+                status: "RESOLVED",
+                decision: "NONE",
+                memo: ohtReply?.trim() || null,
+                excerpt: "-",
+            });
+            await reloadActions();
+            setOhtDetail(null);
+            setOhtReply("");
+            return;
+        } catch {
+            alert("저장 실패. 되돌립니다.");
+            setOht(prev);
+        }
+    };
+
     const PENDING_SIZE = 5, IPC_SIZE = 5;
     const [pendingPage, setPendingPage] = useState(1);
     const [ipcPage, setIpcPage] = useState(1);
@@ -209,9 +311,10 @@ export default function AdminContent() {
             </aside>
 
             <div className="admin-content-page">
-                <div className="admin-content-header"><div><h2 className="admin-content-title">콘텐츠 관리</h2></div></div>
+                <div className="admin-content-header">
+                    <div><h2 className="admin-content-title">콘텐츠 관리</h2></div>
+                </div>
 
-                {/* 상단: RER 수정 요청 */}
                 <section className="admin-section admin-pending">
                     <div className="admin-section-header"><h3 className="admin-section-title">수정 요청 대기 중인 콘텐츠</h3></div>
                     <div className="admin-desk-wrap">
@@ -220,6 +323,7 @@ export default function AdminContent() {
                                 <col className="col-type" />
                                 <col className="col-text" />
                                 <col className="col-reporter" />
+                                <col className="col-status" />
                                 <col className="col-date" />
                                 <col className="col-actions" />
                             </colgroup>
@@ -228,23 +332,23 @@ export default function AdminContent() {
                                     <th className="t-type">유형</th>
                                     <th className="t-text">콘텐츠</th>
                                     <th className="t-reporter">리포터 ID</th>
+                                    <th className="t-status">상태</th>
                                     <th className="t-date">제출/변경일</th>
                                     <th className="t-actions">작업</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                {loadingPending && (<tr><td colSpan={5} className="admin-empty">불러오는 중…</td></tr>)}
-                                {!loadingPending && pendingView.length === 0 && (<tr><td colSpan={5} className="admin-empty">대기 중인 콘텐츠가 없습니다.</td></tr>)}
+                                {loadingPending && (<tr><td colSpan={6} className="admin-empty">불러오는 중…</td></tr>)}
+                                {!loadingPending && pendingView.length === 0 && (<tr><td colSpan={6} className="admin-empty">대기 중인 콘텐츠가 없습니다.</td></tr>)}
                                 {!loadingPending && pendingView.map((row) => (
                                     <tr key={row.id}>
                                         <td><span className="admin-chip admin-chip--review">{row.type}</span></td>
                                         <td className="admin-ellipsis">{row.text}</td>
                                         <td className="ta-center">{row.reporterId ?? "-"}</td>
+                                        <td className="ta-center"><StatusTag status={row.status3} /></td>
                                         <td className="ta-center">{row.date || "-"}</td>
                                         <td className="ta-center">
-                                            <div className="admin-actions">
-                                                <button className="admin-bttn admin-bttn--xs admin-bttn--primary" onClick={() => setPendingModal(row)}>확인</button>
-                                            </div>
+                                            <div className="admin-actions"><button className="admin-bttn admin-bttn--xs admin-bttn--primary" onClick={() => setPendingModal(row)}>확인</button></div>
                                         </td>
                                     </tr>
                                 ))}
@@ -254,9 +358,7 @@ export default function AdminContent() {
                     <Pager page={pendingPage} total={pendingPages} onPage={setPendingPage} />
                 </section>
 
-                {/* 하단: 좌 IPC / 우 OHT + 처리 이력 */}
                 <div className="admin-page-grid">
-                    {/* 좌: IPC */}
                     <section className="admin-section admin-reports">
                         <div className="admin-section-header"><h3 className="admin-section-title">부적절한 콘텐츠</h3></div>
                         {loadingIpc && <div className="admin-empty">불러오는 중…</div>}
@@ -265,10 +367,8 @@ export default function AdminContent() {
                             {ipcView.map((r) => (
                                 <article key={r.id} className="admin-report-card">
                                     <div className="admin-report-top">
-                                        <div className="admin-report-title"><span className="admin-flag" /> {r.title}</div>
-                                        <div className="admin-report-meta">
-                                            <button className="admin-bttn admin-bttn--sm admin-bttn--danger" onClick={() => setIpcModal(r)}>내용</button>
-                                        </div>
+                                        <div className="admin-report-title"><span className="admin-flag" />{r.title}</div>
+                                        <div className="admin-report-meta"><button className="admin-bttn admin-bttn--sm admin-bttn--danger" onClick={() => setIpcModal(r)}>내용</button></div>
                                     </div>
                                     <p className="admin-report-reason">{r.reason}</p>
                                     <div className="admin-report-target"><b>리포터 ID</b>: {r.reporterId ?? "-"}</div>
@@ -279,7 +379,6 @@ export default function AdminContent() {
                         <Pager page={ipcPage} total={ipcPages} onPage={setIpcPage} />
                     </section>
 
-                    {/* 우: OHT + 처리 이력 */}
                     <aside className="admin-sidecol">
                         <section className="admin-section">
                             <div className="admin-section-header">
@@ -290,7 +389,7 @@ export default function AdminContent() {
                             {!loadingOht && oht.slice(0, 5).length === 0 && <div className="admin-empty">문의가 없습니다.</div>}
                             <ul className="admin-feed admin-feed--compact">
                                 {oht.slice(0, 5).map((q) => (
-                                    <li key={q.id}>
+                                    <li key={q.id} onClick={() => openOhtDetail(q)} style={{ cursor: "pointer" }}>
                                         <div>
                                             <div className="admin-feed-head"><strong>리포터 ID: {q.reporterId ?? "-"}</strong></div>
                                             <p className="admin-ellipsis">{q.text}</p>
@@ -306,7 +405,7 @@ export default function AdminContent() {
                                 <button className="admin-view" onClick={() => setActionModalOpen(true)}>모두 보기</button>
                             </div>
                             <div className="admin-approved-grid small-gap">
-                                {recentActions.map(a => (
+                                {recentActions.map((a) => (
                                     <div key={a.id} className="admin-approved-card">
                                         <div className="admin-approved-top">
                                             <div className="admin-approved-kind">리포트 #{a.reportId}</div>
@@ -325,7 +424,6 @@ export default function AdminContent() {
                 </div>
             </div>
 
-            {/* 모달: RER 상세 */}
             {pendingModal && (
                 <div className="admin-modal-overlay" onClick={(e) => { if (e.target.classList.contains("admin-modal-overlay")) setPendingModal(null); }} role="dialog" aria-modal="true">
                     <div className="admin-modal admin-modal-pending">
@@ -353,7 +451,6 @@ export default function AdminContent() {
                 </div>
             )}
 
-            {/* 모달: IPC 상세/처리 */}
             {ipcModal && (
                 <div className="admin-modal-overlay" onClick={(e) => { if (e.target.classList.contains("admin-modal-overlay")) setIpcModal(null); }} role="dialog" aria-modal="true">
                     <div className="admin-modal admin-modal-report">
@@ -409,7 +506,6 @@ export default function AdminContent() {
                 </div>
             )}
 
-            {/* 모달: 기타 문의 전체 */}
             {ohtModalOpen && (
                 <div className="admin-modal-overlay" onClick={(e) => { if (e.target.classList.contains("admin-modal-overlay")) setOhtModalOpen(false); }} role="dialog" aria-modal="true">
                     <div className="admin-modal">
@@ -420,12 +516,11 @@ export default function AdminContent() {
                         <div className="admin-modal-body">
                             <ul className="admin-feed">
                                 {oht.map((q) => (
-                                    <li key={q.id}>
+                                    <li key={q.id} onClick={() => openOhtDetail(q)} style={{ cursor: "pointer" }}>
                                         <div>
-                                            <div className="admin-feed-head">
-                                                <strong>리포터 ID: {q.reporterId ?? "-"}</strong>
-                                            </div>
+                                            <div className="admin-feed-head"><strong>리포터 ID: {q.reporterId ?? "-"}</strong></div>
                                             <p>{q.text}</p>
+                                            {q.status === "완료" && <div className="admin-chip admin-chip--done">완료</div>}
                                         </div>
                                     </li>
                                 ))}
@@ -436,28 +531,52 @@ export default function AdminContent() {
                 </div>
             )}
 
-            {/* 모달: 처리 이력 전체 */}
+            {ohtDetail && (
+                <div className="admin-modal-overlay" onClick={(e) => { if (e.target.classList.contains("admin-modal-overlay")) { setOhtDetail(null); setOhtReply(""); } }} role="dialog" aria-modal="true">
+                    <div className="admin-modal admin-modal-report" onClick={(e) => e.stopPropagation()}>
+                        <div className="admin-modal-header">
+                            <h3>기타 문의 상세 / 답변</h3>
+                            <button className="admin-modal-close" onClick={() => { setOhtDetail(null); setOhtReply(""); }} aria-label="닫기">×</button>
+                        </div>
+                        <div className="admin-modal-body">
+                            <div className="admin-form-grid">
+                                <div className="admin-field"><div className="admin-label">일자</div><div className="admin-inputlike">{ohtDetail.date || "-"}</div></div>
+                                <div className="admin-field"><div className="admin-label">리포터 ID</div><div className="admin-inputlike">{ohtDetail.reporterId ?? "-"}</div></div>
+                                <div className="admin-field"><div className="admin-label">상태</div><div className="admin-inputlike">{ohtDetail.status || "대기"}</div></div>
+                            </div>
+                            <div className="admin-field" style={{ marginTop: 8 }}>
+                                <div className="admin-label">문의 내용</div>
+                                <div className="admin-textlike">{ohtDetail.text}</div>
+                            </div>
+                            <label className="admin-field" style={{ marginTop: 8 }}>
+                                <div className="admin-label">답변</div>
+                                <textarea className="admin-textarea" rows={4} value={ohtReply} onChange={(e) => setOhtReply(e.target.value)} placeholder="문의에 대한 답변을 입력하세요." />
+                            </label>
+                        </div>
+                        <div className="admin-modal-footer">
+                            <button className="admin-bttn admin-bttn--ghost admin-bttn--sm" onClick={() => { setOhtDetail(null); setOhtReply(""); }}>닫기</button>
+                            <button className="admin-bttn admin-bttn--primary admin-bttn--sm" onClick={saveOhtAnswer}>저장 후 완료</button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
             {actionModalOpen && (
                 <div className="admin-modal-overlay" onClick={() => setActionModalOpen(false)}>
                     <div className="admin-modal large" onClick={(e) => e.stopPropagation()}>
                         <div className="admin-modal-header">
                             <h3>처리 이력</h3>
-                            <button className="admin-modal-close" onClick={() => setActionModalOpen(false)}>×</button>
+                            <button className="admin-modal-close" onClick={() => setActionModalOpen(false)} aria-label="닫기">×</button>
                         </div>
                         <div className="admin-modal-body">
-                            <div className="admin-tabs">
-                                {["RER", "IPC", "OHT"].map(t => (
-                                    <button key={t}
-                                        className={`admin-tab ${actionTab === t ? "on" : ""}`}
-                                        onClick={() => setActionTab(t)}>
-                                        {t === "RER" ? "수정요청" : t === "IPC" ? "부적절 신고" : "기타 문의"}
-                                    </button>
-                                ))}
-                            </div>
+                            <div className="admin-tabs">{["RER", "IPC", "OHT"].map((t) => (<button key={t} className={`admin-tab ${actionTab === t ? "on" : ""}`} 
+                                            onClick={() => setActionTab(t)}>{t === "RER" ? "수정요청" : t === "IPC" ? "부적절 신고" : "기타 문의"}</button>))}</div>
                             <table className="admin-table">
-                                <thead><tr><th>날짜</th><th>리포터ID</th><th>조치</th><th>상태</th><th>리포트</th></tr></thead>
+                                <thead>
+                                    <tr><th>날짜</th><th>리포터ID</th><th>조치</th><th>상태</th><th>리포트</th></tr>
+                                </thead>
                                 <tbody>
-                                    {actionFiltered.map(a => (
+                                    {actionFiltered.map((a) => (
                                         <tr key={a.id}>
                                             <td>{fmtDate(a.createdAt)}</td>
                                             <td>{a.reporterId ?? "-"}</td>
@@ -466,13 +585,11 @@ export default function AdminContent() {
                                             <td>#{a.reportId}</td>
                                         </tr>
                                     ))}
-                                    {actionFiltered.length === 0 && <tr><td colSpan={5} className="admin-empty">표시할 이력이 없습니다.</td></tr>}
+                                    {actionFiltered.length === 0 && ( <tr><td colSpan={5} className="admin-empty">표시할 이력이 없습니다.</td></tr> )}
                                 </tbody>
                             </table>
                         </div>
-                        <div className="admin-modal-footer">
-                            <button className="admin-bttn admin-bttn--primary" onClick={() => setActionModalOpen(false)}>닫기</button>
-                        </div>
+                        <div className="admin-modal-footer"><button className="admin-bttn admin-bttn--primary" onClick={() => setActionModalOpen(false)}>닫기</button></div>
                     </div>
                 </div>
             )}

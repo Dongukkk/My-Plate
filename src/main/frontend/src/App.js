@@ -13,6 +13,7 @@ import AdminAnalysis from "./admin/admin-analysis";
 import AdminContent from "./admin/admin-content";
 import AdminRestaurant from "./admin/admin-restaurant";
 import AdminLogin from "./admin/admin-login";
+import AdminRequest from "./admin/admin-request";
 import TermsPage from "./admin/terms-page";
 
 import MainPage from './mainpage/MainPage';
@@ -54,6 +55,7 @@ const MainLayout = () => {
         <Route path="/adminrestaurants" element={<AdminRestaurant />} />
         <Route path="/adminContent" element={<AdminContent />} />
         <Route path="/adminanalysis" element={<AdminAnalysis />} />
+        <Route path="/adminRequest" element={<AdminRequest />} />
 
         <Route path="/termsOfUse" element={<TermsPage />} />
 

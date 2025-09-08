@@ -153,7 +153,7 @@
 		#{id} AND LEAVE_DATE IS NULL
 	</update>
 
-	<!-- ================= 신고 관리 (UR/OHT/RER/IPC) ================= -->
+	<!-- ================= 신고 관리 (UR/OTH/RER/IPC) ================= -->
 	<!-- 목록 -->
 	<select id="findUserReportList" resultType="AdminReport">
 		SELECT
@@ -172,7 +172,7 @@
 		ORDER BY r.created_at DESC
 	</select>
 
-	<select id="findOHTReportList" resultType="AdminReport">
+	<select id="findOTHReportList" resultType="AdminReport">
 		SELECT
 		r.id AS id,
 		r.reporter_id AS reporterId,
@@ -241,7 +241,7 @@
 		WHERE r.reported_item_type = 'UR' AND r.id = #{id}
 	</select>
 
-	<select id="searchOHTReportsById" parameterType="long"
+	<select id="searchOTHReportsById" parameterType="long"
 		resultType="AdminReport">
 		SELECT
 		r.id AS id,
@@ -295,19 +295,19 @@
 	<update id="updateURReport" parameterType="map">
 		UPDATE MP_REPORT
 		SET
-		status = #{status},
-		decision = #{decision},
+		status = #{status, jdbcType=VARCHAR},
+		decision = #{decision, jdbcType=VARCHAR},
 		memo = #{memo, jdbcType=VARCHAR},
 		excerpt = #{excerpt, jdbcType=VARCHAR},
 		updated_at = SYSTIMESTAMP
 		WHERE id = #{id} AND reported_item_type = 'UR'
 	</update>
 
-	<update id="updateOHTReport" parameterType="map">
+	<update id="updateOTHReport" parameterType="map">
 		UPDATE MP_REPORT
 		SET
-		status = #{status},
-		decision = #{decision},
+		status = #{status, jdbcType=VARCHAR},
+		decision = #{decision, jdbcType=VARCHAR},
 		memo = #{memo, jdbcType=VARCHAR},
 		excerpt = #{excerpt, jdbcType=VARCHAR},
 		updated_at = SYSTIMESTAMP
@@ -317,8 +317,8 @@
 	<update id="updateRERReport" parameterType="map">
 		UPDATE MP_REPORT
 		SET
-		status = #{status},
-		decision = #{decision},
+		status = #{status, jdbcType=VARCHAR},
+		decision = #{decision, jdbcType=VARCHAR},
 		memo = #{memo, jdbcType=VARCHAR},
 		excerpt = #{excerpt, jdbcType=VARCHAR},
 		updated_at = SYSTIMESTAMP
@@ -328,8 +328,8 @@
 	<update id="updateIPCReport" parameterType="map">
 		UPDATE MP_REPORT
 		SET
-		status = #{status},
-		decision = #{decision},
+		status = #{status, jdbcType=VARCHAR},
+		decision = #{decision, jdbcType=VARCHAR},
 		memo = #{memo, jdbcType=VARCHAR},
 		excerpt = #{excerpt, jdbcType=VARCHAR},
 		updated_at = SYSTIMESTAMP
@@ -356,8 +356,8 @@
 	    ORDER BY a.created_at DESC
 	</select>
 	
-	<!-- 기타 문의 (OHT) -->
-	<select id="findRecentActionsOHT" resultType="AdminAction">
+	<!-- 기타 문의 (OTH) -->
+	<select id="findRecentActionsOTH" resultType="AdminAction">
 	    SELECT
 	        a.id,
 	        a.report_id     AS reportId,
@@ -416,8 +416,8 @@
 	<update id="updateReport" parameterType="AdminReportDTO">
 	    UPDATE MP_REPORT
 	    SET
-	        status = #{status},
-	        decision = #{decision},
+	        status = #{status, jdbcType=VARCHAR},
+	        decision = #{decision, jdbcType=VARCHAR},
 	        memo = #{memo, jdbcType=VARCHAR},
 	        excerpt = #{excerpt, jdbcType=VARCHAR},
 	        updated_at = SYSTIMESTAMP
@@ -432,16 +432,30 @@
 	    ) VALUES (
 	        MP_REPORT_ACTION_SEQ.NEXTVAL,
 	        #{id},
-	        #{reportedItemType}, 
-	        #{reporterId},
-	        #{decision},     
-	        #{status}, 
+	        #{reportedItemType, jdbcType=VARCHAR}, 
+	        #{reporterId, jdbcType=NUMERIC},
+	        NVL(TRIM(#{decision, jdbcType=VARCHAR}), 'NONE'),
+    		NVL(TRIM(#{status, jdbcType=VARCHAR}),   'PENDING'),
 	        #{memo, jdbcType=VARCHAR},
 	        #{excerpt, jdbcType=VARCHAR},
 	        SYSTIMESTAMP
 	    )
 	</insert>
 
+  <!-- 로그인 -->
+  <select id="findAdminForLoginByEmail" parameterType="string" resultType="AdminUser">
+    SELECT
+      U.ID        AS id,
+      U.EMAIL     AS email,
+      U.PASSWORD  AS password,
+      U.USERNAME  AS username,
+      U.ROLE      AS role,
+      U.STATUS    AS status
+    FROM MP_USER U
+    WHERE U.EMAIL = #{email}
+      AND U.ROLE = 'ADM'
+      AND U.STATUS = 'ACTIVE'
+  </select>
 
 
 
