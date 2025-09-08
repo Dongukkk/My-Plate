@@ -77,7 +77,6 @@ const soloLevel = calculateSoloLevel(restaurant.soloIndex);
           justifyContent: 'center',
           alignItems: 'center',
           textAlign: 'center',
-          boxShadow: '0 2px 6px rgba(0,0,0,0.3)',
           zIndex:'10',
         }}>
           <img
