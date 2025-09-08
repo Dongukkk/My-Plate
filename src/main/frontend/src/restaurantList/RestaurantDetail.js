@@ -9,7 +9,7 @@ import { DEFAULT_IMAGE_URL } from "./RestaurantCard"
 import { useSelector } from 'react-redux';
 import { getMyBookmarks, toggleBookmark, getRestaurantDetail, getRestaurantReviews } from "../api/api";
 import ReviewModal from "../modal/ReviewModal";
-import { calculateSoloIndex, calculateSoloIndexPercent } from "../utils/calculate";
+import { calculateSoloIndex, calculateSoloIndexPercent, calculateSoloLevel } from "../utils/calculate";
 import WriteReviewModal from "../modal/WriteReviewModal";
 
 
@@ -167,6 +167,13 @@ function RestaurantDetail() {
   }
   const sampleImageUrl = restaurant && (restaurant.photoUrl || DEFAULT_IMAGE_URL);
 
+  const levelBadge = {
+    1: "/images/icon/soloBadge/SOLO_BADGE_1.png",
+    2: "/images/icon/soloBadge/SOLO_BADGE_2.png",
+    3: "/images/icon/soloBadge/SOLO_BADGE_3.png",
+  };
+  const badgeSize = 40;
+  const soloLevel = calculateSoloLevel(restaurant.soloIndex);
   return (
     <>
       <div className="restaurantDetail-page">
@@ -192,8 +199,11 @@ function RestaurantDetail() {
           <div className="rd-info">
             <main className="rd-main">
               <div className="rd-card">
-                <h3>혼밥 지수 <span className="rd-badge">{restaurant.soloIndex}/2</span></h3>
-                <p>혼자 식사하는 손님에게 받은 평점 기반입니다. 혼밥 포인트가 있는 박 수석이 있습니다.</p>
+                <h3>혼밥 지수 <img
+                  src={levelBadge[soloLevel]}
+                  alt={`Solo Badge Level ${soloLevel}`}
+                  style={{ width: `${badgeSize}px`, height: `${badgeSize*1.5}px`, borderRadius: '50%' }}
+                /></h3>
                 <div className="rd-gauge">
                   <div className="rd-gauge-header">
                     <span>혼밥 메뉴 만족도</span>
