@@ -11,7 +11,7 @@ export default function Footer() {
                         <h4 className="footer-head">MY PLATE</h4>
                         <ul className="footer-links">
                             <li><a className="footer-link">공지사항</a></li>
-                            <li><a className="footer-link">서비스 소개</a></li>
+                            <li><a href="/siteIntro" className="footer-link">서비스 소개</a></li>
                             <li><a className="footer-link">채용</a></li>
                         </ul>
                     </div>
