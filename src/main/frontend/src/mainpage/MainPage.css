@@ -73,38 +73,108 @@ body {
 }
 
 .mainpage-container {
-    max-width: 800px;
+    max-width: 1000px;
     margin: 0 auto;
     padding: 40px 20px;
 }
 
+.mainpage-slider-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    width: 100%;
+    overflow: hidden;
+}
+
+.mainpage-restaurant-list {
+    display: flex;
+    overflow: hidden;
+    scroll-behavior: smooth;
+    width: calc(100% - 100px);
+}
+
 .mainpage-restaurant {
-    background: #fff;
+    flex: 0 0 calc(25% - 20px);
+    margin: 0 10px;
+    background-color: #fff;
     border-radius: 10px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
     padding: 20px;
-    margin-bottom: 20px;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    box-sizing: border-box;
+    transition: transform 0.3s ease;
+}
+
+.restaurant-image {
+    width: 100%;
+    height: 150px;
+    background-size: cover;
+    background-position: center;
+    border-radius: 8px;
+    margin-bottom: 15px;
+}
+
+.slider-arrow {
+    background-color: rgba(0, 0, 0, 0.5);
+    color: white;
+    border: none;
+    cursor: pointer;
+    font-size: 2rem;
+    padding: 10px 15px;
+    border-radius: 50%;
+    z-index: 10;
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    transition: background-color 0.3s;
+}
+
+.prev-arrow {
+    left: 10px;
+}
+
+.next-arrow {
+    right: 10px;
+}
+
+.slider-arrow:hover {
+    background-color: rgba(0, 0, 0, 0.8);
 }
 
 .mainpage-restaurant h4 {
-    font-size: 18px;
-    font-weight: bold;
-    margin: 0 0 8px 0;
-    display: flex;
-    justify-content: space-between;
+    margin: 0 0 5px;
+    font-size: 1.2rem;
 }
 
-.mainpage-restaurant .mainpage-tags span {
-    color: var(--primary-color);
-    margin-right: 6px;
-    font-size: 14px;
+.mainpage-tags span {
+    display: inline-block;
+    background-color: #f3f4f6;
+    color: #4b5563;
+    font-size: 0.8rem;
+    padding: 3px 8px;
+    border-radius: 12px;
+    margin-right: 5px;
+    margin-bottom: 5px;
+}
+.restaurant-description {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: -webkit-box;
+    -webkit-line-clamp: 2; 
+    -webkit-box-orient: vertical;
+    font-size: 0.9rem;
+    color: #666;
+    margin-top: 10px;
+    height: 38px;
 }
 
-.mainpage-restaurant p {
-    margin: 6px 0;
-    font-size: 14px;
-    color: #555;
+.restaurant-address, .restaurant-hours {
+    font-size: 0.8rem;
+    color: #999;
+    margin: 5px 0 0;
 }
+
+
 
 .mainpage-services {
     background: #f4f4f4;

@@ -14,22 +14,22 @@
     
     <select id="getReviewsByRestaurantId" parameterType="long" resultType="Review">
         SELECT
-            ID,
-            RESTAURANT_ID,
-            USER_ID,
-            RATING,
-            SOLO_SCORE,
-            REVIEW_COMMENT,
-            STATUS,
-            TO_CHAR(CREATED_AT, 'YYYY-MM-DD HH24:MI:SS') as CREATED_AT,
-            TO_CHAR(UPDATED_AT, 'YYYY-MM-DD HH24:MI:SS') as UPDATED_AT,
-            DELETED_AT,
-            MENU_SCORE,
-            SEAT_SCORE
-        FROM mp_review
-        WHERE RESTAURANT_ID = #{restaurantId}
-        AND DELETED_AT IS NULL
-        ORDER BY CREATED_AT DESC
+        r.ID,
+        r.RESTAURANT_ID,
+        r.USER_ID,
+        r.RATING,
+        r.SOLO_SCORE,
+        r.REVIEW_COMMENT,
+        r.STATUS,
+        TO_CHAR(r.CREATED_AT, 'YYYY-MM-DD HH24:MI:SS') as CREATED_AT,
+        TO_CHAR(r.UPDATED_AT, 'YYYY-MM-DD HH24:MI:SS') as UPDATED_AT,
+        r.DELETED_AT,
+        r.MENU_SCORE,
+        r.SEAT_SCORE,
+        u.USERNAME as USERNAME  FROM mp_review r
+    INNER JOIN mp_user u ON r.USER_ID = u.ID  WHERE r.RESTAURANT_ID = #{restaurantId}
+    AND r.DELETED_AT IS NULL
+    ORDER BY r.CREATED_AT DESC
     </select>
     
     <insert id="createReview" parameterType="Review">

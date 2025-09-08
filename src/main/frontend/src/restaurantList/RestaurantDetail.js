@@ -262,10 +262,10 @@ function RestaurantDetail() {
           <div className="rd-info">
             <main className="rd-main">
               <div className="rd-card">
-                <h3>혼밥 지수 <img
+                <h3>혼밥 난이도 <img
                   src={levelBadge[ soloLevel ]}
                   alt={`Solo Badge Level ${soloLevel}`}
-                  style={{ width: `${badgeSize*3}px`, height: `${badgeSize}px`, marginTop:'10px'}}
+                  style={{ width: `${badgeSize*2.3}px`, height: `${badgeSize}px`, marginTop:'10px'}}
                 /></h3>
                 <div className="rd-gauge">
                   <div className="rd-gauge-header">
@@ -322,45 +322,63 @@ function RestaurantDetail() {
                         <div className="review-header">
                           <div className="review-author" style={{ display: 'flex', padding: '10px 0', justifyContent: 'space-between' }}>
                             <div style={{ display: 'flex' }}>
-                              <div style={{ fontSize: '24px' }}>{review.userId}</div>
+                              <div style={{ fontSize: '20px' }}>{review.username}
+                                {(user && user.id && user.id === review.userId) && <span style={{fontSize:'14px', color:'gray'}}>(나)</span>}
+                              </div>
                               <div style={{ display: 'flex', alignItems: 'end' }}>
                                 {review.menuScore === 0 && <span className="review-solo-feature">혼밥메뉴가 다양함</span>}
                                 {review.seatScore === 0 && <span className="review-solo-feature">혼밥좌석이 많음</span>}
                               </div>
                             </div>
-                            {(user && user.id && user.id === review.userId) &&
-                              <div style={{ cursor: 'pointer', position: 'relative', alignContent: 'center' }}>
-                                <p style={{ writingMode: 'vertical-rl', letterSpacing: '1px', margin: 'auto' }}
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    handleMenuClick(review.id);
-                                  }}
-                                >
-                                  •••
-                                </p>
+                            
+                            <div style={{ cursor: 'pointer', position: 'relative', alignContent: 'center' }}>
+                              <p style={{ writingMode: 'vertical-rl', letterSpacing: '1px', margin: 'auto' }}
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleMenuClick(review.id);
+                                }}
+                              >
+                                •••
+                              </p>
 
+                              
                                 {selectedReviewId === review.id && (
                                   <div className="review-menu-dropdown" ref={menuRef} >
-                                    <div className="review-menu-item"
-                                      onClick={(e) => {
-                                        e.stopPropagation();
-                                        handleEditReview(review);
-                                      }}
-                                    >
-                                      수정
-                                    </div>
-                                    <div className="review-menu-item"
-                                      onClick={(e) => {
-                                        e.stopPropagation();
-                                        handleDeleteReview(review.id);
-                                      }}
-                                    >
-                                      삭제
-                                    </div>
+                                    {(user && user.id && user.id === review.userId) &&
+                                      <div className="review-menu-item"
+                                        onClick={(e) => {
+                                          e.stopPropagation();
+                                          handleEditReview(review);
+                                        }}
+                                      >
+                                        수정
+                                      </div>
+                                    }
+                                    {(user && user.id && user.id === review.userId) &&
+                                      <div className="review-menu-item"
+                                        onClick={(e) => {
+                                          e.stopPropagation();
+                                          handleDeleteReview(review.id);
+                                        }}
+                                      >
+                                        삭제
+                                      </div>
+                                    }
+                                    {!(user && user.id && user.id === review.userId) &&
+                                      <div className="review-menu-item"
+                                        onClick={(e) => {
+                                          e.stopPropagation();
+                                        }}
+                                      >
+                                        신고
+                                      </div>
+                                    }
+
                                   </div>
                                 )}
+                              
                               </div>
-                            }
+                            
                           </div>
                           <span className="review-rating">
                             {Array.from({ length: review.rating }, (_, i) => (
