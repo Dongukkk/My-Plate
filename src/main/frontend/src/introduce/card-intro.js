@@ -1,20 +1,6 @@
 import "./card-intro.css";
 
-const DEFAULT_LINKS = {
-    apply: "/mealcard/apply",
-    eligibility: "/mealcard/eligibility",
-    merchants: "/mealcard/merchants",
-    balance: "/mealcard/balance",
-    lost: "/mealcard/lost",
-    benefits: "/mealcard/benefits",
-    partner: "/mealcard/partner",
-    support: "/support",
-    notice: "/notice",
-};
-
-export default function LunchCardIntro({ links = {} }) {
-    const L = { ...DEFAULT_LINKS, ...links };
-
+export default function LunchCardIntro() {
     return (
         <main className="lunch-wrap">
             <header className="lunch-hero" role="banner">
@@ -162,16 +148,14 @@ export default function LunchCardIntro({ links = {} }) {
                     </div>
                 </section>
 
-                {/* 설명 문구 */}
+                {/* Info Section */}
                 <section className="lunch-brief" aria-labelledby="lunch-brief-title">
                     <h2 id="lunch-brief-title">아동급식카드란?</h2>
-
                     <p className="lunch-brief-lead">
                         지자체가 결식 우려가 있는 아동·청소년에게 <strong>식사 비용을 바우처 형태로 지원</strong>하기 위해
                         발급하는 선불형 복지카드입니다. 카드 결제처럼 간편하게 사용하면서, 지정 가맹점에서
                         <strong> 식사·간식 등 식품류</strong>만 결제되도록 설계되어 있어요.
                     </p>
-
                     <div className="lunch-brief-grid">
                         <div className="lunch-brief-box">
                             <h3 className="lunch-brief-sub">핵심 요약</h3>
@@ -184,7 +168,6 @@ export default function LunchCardIntro({ links = {} }) {
                                 <li><b>지역·시간</b>: 일부 지역은 사용 지역/시간이 제한될 수 있음</li>
                             </ul>
                         </div>
-
                         <div className="lunch-brief-box">
                             <h3 className="lunch-brief-sub">이용 전 체크사항</h3>
                             <ul className="lunch-brief-list">
@@ -195,9 +178,6 @@ export default function LunchCardIntro({ links = {} }) {
                         </div>
                     </div>
                 </section>
-
-
-                {/* Info Section */}
                 <section className="lunch-section" aria-label="급식카드 정보">
                     <div className="lunch-box" role="region" aria-labelledby="lunch-sec-trust">
                         <h3 id="lunch-sec-trust">안전한 이용을 위한 약속</h3>
