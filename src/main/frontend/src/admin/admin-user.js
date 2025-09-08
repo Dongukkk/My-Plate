@@ -3,8 +3,8 @@ import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import "./admin-user.css";
 
-axios.defaults.baseURL = "http://localhost:8080";
-axios.defaults.withCredentials = true;
+// axios.defaults.baseURL = "http://localhost:8080";
+// axios.defaults.withCredentials = true;
 
 /* 유틸/매핑 */
 const toDateStr = (v) => (v ? String(v).slice(0, 10) : "-");

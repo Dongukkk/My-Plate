@@ -3,8 +3,8 @@ import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import "./admin-content.css";
 
-axios.defaults.baseURL = "http://localhost:8080";
-axios.defaults.withCredentials = true;
+// axios.defaults.baseURL = "http://localhost:8080";
+// axios.defaults.withCredentials = true;
 
 const arr = (p) => (Array.isArray(p) ? p : (p?.items || p?.list || p?.rows || []));
 const fmtDate = (v) => (v ? String(v).slice(0, 10) : "-");

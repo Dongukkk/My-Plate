@@ -4,8 +4,8 @@ import axios from "axios";
 import PrettyAlert from "./pretty-alert";
 import "./admin-restaurant.css";
 
-axios.defaults.baseURL = "http://localhost:8080";
-axios.defaults.withCredentials = true;
+// axios.defaults.baseURL = "http://localhost:8080";
+// axios.defaults.withCredentials = true;
 
 /* 상태 뱃지 */
 const StatusPill = ({ status }) => {

@@ -3,8 +3,8 @@ import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import "./admin-login.css";
 
-axios.defaults.baseURL = "http://localhost:8080";
-axios.defaults.withCredentials = true;
+//axios.defaults.baseURL = "http://localhost:8080";
+//axios.defaults.withCredentials = true;
 
 export default function AdminLogin() {
     const nav = useNavigate();

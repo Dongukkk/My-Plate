@@ -18,7 +18,7 @@ import com.app.dto.admin.AdminUserDTO;
 import com.app.dto.admin.SessionAdmin;
 import com.app.service.admin.AdminService;
 
-@CrossOrigin(origins = "http://localhost:3000", allowCredentials = "true")
+//@CrossOrigin(origins = "http://localhost:3000", allowCredentials = "true")
 @RestController
 public class AdminLoginController {
 	
