@@ -59,7 +59,7 @@ export default function SiteIntro() {
                     <h1 className="intro-hero-title">서비스 소개</h1>
                     <p className="intro-hero-desc">
                         자취생·1인 가구와 <b>아동급식카드</b> 사용자를 위한 지역 음식점 탐색 & 리뷰 서비스.
-                        정확한 데이터, 깔끔한 경험을 제공합니다.
+                        <br/>정확한 데이터, 깔끔한 경험을 제공합니다.
                     </p>
                     <div className="intro-hero-actions">
                         <button className="intro-btn intro-btn--ghost" onClick={() => navigate(-1)}>← 뒤로</button>
