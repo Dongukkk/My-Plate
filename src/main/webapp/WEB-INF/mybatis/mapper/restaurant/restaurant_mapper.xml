@@ -93,7 +93,7 @@
         r.PHONE
     FROM MP_RESTAURANT r
     <where>
-        r.DELETED_AT IS NULL
+        r.DELETED_AT IS NULL AND NAME IS NOT NULL
         <if test="query != null and query != ''">
              AND r.NAME LIKE '%' || #{query} || '%'
         </if>
@@ -117,6 +117,7 @@
         <choose>
             <when test="sort == 'name'">r.NAME</when>
             <when test="sort == 'avg_Rating'">r.AVG_RATING</when>
+            <when test="sort == 'solo_index'">r.SOLO_INDEX</when>
             <otherwise>r.NAME</otherwise>
         </choose>
         <if test="direction == 'DESC'">DESC</if>
