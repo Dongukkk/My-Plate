@@ -7,11 +7,13 @@ import KakaoMap from "../components/KakaoMap";
 import { DEFAULT_IMAGE_URL } from "./RestaurantCard"
 
 import { useSelector } from 'react-redux';
-import { getMyBookmarks, toggleBookmark, getRestaurantDetail, getRestaurantReviews } from "../api/api";
+import { getMyBookmarks, toggleBookmark, getRestaurantDetail, getRestaurantReviews, getOperationTimesByRestaurantId, getOperationTimesForToday } from "../api/api";
 import ReviewModal from "../modal/ReviewModal";
-import { calculateSoloIndex, calculateSoloIndexPercent, calculateSoloLevel } from "../utils/calculate";
+import { calculateSoloIndex, calculateSoloLevel } from "../utils/calculate";
 import WriteReviewModal from "../modal/WriteReviewModal";
 
+const daysOfWeek = [ 'SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT' ];
+const today = new Date().getDay();
 
 function RestaurantDetail() {
   const navigate = useNavigate();
@@ -22,7 +24,10 @@ function RestaurantDetail() {
   const [ restaurant, setRestaurant ] = useState(null);
   const [ bookmarked, setBookmarked ] = useState(false);
 
-  const [menus, setMenus] = useState([]);
+  const [ menus, setMenus ] = useState([]);
+  const [ operationTimes, setOperationTimes ] = useState([]);
+  const [ todayOperationTimes, setTodayOperationTimes ] = useState([]);
+  const [isCurrentlyOpen, setIsCurrentlyOpen] = useState(false);
 
   const bookmarkURL = bookmarked
     ? "/images/restaurant/bookmark/BOOKMARK_ON.png"
@@ -74,9 +79,17 @@ function RestaurantDetail() {
           ? response.data.tags
           : [];
         setRestaurant({ ...response.data, tags });
+        console.log('start');
 
         const menusResponse = await axios.get(`/api/restaurants/${id}/menus`);
+        console.log('end');
         setMenus(menusResponse.data);
+
+        const operationTimesData = await getOperationTimesByRestaurantId(id);
+        setOperationTimes(operationTimesData);
+
+        const todayTimesData = await getOperationTimesForToday(id);
+        setTodayOperationTimes(todayTimesData);
 
         if (user && user.id) {
           const bookmarks = await getMyBookmarks();
@@ -96,6 +109,41 @@ function RestaurantDetail() {
   }, [ id, user ]);
 
 
+  useEffect(() => {
+    const checkOpenStatus = () => {
+      if (todayOperationTimes.length === 0) {
+        setIsCurrentlyOpen(false);
+        return;
+      }
+      const now = new Date();
+      const currentHours = now.getHours();
+      const currentMinutes = now.getMinutes();
+      const currentTimeInMinutes = currentHours * 60 + currentMinutes;
+
+      for (const timeSlot of todayOperationTimes) {
+        // 예: "2025-09-08 10:00:00" -> "10:00"
+        const openTime = timeSlot.openTime.split(' ')[ 1 ].substring(0, 5);
+        const closeTime = timeSlot.closeTime.split(' ')[ 1 ].substring(0, 5);
+
+        const [ openHour, openMinute ] = openTime.split(':').map(Number);
+        const [ closeHour, closeMinute ] = closeTime.split(':').map(Number);
+
+        const openTimeInMinutes = openHour * 60 + openMinute;
+        const closeTimeInMinutes = closeHour * 60 + closeMinute;
+
+        if (currentTimeInMinutes >= openTimeInMinutes && currentTimeInMinutes < closeTimeInMinutes) {
+          setIsCurrentlyOpen(true);
+          return;
+        }
+      }
+      setIsCurrentlyOpen(false);
+    };
+
+    checkOpenStatus();
+    const intervalId = setInterval(checkOpenStatus, 60000);
+
+    return () => clearInterval(intervalId);
+  }, [ todayOperationTimes ]);
 
   const handleReviewClick = () => {
     if (!user || !user.id) {
@@ -172,8 +220,23 @@ function RestaurantDetail() {
     2: "/images/icon/soloBadge/SOLO_BADGE_2.png",
     3: "/images/icon/soloBadge/SOLO_BADGE_3.png",
   };
-  const badgeSize = 40;
+  const badgeSize = 20;
   const soloLevel = calculateSoloLevel(restaurant.soloIndex);
+
+  const groupOperationTimesByDay = (times) => {
+    const grouped = {};
+    times.forEach(item => {
+      const day = item.dayOfWeek;
+      if (!grouped[ day ]) {
+        grouped[ day ] = [];
+      }
+      grouped[ day ].push(item);
+    });
+    return grouped;
+  };
+  const groupedTimes = groupOperationTimesByDay(operationTimes);
+
+
   return (
     <>
       <div className="restaurantDetail-page">
@@ -200,9 +263,9 @@ function RestaurantDetail() {
             <main className="rd-main">
               <div className="rd-card">
                 <h3>혼밥 지수 <img
-                  src={levelBadge[soloLevel]}
+                  src={levelBadge[ soloLevel ]}
                   alt={`Solo Badge Level ${soloLevel}`}
-                  style={{ width: `${badgeSize}px`, height: `${badgeSize*1.5}px`, borderRadius: '50%' }}
+                  style={{ width: `${badgeSize*3}px`, height: `${badgeSize}px`, marginTop:'10px'}}
                 /></h3>
                 <div className="rd-gauge">
                   <div className="rd-gauge-header">
@@ -224,7 +287,7 @@ function RestaurantDetail() {
                   </div>
                   <div className="rd-gauge-bar">
                     <div
-                      className="rd-gauge-fill rd-gauge-green"
+                      className="rd-gauge-fill rd-gauge-red"
                       style={{ width: `${calculateSoloIndex(restaurant.avgSeatScore)}%` }}
                     ></div>
                   </div>
@@ -237,11 +300,11 @@ function RestaurantDetail() {
                 {menus.length > 0 ? (
                   menus.map((menu) => (
                     <div key={menu.id} className="rd-menu-item">
-                      <div className="rd-menu-item-name" style={{display:'flex', justifyContent:'space-between'}}>
-                        <span style={{fontSize:'16px', fontWeight:'bold'}}>{menu.menu}</span><span>₩{menu.price.toLocaleString()}</span>
+                      <div className="rd-menu-item-name" style={{ display: 'flex', justifyContent: 'space-between' }}>
+                        <span style={{ fontSize: '16px', fontWeight: 'bold' }}>{menu.menu}</span><span>₩{menu.price.toLocaleString()}</span>
                       </div>
                       <div className="rd-menu-item-info">
-                        <span style={{fontSize:'12px', color:'gray'}}>{menu.description}</span> | <span style={{fontSize:'10px', color:'gray'}}>{menu.originInfo}</span>
+                        <span style={{ fontSize: '12px', color: 'gray' }}>{menu.description}</span> | <span style={{ fontSize: '10px', color: 'gray' }}>{menu.originInfo}</span>
                       </div>
                     </div>
                   ))
@@ -321,8 +384,36 @@ function RestaurantDetail() {
             </main>
 
             <aside className="rd-right-info">
-              <h3>영업시간</h3>
-              <p>월~금: 오전 11시 - 오후 10시<br />토: 오전 12시 - 오후 10시<br />일: 오전 12시 - 오후 9시</p>
+              <h3>
+                영업시간
+                <span className={`operation-status ${isCurrentlyOpen ? 'open' : 'closed'}`}>
+                  {isCurrentlyOpen ? '영업 중' : '영업 종료'}
+                </span>
+              </h3>
+
+
+              <hr style={{ margin: '20px 0' }} />
+
+              {Object.keys(groupedTimes).length > 0 ? (
+                Object.keys(groupedTimes).sort().map(day => (
+                  <div key={day} style={{ display: 'flex', justifyContent: 'space-between', marginTop: '10px', padding:'2px' }}
+                    className={parseInt(day) === today ? 'highlight-today' : ''}
+                  >
+                    <div style={{ fontWeight: 'Bold' }}>{daysOfWeek[ day ]}: </div>
+                    <div>
+                      {groupedTimes[ day ].map((time, index) => (
+                        <span key={time.id}>
+                          {` ${time.openTime.split(' ')[ 1 ].substring(0, 5)} ~ ${time.closeTime.split(' ')[ 1 ].substring(0, 5)}`}
+                          {index < groupedTimes[ day ].length - 1 && <br />}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                ))
+              ) : (
+                <p>운영 시간 정보가 없습니다.</p>
+              )}
+
               <h3>주소</h3>
               <p>{restaurant.restrntAddr}</p>
               {restaurant.mapLat && restaurant.mapLot && (

@@ -46,9 +46,9 @@ const RestaurantCard = ({ restaurant, selectedTags, onTagClick, initialBookmarkS
   };
 
   const levelBadge = {
-  1: "/images/icon/soloBadge/SOLO_BADGE_1.png",
-  2: "/images/icon/soloBadge/SOLO_BADGE_2.png",
-  3: "/images/icon/soloBadge/SOLO_BADGE_3.png",
+  1: "/images/icon/soloBadge/SOLO_BADGE_ICON_1.png",
+  2: "/images/icon/soloBadge/SOLO_BADGE_ICON_2.png",
+  3: "/images/icon/soloBadge/SOLO_BADGE_ICON_3.png",
 };
 
 const badgeSize = 40;

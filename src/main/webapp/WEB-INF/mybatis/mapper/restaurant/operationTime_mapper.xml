@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?> 
+<!DOCTYPE mapper PUBLIC
+		   "-//mybatis.org//DTD Mapper 3.0//EN" 
+		   "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+		   
+<mapper namespace="operationTime_mapper">
+
+	<select id="findByRestaurantId" resultType="OperationTime">
+        SELECT
+            *
+        FROM MP_RESTAURANT_HOUR
+        WHERE RESTAURANT_ID = #{restaurantId} AND DELETED_AT IS NULL
+        ORDER BY DAY_OF_WEEK ASC, SLOT_INDEX ASC
+    </select>
+
+    <select id="findByRestaurantIdAndDayOfWeek" resultType="OperationTime">
+        SELECT
+            *
+        FROM MP_RESTAURANT_HOUR
+        WHERE RESTAURANT_ID = #{restaurantId}
+          AND DAY_OF_WEEK = #{dayOfWeek}
+          AND DELETED_AT IS NULL
+        ORDER BY SLOT_INDEX ASC
+    </select>
+
+</mapper>

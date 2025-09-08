@@ -160,4 +160,24 @@ export const getRestaurantReviews = async (restaurantId, page = 0, size = 10) =>
     }
 };
 
+export const getOperationTimesByRestaurantId = async (restaurantId) => {
+    try {
+        const response = await api.get(`/operation-times/restaurants/${restaurantId}`);
+        return response.data;
+    } catch (error) {
+        console.error(`레스토랑 ID ${restaurantId}의 운영 시간 정보 조회 실패:`, error);
+        throw error;
+    }
+};
+
+export const getOperationTimesForToday = async (restaurantId) => {
+    try {
+        const response = await api.get(`/operation-times/restaurants/${restaurantId}/today`);
+        return response.data;
+    } catch (error) {
+        console.error(`레스토랑 ID ${restaurantId}의 오늘 운영 시간 정보 조회 실패:`, error);
+        throw error;
+    }
+};
+
 export default api;

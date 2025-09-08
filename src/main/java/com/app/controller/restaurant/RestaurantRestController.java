@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.app.dto.restaurant.BookmarkDTO;
 import com.app.dto.restaurant.MenuDTO;
+import com.app.dto.restaurant.OperationTimeDTO;
 import com.app.dto.restaurant.RestaurantDTO;
 import com.app.dto.restaurant.RestaurantTagDTO;
 import com.app.dto.restaurant.ReviewDTO;
@@ -28,11 +29,12 @@ import com.app.security.JwtUtil;
 import com.app.service.ApiRestaurantService;
 import com.app.service.UserService;
 import com.app.service.restaurant.BookmarkService;
+import com.app.service.restaurant.OperationTimeService;
 import com.app.service.restaurant.RestaurantService;
 import com.app.service.restaurant.ReviewService;
 
 @RestController
-@CrossOrigin(origins = "http://localhost:3000")
+@CrossOrigin(origins = "http://localhost:3000", allowCredentials = "true")
 public class RestaurantRestController {
 	
 	@Autowired
@@ -49,6 +51,9 @@ public class RestaurantRestController {
 	
 	@Autowired
 	ReviewService reviewService;
+	
+	@Autowired
+	OperationTimeService operationTimeService;
 	
 	//공공데이터에서 식당 데이터 가져오기
 	@GetMapping("/api/restaurants/save")
@@ -163,11 +168,10 @@ public class RestaurantRestController {
 	}
 	
 	@GetMapping("/api/restaurants/{restaurantId}/menus")
-    public List<MenuDTO> getMenusByRestaurant(@PathVariable Long restaurantId) {
-        List<MenuDTO> menus = restaurantService.findMenusByRestaurantId(restaurantId);
-        
+    public ResponseEntity<List<MenuDTO>> getMenusByRestaurant(@PathVariable Long restaurantId) {
+		List<MenuDTO> menus = restaurantService.findMenusByRestaurantId(restaurantId);
         // DTO로 변환하여 민감한 정보 노출 방지
-        return menus;
+        return ResponseEntity.status(HttpStatus.OK).body(menus);
     }
 	
 	@GetMapping("/api/reviews/{restaurantId}")
@@ -221,4 +225,26 @@ public class RestaurantRestController {
 	    
 	    return ResponseEntity.noContent().build();
 	}
+	
+	@GetMapping("/api/operation-times/restaurants/{restaurantId}")
+    public ResponseEntity<List<OperationTimeDTO>> getOperationTimesByRestaurantId(@PathVariable long restaurantId) {
+        List<OperationTimeDTO> operationTimes = operationTimeService.findByRestaurantId(restaurantId);
+        if (operationTimes.isEmpty()) {
+            return ResponseEntity.notFound().build();
+        }
+        return ResponseEntity.ok(operationTimes);
+    }
+	
+	@GetMapping("/api/operation-times/restaurants/{restaurantId}/today")
+    public ResponseEntity<List<OperationTimeDTO>> getOperationTimesForToday(@PathVariable long restaurantId) {
+        int todayOfWeek = java.time.LocalDate.now().getDayOfWeek().getValue();
+        if (todayOfWeek == 7) todayOfWeek = 0;
+        System.out.println("1");
+        List<OperationTimeDTO> operationTimes = operationTimeService.findByRestaurantIdAndDayOfWeek(restaurantId, todayOfWeek);
+        if (operationTimes.isEmpty()) {
+            return ResponseEntity.notFound().build();
+        }
+        System.out.println("2");
+        return ResponseEntity.ok(operationTimes);
+    }
 }

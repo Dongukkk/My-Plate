@@ -13,6 +13,7 @@
 		<typeAlias type="com.app.dto.restaurant.BookmarkDTO" alias="Bookmark" />
 		<typeAlias type="com.app.dto.restaurant.ReviewDTO" alias="Review" />
 		<typeAlias type="com.app.dto.restaurant.MenuDTO" alias="Menu" />
+		<typeAlias type="com.app.dto.restaurant.OperationTimeDTO" alias="OperationTime" />
 		
 		<typeAlias type="com.app.dto.admin.AdminRestaurantDTO" alias="AdminRestaurant" />
 		<typeAlias type="com.app.dto.admin.AdminUserDTO" alias="AdminUser" />

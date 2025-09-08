@@ -183,12 +183,12 @@
 
 .rd-gauge-fill {
   height: 100%;
-  background: #3b82f6;
+  background: #e9902b;
   transition: width 0.5s ease;
 }
 
-.rd-gauge-fill.rd-gauge-green {
-  background: #22c55e;
+.rd-gauge-fill.rd-gauge-red {
+  background: #fd5c1c;
 }
 
 .review-menu-dropdown {
@@ -212,4 +212,28 @@
 
 .review-menu-item:hover {
   background: #f2f2f2;
+}
+
+.operation-status {
+    font-size: 12px;
+    font-weight: bold;
+    margin-left: 10px;
+    padding: 3px 8px;
+    border-radius: 12px;
+    color: white;
+}
+
+.operation-status.open {
+    background-color: #f44336;
+}
+
+.operation-status.closed {
+    background-color: #999;
+}
+
+.highlight-today {
+    border: 2px solid var(--primary-color);
+    width: 100%;
+    margin: 0 -1%;
+    font-weight: bold;
 }
