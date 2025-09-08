@@ -1,13 +1,16 @@
 import { useParams, useNavigate } from "react-router-dom";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import axios from "axios";
 import SideBarMenu from "../components/SideBarMenu";
 import "../restaurantList/RestaurantDetail.css";
 import KakaoMap from "../components/KakaoMap";
-import {DEFAULT_IMAGE_URL} from "./RestaurantCard"
+import { DEFAULT_IMAGE_URL } from "./RestaurantCard"
 
 import { useSelector } from 'react-redux';
-import { getMyBookmarks, toggleBookmark, getRestaurantDetail } from "../api/api";
+import { getMyBookmarks, toggleBookmark, getRestaurantDetail, getRestaurantReviews } from "../api/api";
+import ReviewModal from "../modal/ReviewModal";
+import { calculateSoloIndex, calculateSoloIndexPercent } from "../utils/calculate";
+import WriteReviewModal from "../modal/WriteReviewModal";
 
 
 function RestaurantDetail() {
@@ -16,14 +19,52 @@ function RestaurantDetail() {
   const user = useSelector(state => state.user);
 
   const { id } = useParams();
-  const [restaurant, setRestaurant] = useState(null);
-  const [bookmarked, setBookmarked] = useState(false);
+  const [ restaurant, setRestaurant ] = useState(null);
+  const [ bookmarked, setBookmarked ] = useState(false);
+
+  const [menus, setMenus] = useState([]);
 
   const bookmarkURL = bookmarked
     ? "/images/restaurant/bookmark/BOOKMARK_ON.png"
     : "/images/restaurant/bookmark/BOOKMARK_OFF.png";
 
   const shareURL = "/images/restaurant/bookmark/BOOKMARK_SHARE.png";
+
+  const [ reviews, setReviews ] = useState([]);
+  const [ isModalOpen, setIsModalOpen ] = useState(false);  //리뷰 더보기 모달
+  const [ isWriteReviewModalOpen, setIsWriteReviewModalOpen ] = useState(false);  //리뷰 작성 모달
+  const [ reviewToEdit, setReviewToEdit ] = useState(null)
+
+  const [ selectedReviewId, setSelectedReviewId ] = useState(null);
+  const menuRef = useRef(null);
+
+  const fetchReviews = async () => {
+    if (!id) {
+      return;
+    }
+    try {
+      const data = await getRestaurantReviews(id);
+      setReviews(data);
+    } catch (e) {
+      console.error("리뷰를 가져오는 데 실패했습니다:", e);
+    }
+  };
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (menuRef.current && !menuRef.current.contains(event.target)) {
+        setSelectedReviewId(null);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
+
+  const handleMenuClick = (reviewId) => {
+    setSelectedReviewId(selectedReviewId === reviewId ? null : reviewId);
+  };
 
   useEffect(() => {
     const fetchRestaurantData = async () => {
@@ -33,6 +74,9 @@ function RestaurantDetail() {
           ? response.data.tags
           : [];
         setRestaurant({ ...response.data, tags });
+
+        const menusResponse = await axios.get(`/api/restaurants/${id}/menus`);
+        setMenus(menusResponse.data);
 
         if (user && user.id) {
           const bookmarks = await getMyBookmarks();
@@ -48,7 +92,30 @@ function RestaurantDetail() {
       }
     };
     fetchRestaurantData();
-  }, [id, user]);
+    fetchReviews();
+  }, [ id, user ]);
+
+
+
+  const handleReviewClick = () => {
+    if (!user || !user.id) {
+      alert("로그인 후 리뷰를 작성할 수 있습니다.");
+      return;
+    }
+    setReviewToEdit(null);
+    setIsWriteReviewModalOpen(true);
+  };
+
+  const handleReviewSubmitted = () => {
+    setRestaurant(prevRestaurant => ({
+      ...prevRestaurant,
+      ratingCount: prevRestaurant.ratingCount + 1
+    }));
+
+    fetchReviews();
+  };
+
+
 
   const bookMarkToggle = async () => {
     if (!user || !user.id) {
@@ -65,104 +132,228 @@ function RestaurantDetail() {
     }
   };
 
+  const handleDeleteReview = async (reviewId) => {
+
+    if (!window.confirm("정말 리뷰를 삭제하시겠습니까?")) {
+      return;
+    }
+    try {
+      const access = localStorage.getItem('access');
+      await axios.delete(`/api/reviews/${reviewId}`, {
+        headers: {
+          'Authorization': `Bearer ${access}`
+        }
+      });
+      alert("리뷰가 삭제되었습니다.");
+      fetchReviews();
+
+      setRestaurant(prevRestaurant => ({
+        ...prevRestaurant,
+        ratingCount: prevRestaurant.ratingCount - 1
+      }));
+    } catch (error) {
+      console.error("리뷰 삭제 실패:", error);
+      alert("리뷰 삭제에 실패했습니다.");
+    }
+  };
+
+  const handleEditReview = (review) => {
+    setReviewToEdit(review);
+    setIsWriteReviewModalOpen(true);
+  };
+
   if (!restaurant) {
     return <div>로딩 중...</div>;
   }
   const sampleImageUrl = restaurant && (restaurant.photoUrl || DEFAULT_IMAGE_URL);
 
   return (
-    <div className="restaurantDetail-page">
-      <SideBarMenu/>
-      <div className="rd-container">
-        <div className="rd-represent">
-          <div className="rd-restaurant-header">
-            <div>
-              <h2>{restaurant.restrntNm}</h2>
-              <p>{restaurant.tags && restaurant.tags.length > 0
-                                    ? restaurant.tags.join(' · ')
-                                    : ''} ⭐ {restaurant.avgrating} ({restaurant.ratingCount} 리뷰)</p>
+    <>
+      <div className="restaurantDetail-page">
+        <SideBarMenu />
+        <div className="rd-container">
+          <div className="rd-represent">
+            <div className="rd-restaurant-header">
+              <div>
+                <h2>{restaurant.restrntNm}</h2>
+                <p>{restaurant.tags && restaurant.tags.length > 0
+                  ? restaurant.tags.join(' · ')
+                  : ''} ⭐ {restaurant.avgRating} ({restaurant.ratingCount} 리뷰)</p>
+              </div>
+              <div style={{ display: "flex", alignItems: "center" }}>
+                <div className="rd-bookmark" style={{ backgroundImage: `url(${shareURL})` }} title="공유"></div>
+                <div className="rd-bookmark" style={{ backgroundImage: `url(${bookmarkURL})` }} title="북마크" onClick={bookMarkToggle}></div>
+
+              </div>
             </div>
-            <div style={{display:"flex",   alignItems: "center"}}>
-              <div className="rd-bookmark" style={{ backgroundImage: `url(${shareURL})`}} title="공유"></div>
-              <div className="rd-bookmark" style={{ backgroundImage: `url(${bookmarkURL})`}} title="북마크" onClick={bookMarkToggle}></div>
-              
-            </div>
+            <div className="rd-repr-image" style={{ backgroundImage: `url(${sampleImageUrl})` }}></div>
+
           </div>
-          <div className="rd-repr-image" style={{ backgroundImage: `url(${sampleImageUrl})`}}></div>
-          
-        </div>
-        <div className="rd-info">
+          <div className="rd-info">
             <main className="rd-main">
-            <div className="rd-card">
-              <h3>혼밥 지수 <span className="rd-badge">8.5/10</span></h3>
-              <p>혼자 식사하는 손님에게 받은 평점 기반입니다. 혼밥 포인트가 있는 박 수석이 있습니다.</p>
-              <ul>
-                <li>쾌적 배치: 1인 테이블, 바 좌석, 개인 공간 배려</li>
-                <li>설명기: 친절한 직원 서비스</li>
-                <li>취향 옵션: 1인 메뉴, 소포장 제공</li>
-              </ul>
-            </div>
+              <div className="rd-card">
+                <h3>혼밥 지수 <span className="rd-badge">{restaurant.soloIndex}/2</span></h3>
+                <p>혼자 식사하는 손님에게 받은 평점 기반입니다. 혼밥 포인트가 있는 박 수석이 있습니다.</p>
+                <div className="rd-gauge">
+                  <div className="rd-gauge-header">
+                    <span>혼밥 메뉴 만족도</span>
+                    <span>{calculateSoloIndex(restaurant.avgMenuScore)}%</span>
+                  </div>
+                  <div className="rd-gauge-bar">
+                    <div
+                      className="rd-gauge-fill"
+                      style={{ width: `${calculateSoloIndex(restaurant.avgMenuScore)}%` }}
+                    ></div>
+                  </div>
+                </div>
 
-
-            <div className="rd-card">
-              <h3>메뉴 하이라이트</h3>
-              <div className="rd-menu-item">시그니처 스시 플래터 - ₩32,000</div>
-              <div className="rd-menu-item">육즙 테리아키 - ₩38,000</div>
-              <div className="rd-menu-item">프리미엄 세트 - ₩25,000</div>
-              <div className="rd-menu-item">말차 티라미수 - ₩12,000</div>
-            </div>
-
-            <div className="rd-card">
-              <h3>특별 이벤트</h3>
-              <div className="rd-event-item">스시 만들기 클래스 - 1인 ₩35,000</div>
-              <div className="rd-event-item">사케 시음의 밤 - 1인 ₩45,000</div>
-            </div>
-
-            <div className="rd-card">
-              <h3>리뷰 ({restaurant.ratingCount})</h3>
-              <div className="rd-review-item">
-                <strong>박지훈</strong> ⭐⭐⭐⭐⭐ <br/>
-                “혼자 와서 세트로 즐길 수 있는 구성이 좋습니다. 종종 오겠습니다.”
+                <div className="rd-gauge">
+                  <div className="rd-gauge-header">
+                    <span>혼밥 좌석 만족도</span>
+                    <span>{calculateSoloIndex(restaurant.avgSeatScore)}%</span>
+                  </div>
+                  <div className="rd-gauge-bar">
+                    <div
+                      className="rd-gauge-fill rd-gauge-green"
+                      style={{ width: `${calculateSoloIndex(restaurant.avgSeatScore)}%` }}
+                    ></div>
+                  </div>
+                </div>
               </div>
-              <div className="rd-review-item">
-                <strong>이수연</strong> ⭐⭐⭐⭐ <br/>
-                “음식 퀄리티는 좋아요. 다만 혼자 먹기엔 양이 많네요.”
-              </div>
-              <div className="rd-review-item">
-                <strong>최준호</strong> ⭐⭐⭐⭐⭐ <br/>
-                “사케 시음 이벤트 재밌었어요! 추천합니다.”
-              </div>
-              <button>더 많은 리뷰 보기</button>
-            </div>
-          </main>
 
-          <aside className="rd-right-info">
-            <h3>영업시간</h3>
-            <p>월~금: 오전 11시 - 오후 10시<br/>토: 오전 12시 - 오후 10시<br/>일: 오전 12시 - 오후 9시</p>
-            <h3>주소</h3>
-            <p>{restaurant.restrntAddr}</p>
-            {restaurant.mapLat && restaurant.mapLot && (
-              <div style={{height:"300px", borderRadius:"5px"}}>
-                <KakaoMap isSinglePoint={true}
-                  centerLat={restaurant.mapLat}
-                  centerLng={restaurant.mapLot}
-                  level={1}
-                />
+
+              <div className="rd-card">
+                <h3>메뉴</h3>
+                {menus.length > 0 ? (
+                  menus.map((menu) => (
+                    <div key={menu.id} className="rd-menu-item">
+                      <div className="rd-menu-item-name" style={{display:'flex', justifyContent:'space-between'}}>
+                        <span style={{fontSize:'16px', fontWeight:'bold'}}>{menu.menu}</span><span>₩{menu.price.toLocaleString()}</span>
+                      </div>
+                      <div className="rd-menu-item-info">
+                        <span style={{fontSize:'12px', color:'gray'}}>{menu.description}</span> | <span style={{fontSize:'10px', color:'gray'}}>{menu.originInfo}</span>
+                      </div>
+                    </div>
+                  ))
+                ) : (
+                  <p>메뉴 정보가 없습니다.</p>
+                )}
               </div>
-              
-            )}
-            <h3>전화번호</h3>
-            <p>{restaurant.restrntInqrTel}</p>
-            <button style={{width:"100%"}}>전화하기</button>
-            <button style={{width:"49%", marginRight:"3px"}}>제보하기</button> 
-            <button style={{width:"49%"}}>리뷰 작성하기</button>
-          </aside>
+
+              <div className="rd-card" style={{ minHeight: '300px' }}>
+                <h3>리뷰 ({restaurant.ratingCount})</h3>
+                {reviews.length > 0 ? (
+                  <ul style={{ listStyleType: 'none', padding: 0, minHeight: '200px' }}>
+                    {reviews.slice(0, 3).map((review) => (
+                      <li key={review.id} className="rd-review-item">
+                        <div className="review-header">
+                          <div className="review-author" style={{ display: 'flex', padding: '10px 0', justifyContent: 'space-between' }}>
+                            <div style={{ display: 'flex' }}>
+                              <div style={{ fontSize: '24px' }}>{review.userId}</div>
+                              <div style={{ display: 'flex', alignItems: 'end' }}>
+                                {review.menuScore === 0 && <span className="review-solo-feature">혼밥메뉴가 다양함</span>}
+                                {review.seatScore === 0 && <span className="review-solo-feature">혼밥좌석이 많음</span>}
+                              </div>
+                            </div>
+                            {(user && user.id && user.id === review.userId) &&
+                              <div style={{ cursor: 'pointer', position: 'relative', alignContent: 'center' }}>
+                                <p style={{ writingMode: 'vertical-rl', letterSpacing: '1px', margin: 'auto' }}
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    handleMenuClick(review.id);
+                                  }}
+                                >
+                                  •••
+                                </p>
+
+                                {selectedReviewId === review.id && (
+                                  <div className="review-menu-dropdown" ref={menuRef} >
+                                    <div className="review-menu-item"
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        handleEditReview(review);
+                                      }}
+                                    >
+                                      수정
+                                    </div>
+                                    <div className="review-menu-item"
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        handleDeleteReview(review.id);
+                                      }}
+                                    >
+                                      삭제
+                                    </div>
+                                  </div>
+                                )}
+                              </div>
+                            }
+                          </div>
+                          <span className="review-rating">
+                            {Array.from({ length: review.rating }, (_, i) => (
+                              <span key={i} className="star">⭐</span>
+                            ))}
+                            <div style={{ display: 'inline-block', marginLeft: '5px', verticalAlign: 'bottom', fontSize: '14px', color: 'gray' }}>{`(` + review.rating + `)`}</div></span>
+                        </div>
+                        <p className="review-comment">{review.reviewComment}</p>
+                        <div style={{ width: '100%', textAlign: 'end' }}>
+                          <span className="review-date" style={{ fontSize: '14px', color: 'gray' }}>{review.updatedAt ? review.updatedAt + `(수정됨)` : review.createdAt}</span>
+                        </div>
+
+                      </li>
+                    ))}
+                  </ul>
+                ) : (
+                  <div style={{ minHeight: '200px' }}>아직 작성된 리뷰가 없습니다.</div>
+                )}
+                {reviews.length > 3 && <button onClick={() => setIsModalOpen(true)}>더 많은 리뷰 보기</button>}
+              </div>
+            </main>
+
+            <aside className="rd-right-info">
+              <h3>영업시간</h3>
+              <p>월~금: 오전 11시 - 오후 10시<br />토: 오전 12시 - 오후 10시<br />일: 오전 12시 - 오후 9시</p>
+              <h3>주소</h3>
+              <p>{restaurant.restrntAddr}</p>
+              {restaurant.mapLat && restaurant.mapLot && (
+                <div style={{ height: "300px", borderRadius: "5px" }}>
+                  <KakaoMap isSinglePoint={true}
+                    centerLat={restaurant.mapLat}
+                    centerLng={restaurant.mapLot}
+                    level={1}
+                  />
+                </div>
+
+              )}
+              <h3>전화번호</h3>
+              <p>{restaurant.restrntInqrTel}</p>
+              <button style={{ width: "100%" }}>전화하기</button>
+              <button style={{ width: "49%", marginRight: "3px" }}>제보하기</button>
+              <button style={{ width: "49%" }} onClick={handleReviewClick}>리뷰 작성하기</button>
+            </aside>
+          </div>
+
         </div>
-        
-      </div>
 
-    </div>
-    
+
+      </div>
+      {isModalOpen && (
+        <ReviewModal
+          restaurantId={id}
+          onClose={() => setIsModalOpen(false)}
+          onReviewSubmitted={handleReviewSubmitted}
+        />
+      )}
+
+      {isWriteReviewModalOpen && (
+        <WriteReviewModal
+          restaurantId={id}
+          initialReviewData={reviewToEdit}
+          onClose={() => setIsWriteReviewModalOpen(false)}
+          onReviewSubmitted={handleReviewSubmitted}
+        />
+      )}
+    </>
   );
 }
 

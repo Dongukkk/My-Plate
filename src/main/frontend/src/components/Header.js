@@ -29,7 +29,7 @@ function Header(){
                 
                 <div style={{display:"inline-flex", alignItems:"center", marginLeft:"10px"}}>
                     <span style={{fontSize:"16px", fontWeight:"bold", color:"white"}}>
-                        {localStorage.getItem("access")
+                        { user && user.name 
                             ? <span onClick={logout}>{user.name}님</span>
                             : <span onClick={() => navigate(`/login`)} style={{ cursor: 'pointer' }}>로그인</span>
                         }

@@ -145,4 +145,19 @@ export const getMyBookmarks = () => {
   return api.get('/bookmarks/me');
 };
 
+export const getRestaurantReviews = async (restaurantId, page = 0, size = 10) => {
+    try {
+        const response = await api.get(`/reviews/${restaurantId}`,{
+          params: {
+            page: page,
+            size: size
+          }
+        });
+        return response.data;
+    } catch (error) {
+        console.error(`식당 ID ${restaurantId}의 리뷰 목록을 가져오는 데 실패했습니다:`, error);
+        throw error;
+    }
+};
+
 export default api;

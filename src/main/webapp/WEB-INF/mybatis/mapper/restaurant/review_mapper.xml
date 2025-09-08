@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="UTF-8"?> 
+<!DOCTYPE mapper PUBLIC
+		   "-//mybatis.org//DTD Mapper 3.0//EN" 
+		   "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+		   
+<mapper namespace="review_mapper">
+   
+    <select id="getReviewCountByRestaurantId" parameterType="long" resultType="long">
+        SELECT COUNT(*)
+        FROM MP_REVIEW
+        WHERE RESTAURANT_ID = #{restaurantId}
+        AND DELETED_AT IS NULL
+    </select>
+    
+    <select id="getReviewsByRestaurantId" parameterType="long" resultType="Review">
+        SELECT
+            ID,
+            RESTAURANT_ID,
+            USER_ID,
+            RATING,
+            SOLO_SCORE,
+            REVIEW_COMMENT,
+            STATUS,
+            TO_CHAR(CREATED_AT, 'YYYY-MM-DD HH24:MI:SS') as CREATED_AT,
+            TO_CHAR(UPDATED_AT, 'YYYY-MM-DD HH24:MI:SS') as UPDATED_AT,
+            DELETED_AT,
+            MENU_SCORE,
+            SEAT_SCORE
+        FROM mp_review
+        WHERE RESTAURANT_ID = #{restaurantId}
+        AND DELETED_AT IS NULL
+        ORDER BY CREATED_AT DESC
+    </select>
+    
+    <insert id="createReview" parameterType="Review">
+		INSERT INTO mp_review (
+			id,
+			restaurant_id,
+			user_id,
+			rating,
+			solo_score,
+			menu_score,
+			seat_score,
+			review_comment,
+			status,
+			created_at
+		) VALUES (
+			mp_reviews_seq.NEXTVAL,
+			#{restaurantId},
+			#{userId},
+			#{rating},
+			#{menuScore} + #{seatScore},
+			#{menuScore},
+			#{seatScore},
+			#{reviewComment},
+			'ACTIVE',
+			SYSTIMESTAMP
+		)
+	</insert>
+	
+	<update id="incrementReviewCount" parameterType="long">
+        UPDATE mp_restaurant
+        SET rating_count = rating_count + 1
+        WHERE id = #{restaurantId}
+    </update>
+    
+    <update id="decrementReviewCount" parameterType="long">
+        UPDATE mp_restaurant
+        SET rating_count = rating_count - 1
+        WHERE id = #{restaurantId}
+    </update>
+    
+    <update id="updateReview" parameterType="Review">
+        UPDATE mp_review
+        SET
+            rating = #{rating},
+            review_comment = #{reviewComment},
+            menu_score = #{menuScore},
+            seat_score = #{seatScore},
+            solo_score = #{soloScore},
+            updated_at = SYSTIMESTAMP
+        WHERE
+            id = #{id}
+    </update>
+    
+    <update id="markReviewAsDeleted" parameterType="long">
+        UPDATE mp_review
+        SET 
+            status = 'DELETED',
+            deleted_at = SYSTIMESTAMP
+        WHERE id = #{id}
+    </update>
+    
+    <select id="getReviewById" parameterType="long" resultType="Review">
+        SELECT
+            *
+        FROM mp_review
+        WHERE ID = #{id}
+    </select>
+    
+    
+</mapper>

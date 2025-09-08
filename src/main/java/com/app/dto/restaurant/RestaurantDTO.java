@@ -46,5 +46,8 @@ public class RestaurantDTO {
     private LocalDateTime updatedAt;
     private LocalDateTime deletedAt;
     
+    private double avgMenuScore;
+    private double avgSeatScore;
+    
     private List<RestaurantTagDTO> tags;
 }

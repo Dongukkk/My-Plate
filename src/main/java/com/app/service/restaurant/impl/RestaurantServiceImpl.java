@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.app.dao.restaurant.RestaurantDAO;
+import com.app.dto.restaurant.MenuDTO;
 import com.app.dto.restaurant.RestaurantDTO;
 import com.app.dto.restaurant.RestaurantTagDTO;
 import com.app.dto.restaurant.TagCodeDTO;
@@ -56,5 +57,15 @@ public class RestaurantServiceImpl implements RestaurantService{
 	@Override
 	public List<TagCodeDTO> getAllTagCodes() {
 		return restaurantDAO.getAllTagCodes();
+	}
+
+	@Override
+	public int updateAllRatingCounts() {
+		return restaurantDAO.updateAllRatingCounts();
+	}
+
+	@Override
+	public List<MenuDTO> findMenusByRestaurantId(long restaurantId) {
+		return restaurantDAO.findMenusByRestaurantId(restaurantId);
 	}
 }

@@ -2,6 +2,7 @@ package com.app.service.restaurant;
 
 import java.util.List;
 
+import com.app.dto.restaurant.MenuDTO;
 import com.app.dto.restaurant.RestaurantDTO;
 import com.app.dto.restaurant.RestaurantTagDTO;
 import com.app.dto.restaurant.TagCodeDTO;
@@ -16,4 +17,8 @@ public interface RestaurantService {
 	public List<RestaurantTagDTO> getTagsByRestaurantId(long restaurantId);
 	
 	public List<TagCodeDTO> getAllTagCodes();
+	
+	public int updateAllRatingCounts();
+	
+	public List<MenuDTO> findMenusByRestaurantId(long restaurantId);
 }

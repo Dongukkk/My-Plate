@@ -2,6 +2,7 @@ package com.app.dao.restaurant;
 
 import java.util.List;
 
+import com.app.dto.restaurant.MenuDTO;
 import com.app.dto.restaurant.RestaurantDTO;
 import com.app.dto.restaurant.RestaurantTagDTO;
 import com.app.dto.restaurant.TagCodeDTO;
@@ -19,4 +20,8 @@ public interface RestaurantDAO {
 	public List<RestaurantTagDTO> getTagsByRestaurantId(long restaurantId);
 	
 	public List<TagCodeDTO> getAllTagCodes();
+	
+	public int updateAllRatingCounts(); 
+	
+	List<MenuDTO> findMenusByRestaurantId(long restaurantId);
 }
