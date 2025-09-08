@@ -158,7 +158,7 @@ export default function LunchCardIntro() {
                     </p>
                     <div className="lunch-brief-grid">
                         <div className="lunch-brief-box">
-                            <h3 className="lunch-brief-sub">핵심 요약</h3>
+                            <h3 className="lunch-brief-sub">핵심 내용</h3>
                             <ul className="lunch-brief-list">
                                 <li><b>지원 대상</b>: 만 18세 미만 아동·청소년 중 결식 우려가 인정된 경우(지자체별 기준 상이)</li>
                                 <li><b>지원 방식</b>: 월 단위 바우처 충전 → 지정 가맹점에서 카드 결제</li>
