@@ -17,6 +17,8 @@ import AdminRequest from "./admin/admin-request";
 import TermsPage from "./admin/terms-page";
 import SiteIntro from './introduce/site-intro';
 import CardIntro from './introduce/card-intro';
+import Chating from './introduce/chating-support';
+import FAQ from './introduce/faq-page';
 
 import MainPage from './mainpage/MainPage';
 import RestaurantList from './restaurantList/RestaurantList';
@@ -75,6 +77,8 @@ const MainLayout = () => {
         <Route path="/cardIntro" element={<CardIntro />} />
         <Route path="/siteIntro" element={<SiteIntro />} />
         <Route path="/termsOfUse" element={<TermsPage />} />
+        <Route path="/chat" element={<Chating />} />
+        <Route path="/faq" element={<FAQ />} />
 
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
