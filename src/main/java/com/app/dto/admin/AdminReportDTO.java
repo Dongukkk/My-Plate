@@ -10,8 +10,11 @@ import lombok.NoArgsConstructor;
 public class AdminReportDTO {
 	
 	private long id;
-    private long reporterId;  
+    private long reporterId; 
+    
     private String reportedItemType;
+    private long reportedItemId; 
+    
     private String decision;
     private String excerpt;
     private String memo;

@@ -494,7 +494,7 @@ export default function AdminContent() {
                                 </label>
                             </div>
                             <label className="admin-field" style={{ marginTop: 6 }}>
-                                <div className="admin-label">메모(관리자용)</div>
+                                <div className="admin-label">메모</div>
                                 <textarea className="admin-textarea" rows={3} value={ipcMemo} onChange={(e) => setIpcMemo(e.target.value)} placeholder="처리 사유/증빙 등을 기록하세요." />
                             </label>
                         </div>

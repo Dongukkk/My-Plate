@@ -52,4 +52,7 @@ public interface AdminService {
     //로그인
     AdminUserDTO findAdminForLoginByEmail(String email);
     
+    
+    /* 리뷰 부적절 콘텐츠 신고 생성(IPC) */
+    int createIPCReport(AdminReportDTO dto);
 }

@@ -180,6 +180,13 @@ public class AdminDAOImpl implements AdminDAO {
     public AdminUserDTO findAdminForLoginByEmail(String email) {
         return sqlSessionTemplate.selectOne(AM + "findAdminForLoginByEmail", email);
     }
+    
+    
+    
+    @Override
+    public int insertIPCReport(AdminReportDTO dto) {
+        return sqlSessionTemplate.insert(AM + "insertIPCReport", dto);
+    }
 	
 
 }

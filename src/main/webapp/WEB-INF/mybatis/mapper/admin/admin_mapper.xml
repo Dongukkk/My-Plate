@@ -457,8 +457,14 @@
       AND U.STATUS = 'ACTIVE'
   </select>
 
-
-
+  <insert id="insertIPCReport" parameterType="AdminReport">
+    <selectKey keyProperty="id" resultType="long" order="BEFORE"> SELECT MP_REPORT_SEQ.NEXTVAL FROM DUAL </selectKey>
+	INSERT INTO MP_REPORT (
+	ID, REPORTER_ID, REPORTED_ITEM_TYPE, REPORTED_ITEM_ID, REASON, MEMO,
+	EXCERPT, STATUS, CREATED_AT, UPDATED_AT) 
+	VALUES ( #{id}, #{reporterId}, 'IPC', #{reportedItemId}, #{reason}, #{memo},
+	NVL(#{excerpt}, ''), NVL(#{status}, 'PENDING'), SYSTIMESTAMP, SYSTIMESTAMP)
+  </insert>
 
 
 </mapper>

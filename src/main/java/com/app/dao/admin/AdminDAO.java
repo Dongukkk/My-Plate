@@ -53,4 +53,7 @@ public interface AdminDAO {
     //로그인
     AdminUserDTO findAdminForLoginByEmail(String email);
     
+    // 신고 생성(IPC)
+    int insertIPCReport(AdminReportDTO dto);
+    
 }

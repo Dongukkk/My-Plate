@@ -203,6 +203,31 @@ public class AdminServiceImpl implements AdminService {
         if (email == null || email.isBlank()) return null;
         return adminDAO.findAdminForLoginByEmail(email);
     }
+    
+    
+    
+    
+    /* 리뷰 부적절 콘텐츠 신고 생성(IPC) */
+    @Override
+    public int createIPCReport(AdminReportDTO dto) {
+        if (dto == null) return 0;
+
+        // 필수값 검증
+        if (dto.getReporterId() <= 0) {
+            throw new IllegalArgumentException("reporterId가 필요합니다.");
+        }
+        if (dto.getReportedItemId() <= 0) {
+            throw new IllegalArgumentException("reportedItemId(리뷰ID)가 필요합니다.");
+        }
+
+        // 기본값 보정
+        if (dto.getStatus() == null || dto.getStatus().isBlank()) dto.setStatus("PENDING");
+        if (dto.getReason() == null || dto.getReason().isBlank()) dto.setReason("기타");
+        if (dto.getExcerpt() == null) dto.setExcerpt("");
+
+        // INSERT (MyBatis selectKey로 dto.id 세팅됨)
+        return adminDAO.insertIPCReport(dto);
+    }
 	
 
 }

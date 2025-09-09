@@ -3,6 +3,7 @@ import { useEffect, useState, useRef } from "react";
 import axios from "axios";
 import SideBarMenu from "../components/SideBarMenu";
 import "../restaurantList/RestaurantDetail.css";
+import ReviewReportModal from "../report/review-report";
 import KakaoMap from "../components/KakaoMap";
 import { DEFAULT_IMAGE_URL } from "./RestaurantCard"
 
@@ -42,6 +43,16 @@ function RestaurantDetail() {
 
   const [ selectedReviewId, setSelectedReviewId ] = useState(null);
   const menuRef = useRef(null);
+
+    //여기 내 거...
+  const [reportOpen, setReportOpen] = useState(false);
+  const [reportTarget, setReportTarget] = useState({ id: null, text: "" });
+  const openReport = (review) => {
+    setReportTarget({ id: review.id, text: review.reviewComment || "" });
+    setReportOpen(true);
+    setSelectedReviewId(null);
+  };
+
 
   const fetchRestaurantData = async () => {
       try {
@@ -236,7 +247,6 @@ function RestaurantDetail() {
   };
   const groupedTimes = groupOperationTimesByDay(operationTimes);
 
-
   return (
     <>
       <div className="restaurantDetail-page">
@@ -372,6 +382,7 @@ function RestaurantDetail() {
                                       <div className="review-menu-item"
                                         onClick={(e) => {
                                           e.stopPropagation();
+                                          openReport(review);
                                         }}
                                       >
                                         신고
@@ -479,6 +490,14 @@ function RestaurantDetail() {
           fetchReviews={fetchReviews}
         />
       )}
+
+      <ReviewReportModal
+        open={reportOpen}
+        reviewId={reportTarget.id}
+        reviewText={reportTarget.text}
+        onClose={() => setReportOpen(false)}
+        onReported={() => fetchReviews()}
+      />
     </>
   );
 }
