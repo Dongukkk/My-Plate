@@ -108,14 +108,10 @@ body {
     display: flex;
     gap: 12px;
     width: 98%;
+    transition: transform 0.35s cubic-bezier(0.22, 0.8, 0.24, 1);
     will-change: transform;
-    transition: transform .35s cubic-bezier(0.22, 0.8, 0.24, 1);
 }
 
-.translate-0 { transform: translateX(0%); }
-.translate-1 { transform: translateX(-25%); }
-.translate-2 { transform: translateX(-50%); }
-.translate-3 { transform: translateX(-75%); }
 
 /* 화살표 */
 .slider-arrow {

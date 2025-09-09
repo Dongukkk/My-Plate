@@ -54,13 +54,6 @@ function MainPage() {
         fetchAllRestaurants();
     }, []);
 
-    const handleNext = (setter, list, currentIndex) => {
-        setter(Math.min(currentIndex + 1, Math.max(0, list.length - 3)));
-    };
-
-    const handlePrev = (setter, currentIndex) => {
-        setter(Math.max(currentIndex - 1, 0));
-    };
 
     const RestaurantCard = ({ restaurant }) => (
         <div 
@@ -83,47 +76,60 @@ function MainPage() {
         </div>
     );
 
-    const RestaurantSlider = ({ title, list, currentIndex, setIndex }) => {
-    const getTranslateClass = (index) => `translate-${index}`;
+    const RestaurantSlider = ({ title, list}) => {
+        const [currentIndex, setCurrentIndex] = useState(0);
+
+        const handleNext = () => {
+            setCurrentIndex(prev => Math.min(prev + 1, Math.max(0, list.length - 3)));
+        };
+
+        const handlePrev = () => {
+            setCurrentIndex(prev => Math.max(prev - 1, 0));
+        };
+
 
     return (
-        <section className="mainpage-container">
-            <h3>{title}</h3>
-            <div className="mainpage-slider-container">
-                <button
-                    onClick={() => handlePrev(setIndex, currentIndex)}
-                    className="slider-arrow prev-arrow"
-                    disabled={currentIndex === 0}
-                >
-                    {'<'}
-                </button>
+    <section className="mainpage-container">
+      <h3>{title}</h3>
+      <div className="mainpage-slider-container">
+        <button
+          onClick={handlePrev}
+          className="slider-arrow prev-arrow"
+          disabled={currentIndex === 0}
+        >
+          {'<'}
+        </button>
 
-                <div className="mainpage-restaurant-list-wrapper">
-                    <div
-                        className={`mainpage-restaurant-list ${getTranslateClass(currentIndex)}`}
-                    >
-                        {list.map((restaurant) => (
-                            <RestaurantCard key={restaurant.id} restaurant={restaurant} />
-                        ))}
-                        <div className="mainpage-more-card" onClick={() => navigate(`/restaurantList`)}>
-                            <div className="more-text-container">
-                                <span className="text-4xl">→</span>
-                                <h4>더 많은 맛집<br />탐색하기</h4>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <button
-                    onClick={() => handleNext(setIndex, list, currentIndex)}
-                    className="slider-arrow next-arrow"
-                    disabled={currentIndex >= Math.max(0, list.length - 3)}
-                >
-                    {'>'}
-                </button>
+        <div className="mainpage-restaurant-list-wrapper">
+          <div
+            className="mainpage-restaurant-list"
+            style={{
+              transform: `translateX(-${currentIndex * 25}%)`,
+              transition: 'transform 0.35s cubic-bezier(0.22, 0.8, 0.24, 1)'
+            }}
+          >
+            {list.map(restaurant => (
+              <RestaurantCard key={restaurant.id} restaurant={restaurant} />
+            ))}
+            <div className="mainpage-more-card" onClick={() => navigate(`/restaurantList`)}>
+              <div className="more-text-container">
+                <span className="text-4xl">→</span>
+                <h4>더 많은 맛집<br />탐색하기</h4>
+              </div>
             </div>
-        </section>
-    );
+          </div>
+        </div>
+
+        <button
+          onClick={handleNext}
+          className="slider-arrow next-arrow"
+          disabled={currentIndex >= list.length - 3}
+        >
+          {'>'}
+        </button>
+      </div>
+    </section>
+  );
 };
 
     return (
