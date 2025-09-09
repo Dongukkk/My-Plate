@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import api, { toggleBookmark } from "../api/api";
+import { toggleBookmark } from "../api/api";
 import { useSelector } from 'react-redux';
 import { calculateSoloLevel } from "../utils/calculate";
 
