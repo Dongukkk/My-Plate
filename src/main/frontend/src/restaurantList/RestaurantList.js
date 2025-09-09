@@ -210,7 +210,7 @@ function RestaurantList() {
                             {loading && <div>로딩 중...</div>}
                             {!hasMore && !loading &&
                                 <div style={{ textAlign: 'center', marginTop:'5%' }}>
-                                    <img src={`${process.env.PUBLIC_URL}/images/icon/noresult/SEARCH_NORESULT.png`} style={{width:'60%', margin: '0 auto'}}></img>
+                                    {/* <img src={`${process.env.PUBLIC_URL}/images/icon/noresult/SEARCH_NORESULT.png`} style={{width:'60%', margin: '0 auto'}}></img> */}
                                 </div>
                             }
                         </div>
