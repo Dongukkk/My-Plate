@@ -1,3 +1,4 @@
+/* ---------- Layout ---------- */
 .lp-myp-wrap {
   min-height: 100vh;
   background: #fafafa;
@@ -12,11 +13,11 @@
   background: #fff;
   border: 1px solid #eee;
   border-radius: 16px;
-  box-shadow: 0 12px 40px rgba(0,0,0,.06);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, .06);
   overflow: hidden;
 }
 
-/* header */
+/* ---------- Header ---------- */
 .lp-myp-header {
   display: grid;
   grid-template-columns: auto 1fr auto;
@@ -39,10 +40,24 @@
   letter-spacing: .5px;
 }
 
-.lp-myp-id { display: flex; flex-direction: column; gap: 4px; }
-.lp-myp-name { font-size: 20px; font-weight: 700; }
-.lp-myp-email { color: #666; font-size: 13.5px; }
+.lp-myp-id {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
 
+.lp-myp-name {
+  font-size: 20px;
+  font-weight: 700;
+}
+
+.lp-myp-email {
+  color: #666;
+  font-size: 13.5px;
+}
+
+/* 배지: JSX가 myp-badge를 쓰므로 둘 다 잡아준다 */
+.myp-badge,
 .lp-myp-badge {
   font-size: 12px;
   font-weight: 700;
@@ -50,20 +65,75 @@
   padding: 6px 10px;
   border: 1px solid #eee;
 }
+
+.myp-badge.is-admin,
 .lp-myp-badge.is-admin {
-  color: #fff; background: #ef5350; border-color: #ef5350;
+  color: #fff;
+  background: #ef5350;
+  border-color: #ef5350;
 }
+
+.myp-badge.is-user,
 .lp-myp-badge.is-user {
-  color: #3949ab; background: #e8eaf6; border-color: #e8eaf6;
+  color: #3949ab;
+  background: #e8eaf6;
+  border-color: #e8eaf6;
 }
 
-/* body */
-.lp-myp-body { padding: 20px; display: grid; gap: 10px; }
-.lp-myp-row { display: flex; justify-content: space-between; gap: 12px; }
-.lp-myp-key { color: #666; font-size: 13px; }
-.lp-myp-val { font-weight: 600; }
+/* ---------- Provider + Logout subbar ---------- */
+/* 헤더 바로 아래, 왼쪽엔 provider(예: GOOGLE), 오른쪽엔 로그아웃 */
+.lp-myp-subbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 20px 10px;
+  background: #fff;
+  border-bottom: 1px solid #f0f0f0;
+}
 
-/* actions */
+.lp-myp-provider {
+  font-weight: 700;
+  letter-spacing: .2px;
+  color: #333;
+}
+
+.lp-logout-top {
+  border: 1px solid #ffd1d1;
+  background: #fff3f3;
+  color: #d54242;
+  padding: 8px 12px;
+  border-radius: 10px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.lp-logout-top:hover {
+  background: #ffe5e5;
+}
+
+/* ---------- Body ---------- */
+.lp-myp-body {
+  padding: 20px;
+  display: grid;
+  gap: 10px;
+}
+
+.lp-myp-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.lp-myp-key {
+  color: #666;
+  font-size: 13px;
+}
+
+.lp-myp-val {
+  font-weight: 600;
+}
+
+/* ---------- Actions (하단) ---------- */
 .lp-myp-actions {
   display: flex;
   justify-content: flex-end;
@@ -84,6 +154,14 @@
   color: #333;
 }
 
+.lp-myp-link.sm {
+  padding: 6px 10px;
+  border-radius: 8px;
+  font-weight: 600;
+  line-height: 1;
+}
+
+/* (하단 빨간 로그아웃 버튼을 더 이상 쓰지 않더라도 유지만 함) */
 .lp-myp-logout {
   background: #ef5350;
   color: #fff;
@@ -94,11 +172,235 @@
   cursor: pointer;
 }
 
-.lp-myp-loading, .lp-myp-error {
+/* ---------- Status ---------- */
+.lp-myp-loading,
+.lp-myp-error {
   background: #fff;
   border: 1px solid #eee;
   border-radius: 12px;
   padding: 18px 20px;
-  box-shadow: 0 12px 40px rgba(0,0,0,.06);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, .06);
 }
-.lp-myp-error { color: #e53935; }
+
+.lp-myp-error {
+  color: #e53935;
+}
+
+/* ---------- Form ---------- */
+.lp-myp-input {
+  padding: 6px 8px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  margin-right: 8px;
+}
+
+.lp-myp-btn {
+  margin-left: 8px;
+  padding: 6px 10px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  background: #fff;
+}
+
+.lp-myp-btn.primary {
+  background: #ff5a3c;
+  border-color: #ff5a3c;
+  color: #fff;
+}
+
+.lp-myp-error.small {
+  color: #e54848;
+  font-size: 12px;
+  margin-top: 6px;
+}
+
+/* ---------- KPI ---------- */
+.lp-myp-kpis {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 14px;
+  margin-top: 14px;
+  align-items: stretch;
+}
+
+.lp-myp-kpis .kpi {
+  border: 1px solid #eee;
+  border-radius: 10px;
+  padding: 16px 10px;
+  text-align: center;
+  background: #fff;
+  cursor: default;
+}
+
+.lp-myp-kpis .kpi .num {
+  font-size: 22px;
+  font-weight: 700;
+  line-height: 1;
+  margin-bottom: 6px;
+}
+
+.lp-myp-kpis .kpi .label {
+  font-size: 12px;
+  color: #666;
+}
+
+.lp-myp-kpis .kpi[role="button"] {
+  cursor: pointer;
+}
+
+/* ---------- Recent Review List ---------- */
+.lp-myp-reviewlist .rv-row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  /* 이름-별점-날짜 간격 */
+  line-height: 1.5;
+  cursor: pointer;
+}
+
+.lp-myp-reviewlist .rv-rating {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.lp-myp-reviewlist .rv-rating i {
+  font-style: normal;
+  /* ★ 높이 튐 방지 */
+  line-height: 1;
+}
+
+.lp-myp-reviewlist .rv-rating b {
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  /* 숫자폭 일정 */
+}
+
+.lp-myp-reviewlist .rv-date {
+  color: #666;
+}
+
+/* ---------- List bullets as icons (bookmark / review) ---------- */
+/* 기본 불릿 제거 */
+.lp-myp-reviewlist {
+  list-style: none;
+  padding-left: 0;
+  margin: 0;
+}
+
+/* 아이콘을 위한 여백 */
+.lp-myp-reviewlist li {
+  position: relative;
+  padding-left: 24px;
+  /* 아이콘 너비만큼 들여쓰기 */
+  margin: 4px 0;
+}
+
+/* 아이콘 공통 */
+.lp-myp-reviewlist li::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0.55em;
+  /* 텍스트 중간 높이에 맞춤 */
+  width: 16px;
+  height: 16px;
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: contain;
+  opacity: .95;
+}
+
+/* 즐겨찾기(빨간 북마크) */
+.lp-myp-reviewlist.is-bookmarks li::before {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='%23ef5350' d='M6 2h12a2 2 0 0 1 2 2v18l-8-4-8 4V4a2 2 0 0 1 2-2z'/%3E%3C/svg%3E");
+}
+
+/* 리뷰(노란 별, 검정 외곽선) */
+.lp-myp-reviewlist.is-reviews li::before {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='%23FFC107' stroke='%23000' stroke-width='1' d='M12 17.27 18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z'/%3E%3C/svg%3E");
+}
+
+/* ---------- Tabs (숨김) ---------- */
+.acc-tabbar {
+  display: none;
+}
+
+/* ---------- Responsive ---------- */
+@media (max-width: 480px) {
+  .lp-myp-header {
+    grid-template-columns: auto 1fr;
+    /* 배지는 다음 줄로 자동 줄바꿈 */
+    row-gap: 10px;
+  }
+
+  .lp-myp-subbar {
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .lp-myp-kpis {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+/* ---------- Section header (title + 전체보기 버튼) ---------- */
+.lp-myp-section {
+  margin-top: 18px;
+  /* 섹션 간 간격 */
+}
+
+.lp-myp-sec-head {
+  display: flex;
+  /* 제목과 버튼을 한 줄에 */
+  align-items: center;
+  justify-content: space-between;
+  margin: 14px 0 8px;
+  /* 위/아래 여백 */
+}
+
+.lp-myp-sec-title {
+  margin: 0;
+  /* 기본 h 태그 margin 제거 */
+  font-size: 14px;
+  font-weight: 700;
+  color: #222;
+}
+
+.app-shell.with-sidebar {
+  display: grid;
+  grid-template-columns: 240px minmax(0, 1fr);
+  gap: 24px;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 16px 20px;
+  align-items: start;
+  box-sizing: border-box;
+}
+
+.app-sidebar {
+  position: sticky;
+  top: 84px;
+  align-self: start;
+}
+
+.app-main {
+  min-width: 0;
+}
+
+.app-main .lp-myp-wrap.in-layout {
+  min-height: auto;
+  background: transparent;
+  display: block;
+  padding: 0;
+}
+
+@media (max-width: 900px) {
+  .app-shell.with-sidebar {
+    grid-template-columns: 1fr;
+  }
+
+  .app-sidebar {
+    position: static;
+  }
+}

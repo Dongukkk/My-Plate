@@ -52,7 +52,7 @@ api.interceptors.response.use(
     console.log('[ERR]', status ?? 'NETWORK', url, err?.response?.data || err.message);
 
     // 재발급 대상 아님: 네트워크 오류이거나, refresh 호출 자체에서 터진 경우
-    if (!status || (status !== 401 && status !== 403) || cfg._retry || url.includes('/refresh')) {
+    if (!status || status !== 401 || cfg._retry || url.includes('/refresh')) {
       return Promise.reject(err);
     }
 
@@ -159,5 +159,38 @@ export const getRestaurantReviews = async (restaurantId, page = 0, size = 10) =>
         throw error;
     }
 };
+
+// ===== MyPage =====
+
+// 닉네임 변경
+export const updateMyName = (username) => {
+  // Authorization 헤더는 인터셉터가 자동으로 붙임
+  return api.post('/me/name', { username });
+};
+
+// 내 정보(/api/me)
+export const getMe = async () => {
+  const { data } = await api.get('/me');
+  return data;
+};
+
+// 내 통계(/api/me/stats)
+export const getMyStats = async () => {
+  const { data } = await api.get('/me/stats');
+  return data;
+};
+
+//최근 리뷰 3개까지
+export const getMyRecentReviews = async (limit = 3) => {
+  const r = await api.get('/me/reviews', { params: { limit } });
+  return r.data; // [{id, restaurantId, restaurantName, rating, comment, createdAt}, ...]
+};
+
+//마이페이지에서 비밀번호 직접 변경
+export async function changePassword(currentPassword, newPassword) {
+  
+  return api.post('/password/change', {currentPassword, newPassword});
+}
+
 
 export default api;

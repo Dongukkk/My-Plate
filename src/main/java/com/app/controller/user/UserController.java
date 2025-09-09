@@ -1,5 +1,7 @@
 package com.app.controller.user;
 
+import com.app.dto.auth.LoginRequest;
+import com.app.dto.auth.LoginResponse;
 import com.app.dto.user.UserRegisterRequest;
 import com.app.dto.user.UserResponse;
 import com.app.service.UserService;
@@ -19,7 +21,10 @@ public class UserController {
         return ResponseEntity.ok(res); 
     }
     
-    //비밀번호 재설정 링크 요청
+    @PostMapping("/login")          
+    public ResponseEntity<LoginResponse> login(@RequestBody LoginRequest req) {
+        return ResponseEntity.ok(userService.login(req));
+    }
     
     
     

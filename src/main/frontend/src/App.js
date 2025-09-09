@@ -30,6 +30,7 @@ import Reset from './account/Reset';
 import OAuthCallback from './account/OAuthCallback';
 import Register from './account/Register';
 import BookmarkList from './restaurantList/BookmarkList';
+import PasswordChange from './account/PasswordChange';
 
 const MainLayout = () => {
 
@@ -69,6 +70,10 @@ const MainLayout = () => {
         <Route path="/oauth/:provider/callback" element={<OAuthCallback />} />
 
         <Route path="*" element={<ErrorPage />} />
+
+        <Route path="/account/password" element={<PasswordChange />} />
+
+
       </Routes>
       {showHeaderFooter && <Footer />}
     </>
