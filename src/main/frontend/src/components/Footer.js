@@ -18,16 +18,16 @@ export default function Footer() {
                     <div className="footer-col">
                         <h4 className="footer-head">이용안내</h4>
                         <ul className="footer-links">
-                            <li><a className="footer-link">헬프 센터</a></li>
-                            <li><a href="/cardIntro" className="footer-link">제휴 · 협력</a></li>
+                            <li><a className="footer-link">FAQ</a></li>
+                            <li><a href="/cardIntro" className="footer-link">복지카드</a></li>
                         </ul>
                     </div>
                     <div className="footer-col">
                         <h4 className="footer-head">정책</h4>
                         <ul className="footer-links">
-                            <li><a href="/termsOfUse" className="footer-link">이용약관</a></li>
-                            <li><a href="/termsOfUse" className="footer-link">개인정보처리방침</a></li>
-                            <li><a href="/termsOfUse" className="footer-link">이미지 가이드</a></li>
+                            <li><a href="/termsOfUse#terms" className="footer-link">이용약관</a></li>
+                            <li><a href="/termsOfUse#privacy" className="footer-link">개인정보처리방침</a></li>
+                            <li><a href="/termsOfUse#images" className="footer-link">이미지 가이드</a></li>
                         </ul>
                     </div>
                     <div className="footer-col"></div>

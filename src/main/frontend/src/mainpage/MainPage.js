@@ -56,7 +56,7 @@ function MainPage() {
     }, []);
 
     const handleNext = (setter, list, currentIndex) => {
-        setter(Math.min(currentIndex + 1, list.length - 3));
+        setter(Math.min(currentIndex + 1, Math.max(0, list.length - 3)));
     };
 
     const handlePrev = (setter, currentIndex) => {
@@ -83,6 +83,7 @@ function MainPage() {
             <h3 className="text-xl font-bold mb-5">{title}</h3>
             <div className="mainpage-slider-container">
                 <button 
+                    onMouseDown={(e) => e.preventDefault()}
                     onClick={() => handlePrev(setIndex, currentIndex)} 
                     className="slider-arrow prev-arrow"
                     disabled={currentIndex === 0}
@@ -110,9 +111,10 @@ function MainPage() {
                     </div>
                 </div>
                 <button 
+                    onMouseDown={(e) => e.preventDefault()}
                     onClick={() => handleNext(setIndex, list, currentIndex)} 
                     className="slider-arrow next-arrow"
-                    disabled={currentIndex >= list.length - 4}
+                    disabled={currentIndex >= Math.max(0, list.length - 3)}
                 >
                     {'>'}
                 </button>
@@ -128,7 +130,7 @@ function MainPage() {
                     <source src={`${process.env.PUBLIC_URL}/video/MAIN_VIDEO.mp4`} type="video/mp4"></source>
                 </video>
                 <div className="text">
-                    <h2>혼자서도 맛있게, 혼밥인</h2>
+                    <h2>혼자서도 맛있게, MY PLATE</h2>
                     <p>당신을 위한 맞춤형 혼밥 맛집 추천 서비스</p>
                     <div>
                         <button className="mainpage-btn-orange" onClick={() => navigate(`/restaurantList`)}>맛집 탐색하기</button>
@@ -138,28 +140,28 @@ function MainPage() {
             </section>
 
             <RestaurantSlider 
-                title="오늘의 추천 맛집"
+                title="💥 오늘의 추천 맛집"
                 list={ratedRestaurants}
                 currentIndex={ratedIndex}
                 setIndex={setRatedIndex}
             />
 
             <RestaurantSlider
-                title="혼밥 하기 쉬운 맛집"
+                title="🍚 혼밥 하기 쉬운 맛집"
                 list={soloRestaurants}
                 currentIndex={soloIndex}
                 setIndex={setSoloIndex}
             />
             
             <RestaurantSlider
-                title="가장 인기 있는 맛집"
+                title="✨ 가장 인기 있는 맛집"
                 list={reviewedRestaurants}
                 currentIndex={reviewedIndex}
                 setIndex={setReviewedIndex}
             />
 
             <RestaurantSlider
-                title="복지카드 사용 가능 맛집"
+                title="👍 복지카드 사용 가능 맛집"
                 list={welfareRestaurants}
                 currentIndex={welfareIndex}
                 setIndex={setWelfareIndex}
@@ -168,19 +170,22 @@ function MainPage() {
             <section className="mainpage-services">
                 <div className="mainpage-container mainpage-grid">
                     <div className="mainpage-service-card">
-                        <h4>맛집 검색</h4>
-                        <p>지역, 음식 종류, 가격대 등 다양한 필터로 나에게 맞는 혼밥 맛집을 찾아보세요.</p>
-                        <button className="mainpage-btn-orange">검색하기</button>
+                        <h4>🔍 맛집 검색</h4>
+                        <p>지역, 음식 종류, 가격대 등 다양한 필터로 
+                            <br/>나에게 맞는 혼밥 맛집을 찾아보세요.</p>
+                        <button className="mainpage-btn-orange" onClick={() => navigate(`/restaurantList`)}>검색하기</button>
                     </div>
                     <div className="mainpage-service-card">
-                        <h4>지도로 보기</h4>
-                        <p>내 주변의 혼밥인 추천 식당들을 지도에서 확인하고 방문해보세요.</p>
-                        <button className="mainpage-btn-orange">지도 보기</button>
+                        <h4>🚗 지도로 보기</h4>
+                        <p>내 주변의 혼밥인 추천 식당들을 
+                            <br/>지도에서 확인하고 방문해보세요.</p>
+                        <button className="mainpage-btn-orange" onClick={() => navigate(`/map`)}>지도 보기</button>
                     </div>
                     <div className="mainpage-service-card">
-                        <h4>맛집 리스트</h4>
-                        <p>다양한 테마별 인기 맛집 리스트를 확인하고 나만의 맛집을 경험해보세요.</p>
-                        <button className="mainpage-btn-orange">리스트 보기</button>
+                        <h4>📋 맛집 리스트</h4>
+                        <p>다양한 테마별 인기 맛집 리스트를 
+                            <br/>확인하고 나만의 맛집을 경험해보세요.</p>
+                        <button className="mainpage-btn-orange" onClick={() => navigate(`/restaurantList`)}>리스트 보기</button>
                     </div>
                 </div>
             </section>
