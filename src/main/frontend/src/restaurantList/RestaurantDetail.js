@@ -461,18 +461,21 @@ function RestaurantDetail() {
       </div>
       {isModalOpen && (
         <ReviewModal
-          restaurantId={id}
+          restaurant={restaurant}
           onClose={() => setIsModalOpen(false)}
           onReviewSubmitted={handleReviewSubmitted}
+          fetchReview={fetchReviews}
+          onDeleteReview={handleDeleteReview}
         />
       )}
 
       {isWriteReviewModalOpen && (
         <WriteReviewModal
-          restaurantId={id}
+          restaurant={restaurant}
           initialReviewData={reviewToEdit}
           onClose={() => setIsWriteReviewModalOpen(false)}
           onReviewSubmitted={handleReviewSubmitted}
+          fetchReviews={fetchReviews}
         />
       )}
     </>
