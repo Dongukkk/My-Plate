@@ -70,3 +70,12 @@
   }
   .lp-auth-hero { height: 260px; }
 }
+
+.lp-auth-brand{
+  display:flex; align-items:center; gap:8px;
+  margin: 0 0 6px;
+}
+.lp-auth-brand-logo{
+  width: 140px; height: auto;
+  object-fit: contain; display:block;
+}

@@ -8,6 +8,7 @@ export default function AuthLayout({
   title = 'My Plate',
   imageFit = 'contain',
   imagePosition = 'center',
+  brandImageSrc = ''
 }) {
   const navigate = useNavigate();
   const hasHero = !!imageSrc;
@@ -26,8 +27,11 @@ export default function AuthLayout({
 
         <div className="lp-auth-panel">
           <div className="lp-auth-brand" onClick={() => navigate(`/`)} style={{ cursor: 'pointer' }}>
-            <span className="lp-auth-brand-mark">🍽</span>
-            <span className="lp-auth-brand-text">{title}</span>
+            {brandImageSrc ? (
+              <img className="lp-auth-brand-logo" src={brandImageSrc} alt={title} />
+            ) : (
+              <span className="lp-auth-brand-text">{title}</span>
+            )}
           </div>
           {children}
         </div>

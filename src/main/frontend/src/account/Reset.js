@@ -51,7 +51,7 @@ function useResetToken() {
     };
 
     return (
-        <AuthLayout imageSrc={null} title="My Plate">
+        <AuthLayout imageSrc={null} title="My Plate" brandImageSrc={`https://i.imgur.com/Tp8HxhZ.png`}>
         <h2 className="lp-reset-title">비밀번호 재설정</h2>
         <p className="lp-reset-sub">새 비밀번호를 입력해주세요.</p>
 

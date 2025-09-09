@@ -40,7 +40,7 @@ export default function Forgot() {
   };
 
   return (
-    <AuthLayout imageSrc="/login-hero.jpg" title="My Plate">
+    <AuthLayout imageSrc="https://cdn.pixabay.com/photo/2017/05/07/08/56/pancakes-2291908_640.jpg" title="My Plate" brandImageSrc={`https://i.imgur.com/Tp8HxhZ.png`}>
       <h2 className="lp-forgot-title">비밀번호 재설정</h2>
       <p className="lp-forgot-sub">
         가입하신 이메일 주소로 비밀번호 재설정 링크를 보내드립니다.

@@ -63,7 +63,7 @@ export default function Register() {
 
   return (
     // ✅ imageSrc 전달 제거 → 404 이미지 요청 안 나감
-    <AuthLayout title="My Plate">
+    <AuthLayout title="My Plate" brandImageSrc={`https://i.imgur.com/Tp8HxhZ.png`}>
       <h2 className="lp-register-title">새 사용자 등록</h2>
       <p className="lp-register-sub">맛집 추천을 개인화하려면 계정을 만들어주세요.</p>
 
