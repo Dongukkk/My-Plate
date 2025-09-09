@@ -23,6 +23,7 @@ public class ReviewDAOImpl implements ReviewDAO {
 
 	@Override
 	public List<ReviewDTO> getReviewsByRestaurantId(Long restaurantId) {
+		
 		return  sqlSessionTemplate.selectList("review_mapper.getReviewsByRestaurantId", restaurantId);
 
 	}
@@ -48,7 +49,6 @@ public class ReviewDAOImpl implements ReviewDAO {
 	
 	@Override
 	public ReviewDTO updateReview(ReviewDTO review) {
-		System.out.println(review);
 		sqlSessionTemplate.update("review_mapper.updateReview", review);
 	return review;
 	}
@@ -61,6 +61,12 @@ public class ReviewDAOImpl implements ReviewDAO {
 	@Override
 	public ReviewDTO getReviewById(long id) {
 		return sqlSessionTemplate.selectOne("review_mapper.getReviewById", id);
+	}
+
+	@Override
+	public void updateRestaurantInfoWhenReview(long restaurantId) {
+		sqlSessionTemplate.update("review_mapper.updateRestaurantInfoWhenReview", restaurantId);
+		
 	}
 
 	

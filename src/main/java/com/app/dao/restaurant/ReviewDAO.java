@@ -24,4 +24,6 @@ public interface ReviewDAO {
 	int markReviewAsDeleted(long id);
 	
 	ReviewDTO getReviewById(long id);
+	
+	void updateRestaurantInfoWhenReview(long restaurantId);
 }

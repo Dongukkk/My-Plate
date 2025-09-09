@@ -29,7 +29,7 @@ function WriteReviewModal({ restaurant, initialReviewData, onClose, onReviewSubm
     if (rating === 0) {
     alert("별점을 선택해주세요.");
     return;
-}
+    }
     
     const reviewData = {
       restaurantId: Number(restaurant.id),
@@ -46,7 +46,6 @@ function WriteReviewModal({ restaurant, initialReviewData, onClose, onReviewSubm
             await axios.put(`/api/reviews/${initialReviewData.id}`, reviewData, {
                 headers: { 'Authorization': `Bearer ${access}` }
             });
-            fetchReviews();
             alert("리뷰가 성공적으로 수정되었습니다!");
         } else {
             await axios.post(`/api/restaurants/${restaurant.id}/reviews`, reviewData, {
@@ -57,6 +56,7 @@ function WriteReviewModal({ restaurant, initialReviewData, onClose, onReviewSubm
             }
             alert("리뷰가 성공적으로 등록되었습니다!");
         }
+        fetchReviews();
       onClose();
       
     } catch (error) {
