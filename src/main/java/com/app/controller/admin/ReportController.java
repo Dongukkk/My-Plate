@@ -40,4 +40,21 @@ public class ReportController {
         }
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("insert failed");
     }
+	
+	@PostMapping("/api/reports/rer")
+	public ResponseEntity<?> createRER(@RequestBody AdminReportDTO dto) {
+	    if (dto == null || dto.getReporterId() <= 0)
+	        return ResponseEntity.badRequest().body("reporterId is required");
+	    if (dto.getReportedItemId() <= 0)
+	        return ResponseEntity.badRequest().body("reportedItemId (restaurantId) is required");
+
+	    int r = adminService.createRERReport(dto);
+	    if (r > 0) {
+	        Map<String, Object> body = new HashMap<>();
+	        body.put("id", dto.getId());
+	        body.put("status", "CREATED");
+	        return ResponseEntity.status(HttpStatus.CREATED).body(body);
+	    }
+	    return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("insert failed");
+	}
 }

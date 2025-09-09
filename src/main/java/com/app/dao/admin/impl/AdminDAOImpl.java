@@ -187,6 +187,9 @@ public class AdminDAOImpl implements AdminDAO {
     public int insertIPCReport(AdminReportDTO dto) {
         return sqlSessionTemplate.insert(AM + "insertIPCReport", dto);
     }
-	
+    @Override
+    public int insertRERReport(AdminReportDTO dto) {
+        return sqlSessionTemplate.insert(AM + "insertRERReport", dto);
+    }
 
 }

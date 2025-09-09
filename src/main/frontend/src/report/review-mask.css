@@ -1,0 +1,59 @@
+/* 리뷰 마스킹 */
+.review-masked {
+    position: relative;
+}
+
+.review-masked .mask-target {
+    filter: blur(6px);
+    user-select: none;
+    pointer-events: none;
+}
+
+/* 오버레이 */
+.review-mask-overlay {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(15, 23, 42, .45);
+    color: #fff;
+    text-align: center;
+    padding: 12px;
+}
+
+.review-mask-overlay .msg {
+    font-size: 14px;
+    line-height: 1.45;
+}
+
+.review-mask-overlay .btns {
+    margin-top: 10px;
+    display: flex;
+    gap: 8px;
+    justify-content: center;
+}
+
+.review-mask-overlay button {
+    border: 0;
+    border-radius: 10px;
+    padding: 8px 12px;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.review-mask-overlay .primary {
+    background: #e74c3c;
+    color: #fff;
+}
+
+.review-mask-overlay .ghost {
+    background: #ffffff;
+    color: #111;
+}
+
+/* (선택) 이미지 픽셀 느낌 */
+.review-masked img {
+    image-rendering: pixelated;
+    transform: scale(1.02);
+}

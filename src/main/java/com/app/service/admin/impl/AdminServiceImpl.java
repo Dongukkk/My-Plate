@@ -219,14 +219,23 @@ public class AdminServiceImpl implements AdminService {
         if (dto.getReportedItemId() <= 0) {
             throw new IllegalArgumentException("reportedItemId(리뷰ID)가 필요합니다.");
         }
-
         // 기본값 보정
         if (dto.getStatus() == null || dto.getStatus().isBlank()) dto.setStatus("PENDING");
         if (dto.getReason() == null || dto.getReason().isBlank()) dto.setReason("기타");
         if (dto.getExcerpt() == null) dto.setExcerpt("");
-
         // INSERT (MyBatis selectKey로 dto.id 세팅됨)
         return adminDAO.insertIPCReport(dto);
+    }
+    
+    @Override
+    public int createRERReport(AdminReportDTO dto) {
+        if (dto == null) return 0;
+        if (dto.getReporterId() <= 0) throw new IllegalArgumentException("reporterId 필요");
+        if (dto.getReportedItemId() <= 0) throw new IllegalArgumentException("reportedItemId(restaurantId) 필요");
+        if (dto.getStatus() == null || dto.getStatus().isBlank()) dto.setStatus("PENDING");
+        if (dto.getReason() == null || dto.getReason().isBlank()) dto.setReason("정보 수정 요청");
+        if (dto.getExcerpt() == null) dto.setExcerpt("");
+        return adminDAO.insertRERReport(dto);
     }
 	
 
