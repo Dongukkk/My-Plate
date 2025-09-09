@@ -3,7 +3,7 @@ import "./WriteReviewModal.css";
 import axios from "axios";
 import { useSelector } from 'react-redux';
 
-function WriteReviewModal({ restaurantId, initialReviewData, onClose, onReviewSubmitted }) {
+function WriteReviewModal({ restaurant, initialReviewData, onClose, onReviewSubmitted, fetchReviews}) {
   const user = useSelector(state => state.user);
   const [rating, setRating] = useState(initialReviewData ? initialReviewData.rating : 0);
   const [menuScore, setMenuScore] = useState(initialReviewData ? initialReviewData.menuScore : 1);
@@ -29,10 +29,10 @@ function WriteReviewModal({ restaurantId, initialReviewData, onClose, onReviewSu
     if (rating === 0) {
     alert("별점을 선택해주세요.");
     return;
-}
+    }
     
     const reviewData = {
-      restaurantId: Number(restaurantId),
+      restaurantId: Number(restaurant.id),
       userId: user.id,
       rating,
       menuScore,
@@ -48,15 +48,17 @@ function WriteReviewModal({ restaurantId, initialReviewData, onClose, onReviewSu
             });
             alert("리뷰가 성공적으로 수정되었습니다!");
         } else {
-            await axios.post(`/api/restaurants/${restaurantId}/reviews`, reviewData, {
+            await axios.post(`/api/restaurants/${restaurant.id}/reviews`, reviewData, {
                 headers: { 'Authorization': `Bearer ${access}` }
             });
+            if (onReviewSubmitted) {
+              onReviewSubmitted();
+            }
             alert("리뷰가 성공적으로 등록되었습니다!");
         }
+        fetchReviews();
       onClose();
-      if (onReviewSubmitted) {
-        onReviewSubmitted();
-      }
+      
     } catch (error) {
       console.error("리뷰 제출 실패:", error);
       alert("리뷰 제출에 실패했습니다. 다시 시도해주세요.");

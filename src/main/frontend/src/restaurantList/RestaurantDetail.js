@@ -43,36 +43,7 @@ function RestaurantDetail() {
   const [ selectedReviewId, setSelectedReviewId ] = useState(null);
   const menuRef = useRef(null);
 
-  const fetchReviews = async () => {
-    if (!id) {
-      return;
-    }
-    try {
-      const data = await getRestaurantReviews(id);
-      setReviews(data);
-    } catch (e) {
-      console.error("리뷰를 가져오는 데 실패했습니다:", e);
-    }
-  };
-
-  useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (menuRef.current && !menuRef.current.contains(event.target)) {
-        setSelectedReviewId(null);
-      }
-    };
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
-  }, []);
-
-  const handleMenuClick = (reviewId) => {
-    setSelectedReviewId(selectedReviewId === reviewId ? null : reviewId);
-  };
-
-  useEffect(() => {
-    const fetchRestaurantData = async () => {
+  const fetchRestaurantData = async () => {
       try {
 
         const response = await getRestaurantDetail(id);
@@ -103,7 +74,38 @@ function RestaurantDetail() {
         console.error("레스토랑 정보를 가져오는 데 실패했습니다:", e);
       }
     };
-    fetchRestaurantData();
+
+  const fetchReviews = async () => {
+    if (!id) {
+      return;
+    }
+    try {
+      const data = await getRestaurantReviews(id);
+      setReviews(data);
+      fetchRestaurantData();
+    } catch (e) {
+      console.error("리뷰를 가져오는 데 실패했습니다:", e);
+    }
+  };
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (menuRef.current && !menuRef.current.contains(event.target)) {
+        setSelectedReviewId(null);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
+
+  const handleMenuClick = (reviewId) => {
+    setSelectedReviewId(selectedReviewId === reviewId ? null : reviewId);
+  };
+
+  useEffect(() => {
+    
     fetchReviews();
   }, [ id, user ]);
 
@@ -158,7 +160,6 @@ function RestaurantDetail() {
       ...prevRestaurant,
       ratingCount: prevRestaurant.ratingCount + 1
     }));
-
     fetchReviews();
   };
 
@@ -461,18 +462,21 @@ function RestaurantDetail() {
       </div>
       {isModalOpen && (
         <ReviewModal
-          restaurantId={id}
+          restaurant={restaurant}
           onClose={() => setIsModalOpen(false)}
           onReviewSubmitted={handleReviewSubmitted}
+          fetchReview={fetchReviews}
+          onDeleteReview={handleDeleteReview}
         />
       )}
 
       {isWriteReviewModalOpen && (
         <WriteReviewModal
-          restaurantId={id}
+          restaurant={restaurant}
           initialReviewData={reviewToEdit}
           onClose={() => setIsWriteReviewModalOpen(false)}
           onReviewSubmitted={handleReviewSubmitted}
+          fetchReviews={fetchReviews}
         />
       )}
     </>

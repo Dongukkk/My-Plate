@@ -3,7 +3,7 @@ import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
 import ErrorPage from './admin/error-page';
 import { LoadingProvider, useLoading } from './admin/loading-context';
 
-import { useEffect } from 'react';
+import { useEffect,useLayoutEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { setUser } from './store/store';
 
@@ -33,6 +33,19 @@ import Reset from './account/Reset';
 import OAuthCallback from './account/OAuthCallback';
 import Register from './account/Register';
 import BookmarkList from './restaurantList/BookmarkList';
+
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+
+function ScrollToTop() {
+  const { pathname } = useLocation();
+
+  useLayoutEffect(() => {
+    window.scrollTo(0, 0);
+  }, [pathname]);
+
+  return null;
+}
 
 const MainLayout = () => {
 
@@ -107,11 +120,16 @@ const App = () => {
   }, [dispatch, user]);
 
   return (
-    <BrowserRouter>
-      <LoadingProvider>
-        <MainLayout />
-      </LoadingProvider>
-    </BrowserRouter>
+    <>
+      <BrowserRouter>
+      <ScrollToTop />
+        <LoadingProvider>
+          <MainLayout />
+        </LoadingProvider>
+      </BrowserRouter>
+      <ToastContainer toastClassName="custom-toast"/>
+    </>
+    
   );
 };
 

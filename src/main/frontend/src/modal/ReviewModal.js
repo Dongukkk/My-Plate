@@ -5,25 +5,25 @@ import { useSelector } from "react-redux";
 import axios from "axios";
 import WriteReviewModal from "./WriteReviewModal";
 
-const ReviewModal = ({ restaurantId, onClose, onReviewSubmitted }) => {
+const ReviewModal = ({ restaurant, onClose, onReviewSubmitted, fetchReview, onDeleteReview }) => {
     const user = useSelector(state => state.user);
 
-    const [reviews, setReviews] = useState([]);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState(null);
-    const [currentPage, setCurrentPage] = useState(1);
+    const [ reviews, setReviews ] = useState([]);
+    const [ loading, setLoading ] = useState(true);
+    const [ error, setError ] = useState(null);
+    const [ currentPage, setCurrentPage ] = useState(1);
     const reviewsPerPage = 4;
 
-    const [selectedReviewId, setSelectedReviewId] = useState(null);
+    const [ selectedReviewId, setSelectedReviewId ] = useState(null);
     const menuRef = useRef(null);
 
-    const [isWriteReviewModalOpen, setIsWriteReviewModalOpen] = useState(false);
-    const [reviewToEdit, setReviewToEdit] = useState(null);
+    const [ isWriteReviewModalOpen, setIsWriteReviewModalOpen ] = useState(false);
+    const [ reviewToEdit, setReviewToEdit ] = useState(null);
 
     const fetchReviews = async () => {
         setLoading(true);
         try {
-            const data = await getRestaurantReviews(restaurantId);
+            const data = await getRestaurantReviews(restaurant.id);
             setReviews(data);
             setLoading(false);
         } catch (e) {
@@ -31,11 +31,12 @@ const ReviewModal = ({ restaurantId, onClose, onReviewSubmitted }) => {
             setError("리뷰를 불러오는 데 실패했습니다.");
             setLoading(false);
         }
+        fetchReview();
     };
 
     useEffect(() => {
         fetchReviews();
-    }, [restaurantId]);
+    }, [ restaurant.id ]);
 
     useEffect(() => {
         const handleClickOutside = (event) => {
@@ -64,17 +65,9 @@ const ReviewModal = ({ restaurantId, onClose, onReviewSubmitted }) => {
             return;
         }
         try {
-            const access = localStorage.getItem('access');
-            await axios.delete(`/api/reviews/${reviewId}`, {
-                headers: {
-                    'Authorization': `Bearer ${access}`
-                }
-            });
-            alert("리뷰가 삭제되었습니다.");
+            onDeleteReview(reviewId);
             fetchReviews();
-            if (onReviewSubmitted) {
-                onReviewSubmitted();
-            }
+            
         } catch (error) {
             console.error("리뷰 삭제 실패:", error);
             alert("리뷰 삭제에 실패했습니다.");
@@ -117,27 +110,29 @@ const ReviewModal = ({ restaurantId, onClose, onReviewSubmitted }) => {
                                         <div className="review-header">
                                             <div className="review-author" style={{ display: 'flex', padding: '10px 0', justifyContent: 'space-between' }}>
                                                 <div style={{ display: 'flex' }}>
-                                                    <div style={{ fontSize: '24px' }}>{review.userId}</div>
+                                                    <div style={{ fontSize: '20px' }}>{review.username}
+                                                        {(user && user.id && user.id === review.userId) && <span style={{fontSize:'14px', color:'gray'}}>(나)</span>}
+                                                    </div>
                                                     <div style={{ display: 'flex', alignItems: 'end' }}>
                                                         {review.menuScore === 0 && <span className="review-solo-feature">혼밥메뉴가 다양함</span>}
                                                         {review.seatScore === 0 && <span className="review-solo-feature">혼밥좌석이 많음</span>}
                                                     </div>
                                                 </div>
-                                                {(user && user.id && user.id === review.userId) &&
-                                                    <div style={{ cursor: 'pointer', position: 'relative', alignContent: 'center' }}>
-                                                        <p
-                                                            style={{ writingMode: 'vertical-rl', letterSpacing: '1px', margin: 'auto' }}
-                                                            onClick={(e) => {
-                                                                e.stopPropagation();
-                                                                handleMenuClick(review.id);
-                                                            }}
-                                                        >
-                                                            •••
-                                                        </p>
-                                                        {selectedReviewId === review.id && (
-                                                            <div className="review-menu-dropdown" ref={menuRef}>
-                                                                <div
-                                                                    className="review-menu-item"
+                                                <div style={{ cursor: 'pointer', position: 'relative', alignContent: 'center' }}>
+                                                    <p style={{ writingMode: 'vertical-rl', letterSpacing: '1px', margin: 'auto' }}
+                                                        onClick={(e) => {
+                                                            e.stopPropagation();
+                                                            handleMenuClick(review.id);
+                                                        }}
+                                                    >
+                                                        •••
+                                                    </p>
+
+
+                                                    {selectedReviewId === review.id && (
+                                                        <div className="review-menu-dropdown" ref={menuRef} >
+                                                            {(user && user.id && user.id === review.userId) &&
+                                                                <div className="review-menu-item"
                                                                     onClick={(e) => {
                                                                         e.stopPropagation();
                                                                         handleEditReview(review);
@@ -145,8 +140,9 @@ const ReviewModal = ({ restaurantId, onClose, onReviewSubmitted }) => {
                                                                 >
                                                                     수정
                                                                 </div>
-                                                                <div
-                                                                    className="review-menu-item"
+                                                            }
+                                                            {(user && user.id && user.id === review.userId) &&
+                                                                <div className="review-menu-item"
                                                                     onClick={(e) => {
                                                                         e.stopPropagation();
                                                                         handleDeleteReview(review.id);
@@ -154,10 +150,22 @@ const ReviewModal = ({ restaurantId, onClose, onReviewSubmitted }) => {
                                                                 >
                                                                     삭제
                                                                 </div>
-                                                            </div>
-                                                        )}
-                                                    </div>
-                                                }
+                                                            }
+                                                            {!(user && user.id && user.id === review.userId) &&
+                                                                <div className="review-menu-item"
+                                                                    onClick={(e) => {
+                                                                        e.stopPropagation();
+                                                                    }}
+                                                                >
+                                                                    신고
+                                                                </div>
+                                                            }
+
+                                                        </div>
+                                                    )}
+
+                                                </div>
+
                                             </div>
                                             <span className="review-rating">
                                                 {Array.from({ length: review.rating }, (_, i) => (
@@ -194,10 +202,11 @@ const ReviewModal = ({ restaurantId, onClose, onReviewSubmitted }) => {
             </div>
             {isWriteReviewModalOpen && (
                 <WriteReviewModal
-                    restaurantId={restaurantId}
+                    restaurant={restaurant}
                     initialReviewData={reviewToEdit}
                     onClose={() => setIsWriteReviewModalOpen(false)}
                     onReviewSubmitted={handleReviewSubmitted}
+                    fetchReviews={fetchReviews}
                 />
             )}
         </>
