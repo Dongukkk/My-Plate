@@ -3,7 +3,6 @@ import { useState, useEffect } from "react";
 import { getRestaurants } from '../api/api';
 import '../mainpage/MainPage.css';
 
-
 function MainPage() {
     const navigate = useNavigate();
 
@@ -64,12 +63,18 @@ function MainPage() {
     };
 
     const RestaurantCard = ({ restaurant }) => (
-        <div className="mainpage-restaurant">
+        <div 
+            className="mainpage-restaurant"
+            onClick={() => navigate(`/restaurants/detail/${restaurant.id}`)}
+        >
             <div 
                 className="restaurant-image" 
                 style={{ backgroundImage: `url(${restaurant.photoUrl || '/images/restaurant/BASIC_RESTAURANT_IMAGE.jpg'})` }}
             ></div>
-            <h4>{restaurant.restrntNm} <span style={{ color: "#f97316" }}>⭐ {restaurant.avgRating}</span></h4>
+            <h4>
+                {restaurant.restrntNm}{" "}
+                <span style={{ color: "#f97316" }}>⭐ {restaurant.avgRating}</span>
+            </h4>
             <div className="mainpage-tags">
                 {restaurant.tags.map((tag, index) => (
                     <span key={index}>#{tag.tag}</span>
@@ -78,30 +83,28 @@ function MainPage() {
         </div>
     );
 
-    const RestaurantSlider = ({ title, list, currentIndex, setIndex }) => (
+    const RestaurantSlider = ({ title, list, currentIndex, setIndex }) => {
+    const getTranslateClass = (index) => `translate-${index}`;
+
+    return (
         <section className="mainpage-container">
-            <h3 className="text-xl font-bold mb-5">{title}</h3>
+            <h3>{title}</h3>
             <div className="mainpage-slider-container">
-                <button 
-                    onMouseDown={(e) => e.preventDefault()}
-                    onClick={() => handlePrev(setIndex, currentIndex)} 
+                <button
+                    onClick={() => handlePrev(setIndex, currentIndex)}
                     className="slider-arrow prev-arrow"
                     disabled={currentIndex === 0}
                 >
                     {'<'}
                 </button>
+
                 <div className="mainpage-restaurant-list-wrapper">
-                    <div 
-                        className="mainpage-restaurant-list" 
-                        style={{ transform: `translateX(-${currentIndex * 25}%)` }}
+                    <div
+                        className={`mainpage-restaurant-list ${getTranslateClass(currentIndex)}`}
                     >
-                        {list.length > 0 ? (
-                            list.map((restaurant) => (
-                                <RestaurantCard key={restaurant.id} restaurant={restaurant} />
-                            ))
-                        ) : (
-                            <p>맛집 정보를 불러오는 중입니다...</p>
-                        )}
+                        {list.map((restaurant) => (
+                            <RestaurantCard key={restaurant.id} restaurant={restaurant} />
+                        ))}
                         <div className="mainpage-more-card" onClick={() => navigate(`/restaurantList`)}>
                             <div className="more-text-container">
                                 <span className="text-4xl">→</span>
@@ -110,9 +113,9 @@ function MainPage() {
                         </div>
                     </div>
                 </div>
-                <button 
-                    onMouseDown={(e) => e.preventDefault()}
-                    onClick={() => handleNext(setIndex, list, currentIndex)} 
+
+                <button
+                    onClick={() => handleNext(setIndex, list, currentIndex)}
                     className="slider-arrow next-arrow"
                     disabled={currentIndex >= Math.max(0, list.length - 3)}
                 >
@@ -121,10 +124,10 @@ function MainPage() {
             </div>
         </section>
     );
+};
 
     return (
         <>
-
             <section className="mainpage-hero">
                 <video muted autoPlay loop>
                     <source src={`${process.env.PUBLIC_URL}/video/MAIN_VIDEO.mp4`} type="video/mp4"></source>
@@ -171,28 +174,31 @@ function MainPage() {
                 <div className="mainpage-container mainpage-grid">
                     <div className="mainpage-service-card">
                         <h4>🔍 맛집 검색</h4>
-                        <p>지역, 음식 종류, 가격대 등 다양한 필터로 
-                            <br/>나에게 맞는 혼밥 맛집을 찾아보세요.</p>
+                        <p>
+                            지역, 음식 종류, 가격대 등 다양한 필터로 
+                            <br/>나에게 맞는 혼밥 맛집을 찾아보세요.
+                        </p>
                         <button className="mainpage-btn-orange" onClick={() => navigate(`/restaurantList`)}>검색하기</button>
                     </div>
                     <div className="mainpage-service-card">
                         <h4>🚗 지도로 보기</h4>
-                        <p>내 주변의 혼밥인 추천 식당들을 
-                            <br/>지도에서 확인하고 방문해보세요.</p>
+                        <p>
+                            내 주변의 혼밥인 추천 식당들을 
+                            <br/>지도에서 확인하고 방문해보세요.
+                        </p>
                         <button className="mainpage-btn-orange" onClick={() => navigate(`/map`)}>지도 보기</button>
                     </div>
                     <div className="mainpage-service-card">
                         <h4>📋 맛집 리스트</h4>
-                        <p>다양한 테마별 인기 맛집 리스트를 
-                            <br/>확인하고 나만의 맛집을 경험해보세요.</p>
+                        <p>
+                            다양한 테마별 인기 맛집 리스트를 
+                            <br/>확인하고 나만의 맛집을 경험해보세요.
+                        </p>
                         <button className="mainpage-btn-orange" onClick={() => navigate(`/restaurantList`)}>리스트 보기</button>
                     </div>
                 </div>
             </section>
-
-
         </>
-
     );
 }
 

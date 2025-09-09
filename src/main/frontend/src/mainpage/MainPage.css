@@ -3,6 +3,7 @@
     --primary-color: #e74c3c;
 }
 
+/* 기본 */
 body {
     margin: 0;
     font-family: "Noto Sans KR", system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
@@ -18,14 +19,12 @@ body {
     overflow: hidden;
     background: #fff;
 }
-
 .mainpage-hero video {
     width: 100%;
     height: 110%;
     object-fit: cover;
     transform: translateY(-6%);
 }
-
 .mainpage-hero .text {
     position: absolute;
     inset: 0;
@@ -37,7 +36,6 @@ body {
     background: linear-gradient(0deg, rgba(15, 23, 42, .35), rgba(15, 23, 42, .35));
     padding: 0 16px;
 }
-
 .mainpage-hero .text h2 {
     margin: 0 0 10px;
     font-weight: 800;
@@ -45,13 +43,11 @@ body {
     color: #fff;
     letter-spacing: -.02em;
 }
-
 .mainpage-hero .text p {
     margin: 0 0 18px;
     font-size: clamp(13px, 2vw, 18px);
     color: #e8edf3;
 }
-
 .mainpage-hero .text button {
     margin: 0 6px;
     padding: 10px 14px;
@@ -60,26 +56,23 @@ body {
     border: 0;
     cursor: pointer;
 }
-
 .mainpage-btn-orange {
     background: var(--primary-color);
     color: #fff;
 }
-
 .mainpage-btn-white {
     background: #fff;
     border: 1px solid #e5e7eb;
     color: #374151;
 }
 
-/* SECTION CONTAINER */
+/* SECTION */
 .mainpage-container {
     max-width: 1120px;
     margin: 0 auto;
     padding: 36px 20px 28px;
 }
-
-.mainpage-container>h3 {
+.mainpage-container > h3 {
     position: relative;
     margin: 0 0 18px;
     padding-left: 28px;
@@ -87,8 +80,7 @@ body {
     font-size: clamp(18px, 3.2vw, 22px);
     color: #111827;
 }
-
-.mainpage-container>h3::before {
+.mainpage-container > h3::before {
     position: absolute;
     left: 0;
     top: 50%;
@@ -98,6 +90,7 @@ body {
     line-height: 1;
     opacity: .95;
 }
+
 /* SLIDER */
 .mainpage-slider-container {
     position: relative;
@@ -107,19 +100,22 @@ body {
     justify-content: center;
     overflow: hidden;
 }
-
 .mainpage-restaurant-list-wrapper {
     width: calc(100% - 120px);
     overflow: hidden;
 }
-
 .mainpage-restaurant-list {
     display: flex;
     gap: 12px;
-    width: 100%;
+    width: 98%;
     will-change: transform;
-    transition: transform .35s cubic-bezier(.22, .8, .24, 1);
+    transition: transform .35s cubic-bezier(0.22, 0.8, 0.24, 1);
 }
+
+.translate-0 { transform: translateX(0%); }
+.translate-1 { transform: translateX(-25%); }
+.translate-2 { transform: translateX(-50%); }
+.translate-3 { transform: translateX(-75%); }
 
 /* 화살표 */
 .slider-arrow {
@@ -140,17 +136,14 @@ body {
     box-shadow: 0 6px 18px rgba(0, 0, 0, .15);
     transition: background .2s, transform .2s;
 }
-
 .slider-arrow:active {
     background: #d94a38;
     box-shadow: 0 6px 16px rgba(231, 76, 60, .28);
 }
-
 .slider-arrow:hover {
     background: #ef5f4d;
     transform: translateY(-50%) scale(1.04);
 }
-
 .slider-arrow:disabled {
     background: #e74c3c;
     color: #fff;
@@ -158,37 +151,27 @@ body {
     box-shadow: none;
     cursor: default;
 }
-
 .slider-arrow:focus-visible {
     outline: 2px solid rgba(231, 76, 60, .55);
     outline-offset: 2px;
 }
-
-.prev-arrow {
-    left: 12px;
-}
-
-.next-arrow {
-    right: 12px;
-}
+.prev-arrow { left: 6px; }
+.next-arrow { right: 6px; }
 
 /* CARD */
 .mainpage-restaurant {
     flex: 0 0 calc(25% - 9px);
-    /* 4열 고정 */
     background: #fff;
     border-radius: 14px;
+    border:1px solid rgb(187, 187, 187);
     overflow: hidden;
     display: flex;
     flex-direction: column;
     transition: transform .2s ease, box-shadow .2s ease;
 }
-
 .mainpage-restaurant:hover {
     transform: translateY(-2px);
 }
-
-/* 이미지 + 오버레이 */
 .restaurant-image {
     position: relative;
     width: 100%;
@@ -196,7 +179,6 @@ body {
     background-size: cover;
     background-position: center;
 }
-
 .restaurant-image::after {
     content: "";
     position: absolute;
@@ -204,8 +186,6 @@ body {
     height: 48%;
     background: linear-gradient(180deg, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, .55) 100%);
 }
-
-/* 타이틀/평점 */
 .mainpage-restaurant h4 {
     margin: 10px 14px 6px;
     font-size: 15px;
@@ -216,20 +196,18 @@ body {
     justify-content: space-between;
     gap: 6px;
 }
-
 .mainpage-restaurant h4 span {
     font-weight: 800;
     font-size: 13px;
 }
 
-/* 태그칩 */
+/* 태그 */
 .mainpage-tags {
     display: flex;
     flex-wrap: wrap;
     gap: 6px;
     padding: 0 12px 14px;
 }
-
 .mainpage-tags span {
     background: #f3f4f6;
     color: #4b5563;
@@ -253,24 +231,20 @@ body {
     user-select: none;
     transition: background .2s, border-color .2s, transform .2s;
 }
-
 .mainpage-more-card:hover {
     background: #fff;
     border-color: #d1d5db;
     transform: translateY(-2px);
 }
-
 .more-text-container {
     text-align: center;
 }
-
 .more-text-container .text-4xl {
     display: inline-block;
     font-size: 32px;
     margin-bottom: 10px;
     transform: translateX(2px);
 }
-
 .more-text-container h4 {
     margin: 0;
     font-size: 15px;
@@ -284,19 +258,14 @@ body {
     background: #f0f2f5;
     padding: 36px 0 50px;
 }
-
 .mainpage-grid {
     display: grid;
     grid-template-columns: 1fr;
     gap: 18px;
 }
-
 @media (min-width:768px) {
-    .mainpage-grid {
-        grid-template-columns: repeat(3, 1fr);
-    }
+    .mainpage-grid { grid-template-columns: repeat(3, 1fr); }
 }
-
 .mainpage-service-card {
     background: #fff;
     border-radius: 14px;
@@ -304,42 +273,33 @@ body {
     text-align: center;
     box-shadow: 0 6px 20px rgba(2, 8, 20, .06);
 }
-
 .mainpage-service-card h4 {
     margin: 4px 0 8px;
     font-weight: 800;
     color: #111827;
 }
-
 .mainpage-service-card p {
     margin: 0 0 14px;
     font-size: 14px;
     color: #6b7280;
 }
 
-/* 섹션 빨간 버튼 */
+/* SERVICES 버튼 */
 .mainpage-services .mainpage-btn-orange {
     background: #e74c3c;
     color: #fff;
     border: none !important;
-    outline: none;
-    -webkit-appearance: none;
-    appearance: none;
     border-radius: 14px;
     padding: 8px 14px;
     font-weight: 700;
     box-shadow: 0 6px 14px rgba(231, 76, 60, .18);
     transition: background .15s ease, box-shadow .12s ease;
-    transform: none !important;
 }
-
 .mainpage-services .mainpage-btn-orange:hover,
 .mainpage-services .mainpage-btn-orange:active {
-    transform: none !important;
     background: #ef5f4d;
     box-shadow: 0 8px 16px rgba(231, 76, 60, .20);
 }
-
 .mainpage-services .mainpage-btn-orange:focus-visible {
     outline: 2px solid rgba(231, 76, 60, .45);
     outline-offset: 2px;
