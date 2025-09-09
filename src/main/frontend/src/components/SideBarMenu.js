@@ -49,11 +49,12 @@ function SideBarMenu(){
                     }
                 </ul>
                 <div className="main-side-bar-divider"></div>
-                <div style={{ margin:'20px 20px', display:'flex',justifyContent:'center', fontSize:'12px', color:'gray'}}>
-                    <span style={{cursor:'pointer'}}>About Us ㅤ</span>•
-                    <span style={{cursor:'pointer'}}>ㅤ복지카드란?</span>
 
-                </div>
+                <nav className="mini-footer-links">
+                    <Link className="plain-link" to="/siteIntro">About Us</Link>
+                    <span className="dot" aria-hidden="true">•</span>
+                    <Link className="plain-link" to="/cardIntro">복지카드란?</Link>
+                </nav>
             </nav>
         </>
     );
