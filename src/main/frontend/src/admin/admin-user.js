@@ -456,7 +456,7 @@ export default function AdminUser() {
     return (
         <div className="admin-container">
             <aside className="admin-sidebar">
-                <h2 className="admin-logo">
+                <h2 className="admin-logo" onClick={() => navigate(`/adminMain`)}>
                     <img src="https://i.imgur.com/tiY7WKl.png" alt="My Plate Logo" className="admin-logo-img" />
                 </h2>
                 <nav>

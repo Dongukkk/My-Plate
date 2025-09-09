@@ -368,7 +368,7 @@ export default function AdminAnalysis() {
     return (
         <div className="admin-container">
             <aside className="admin-sidebar">
-                <h2 className="admin-logo"><img src={"https://i.imgur.com/tiY7WKl.png"} alt="My Plate Logo" className="admin-logo-img" /></h2>
+                <h2 className="admin-logo" onClick={() => navigate(`/adminMain`)}><img src={"https://i.imgur.com/tiY7WKl.png"} alt="My Plate Logo" className="admin-logo-img" /></h2>
                 <nav>
                     <ul>
                         <li onClick={() => navigate("/adminMain")}>홈</li>
