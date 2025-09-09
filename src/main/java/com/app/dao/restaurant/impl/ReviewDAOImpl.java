@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 import com.app.dao.restaurant.ReviewDAO;
+import com.app.dto.restaurant.MyReviewResponse;
 import com.app.dto.restaurant.ReviewDTO;
 
 @Repository
@@ -67,6 +68,11 @@ public class ReviewDAOImpl implements ReviewDAO {
 	public void updateRestaurantInfoWhenReview(long restaurantId) {
 		sqlSessionTemplate.update("review_mapper.updateRestaurantInfoWhenReview", restaurantId);
 		
+	}
+
+	@Override
+	public List<MyReviewResponse> findReviewsByUserId(long userId) {
+		return sqlSessionTemplate.selectList("review_mapper.findReviewsByUserId", userId);
 	}
 
 	

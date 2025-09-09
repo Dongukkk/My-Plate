@@ -180,4 +180,19 @@ export const getOperationTimesForToday = async (restaurantId) => {
     }
 };
 
+export const getMyReviews = async (userId) => {
+    try {
+        const response = await api.get('/myReviews', {
+            params: {
+                userId: userId
+            }
+        });
+        return response.data;
+        
+    } catch (error) {
+        console.error("나의 리뷰를 가져오는 데 실패했습니다:", error);
+        throw error;
+    }
+};
+
 export default api;

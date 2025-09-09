@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.app.dto.restaurant.BookmarkDTO;
 import com.app.dto.restaurant.MenuDTO;
+import com.app.dto.restaurant.MyReviewResponse;
 import com.app.dto.restaurant.OperationTimeDTO;
 import com.app.dto.restaurant.RestaurantDTO;
 import com.app.dto.restaurant.RestaurantTagDTO;
@@ -244,5 +245,16 @@ public class RestaurantRestController {
             return ResponseEntity.notFound().build();
         }
         return ResponseEntity.ok(operationTimes);
+    }
+	
+	@GetMapping("/api/myReviews")
+    public ResponseEntity<List<MyReviewResponse>> getMyReviews(@RequestParam("userId") Long userId) {
+        List<MyReviewResponse> myReviews = reviewService.findReviewsByUserId(userId);
+
+        if (myReviews.isEmpty()) {
+            return ResponseEntity.notFound().build();
+        }
+
+        return ResponseEntity.ok(myReviews);
     }
 }

@@ -36,6 +36,7 @@ import BookmarkList from './restaurantList/BookmarkList';
 
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import ReviewPage from './restaurantList/ReviewPage';
 
 function ScrollToTop() {
   const { pathname } = useLocation();
@@ -63,6 +64,7 @@ const MainLayout = () => {
         <Route path="/restaurants/detail/:id" element={<RestaurantDetail />} />
         <Route path="/map" element={<RestaurantMap />} />
         <Route path="/bookmarks" element={<BookmarkList />} />
+        <Route path="/reviews" element={<ReviewPage />} />
 
         <Route path="/admin" element={<AdminLogin />} />
         <Route path="/adminMain" element={<AdminMain />} />

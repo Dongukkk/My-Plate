@@ -134,4 +134,24 @@
             r.UPDATED_AT = SYSTIMESTAMP
             WHERE r.id = #{restaurantId}
     </update>
+    
+    <select id="findReviewsByUserId" resultType="myReview">
+	    SELECT
+	        r.ID AS review_id,
+	        r.REVIEW_COMMENT AS review_comment,
+	        r.RATING AS rating,
+	        TO_CHAR(r.CREATED_AT, 'YYYY-MM-DD HH24:MI:SS') as CREATED_AT,
+	        r.MENU_SCORE AS menu_score,
+	        r.SEAT_SCORE AS seat_score,
+	        re.ID AS restaurant_id,
+	        re.NAME AS restaurant_name,
+	        re.PHOTO_URL AS restaurant_photo_url,
+	        re.AVG_RATING AS restaurant_avg_rating
+	    FROM
+	        mp_review r
+	    INNER JOIN
+	        mp_restaurant re ON r.RESTAURANT_ID = re.ID
+	    WHERE
+	        r.USER_ID = #{userId} AND r.DELETED_AT IS NULL
+	</select>
 </mapper>

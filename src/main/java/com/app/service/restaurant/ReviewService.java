@@ -5,6 +5,7 @@ import java.util.Map;
 
 import org.apache.ibatis.annotations.Param;
 
+import com.app.dto.restaurant.MyReviewResponse;
 import com.app.dto.restaurant.ReviewDTO;
 
 public interface ReviewService {
@@ -18,4 +19,6 @@ public interface ReviewService {
 	public ReviewDTO updateReview(ReviewDTO review);
 	
     public int markReviewAsDeleted(long id);
+    
+    List<MyReviewResponse> findReviewsByUserId(Long userId);
 }

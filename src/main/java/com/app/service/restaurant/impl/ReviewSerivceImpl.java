@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.app.dao.restaurant.ReviewDAO;
+import com.app.dto.restaurant.MyReviewResponse;
 import com.app.dto.restaurant.ReviewDTO;
 import com.app.service.restaurant.ReviewService;
 
@@ -48,6 +49,11 @@ public class ReviewSerivceImpl implements ReviewService {
 		reviewDAO.decrementReviewCount(review.getRestaurantId());	
 		reviewDAO.updateRestaurantInfoWhenReview(review.getRestaurantId());
 		return result;
+	}
+
+	@Override
+	public List<MyReviewResponse> findReviewsByUserId(Long userId) {
+		return reviewDAO.findReviewsByUserId(userId);
 	}
 
 	

@@ -5,6 +5,7 @@ import java.util.Map;
 
 import org.apache.ibatis.annotations.Param;
 
+import com.app.dto.restaurant.MyReviewResponse;
 import com.app.dto.restaurant.ReviewDTO;
 
 public interface ReviewDAO {
@@ -26,4 +27,6 @@ public interface ReviewDAO {
 	ReviewDTO getReviewById(long id);
 	
 	void updateRestaurantInfoWhenReview(long restaurantId);
+	
+	List<MyReviewResponse> findReviewsByUserId(long userId);
 }
