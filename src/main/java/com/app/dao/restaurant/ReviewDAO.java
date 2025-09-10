@@ -12,7 +12,7 @@ public interface ReviewDAO {
 	
 	public long getReviewCountByRestaurantId(long restaurantId);
 
-	List<ReviewDTO> getReviewsByRestaurantId(@Param("restaurantId") Long restaurantId);
+	List<ReviewDTO> getReviewsByRestaurantId(@Param("restaurantId") Long restaurantId, int page, int size,String sortOrder);
 	
 	public ReviewDTO createReview(ReviewDTO review);
 	

@@ -1,5 +1,6 @@
 package com.app.service.restaurant.impl;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -21,10 +22,11 @@ public class ReviewSerivceImpl implements ReviewService {
 	public long getReviewCountByRestaurantId(long restaurantId) {
 		return reviewDAO.getReviewCountByRestaurantId(restaurantId);
 	}
-
 	@Override
-	public List<ReviewDTO> getReviewsByRestaurantId(Long restaurantId) {
-		return reviewDAO.getReviewsByRestaurantId(restaurantId);
+	public List<ReviewDTO> getReviews(Long restaurantId, int page, int size, String sortOrder) {
+        
+		List<ReviewDTO> reviews = reviewDAO.getReviewsByRestaurantId(restaurantId, page, size, sortOrder);
+		return reviews;
 	}
 
 	@Override

@@ -1,5 +1,6 @@
 package com.app.dao.restaurant.impl;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -23,10 +24,16 @@ public class ReviewDAOImpl implements ReviewDAO {
 	}
 
 	@Override
-	public List<ReviewDTO> getReviewsByRestaurantId(Long restaurantId) {
-		
-		return  sqlSessionTemplate.selectList("review_mapper.getReviewsByRestaurantId", restaurantId);
-
+	public List<ReviewDTO> getReviewsByRestaurantId(Long restaurantId, int page, int size, String sortOrder) {
+		Map<String, Object> params = new HashMap<>();
+        params.put("restaurantId", restaurantId);
+        params.put("sortOrder", sortOrder);
+        params.put("offset", page * size);
+        params.put("limit", size);
+        System.out.println(params);
+		List<ReviewDTO> reviews = sqlSessionTemplate.selectList("review_mapper.getReviewsByRestaurantId", params);
+		System.out.println(reviews);
+		return reviews;
 	}
 
 	@Override

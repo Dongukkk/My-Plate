@@ -179,20 +179,18 @@ public class RestaurantRestController {
     public ResponseEntity<List<ReviewDTO>> getReviewsByRestaurantId(
     		@PathVariable Long restaurantId,
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size) {
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(defaultValue = "latest") String sortOrder) {
         try {
-            List<ReviewDTO> reviews = reviewService.getReviewsByRestaurantId(restaurantId);
-            
-            int start = page * size;
-            int end = Math.min(start + size, reviews.size());
-            List<ReviewDTO> paginatedReviews = reviews.subList(start, end);
-            
-            return ResponseEntity.status(HttpStatus.OK).body(paginatedReviews);
-            
+            List<ReviewDTO> reviews = reviewService.getReviews(restaurantId, page, size, sortOrder);
+            System.out.println("2");
+            return ResponseEntity.status(HttpStatus.OK).body(reviews);
         } catch (Exception e) {
+        	
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
+    
 	
 	@PostMapping("/api/restaurants/{restaurantId}/reviews")
 	public ResponseEntity<ReviewDTO> createReview(

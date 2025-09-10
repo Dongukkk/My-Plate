@@ -5,7 +5,7 @@ import { useSelector } from "react-redux";
 import axios from "axios";
 import WriteReviewModal from "./WriteReviewModal";
 
-const ReviewModal = ({ restaurant, onClose, onReviewSubmitted, fetchReview, onDeleteReview }) => {
+const ReviewModal = ({ restaurant, onClose, onReviewSubmitted, fetchReview, onDeleteReview}) => {
     const user = useSelector(state => state.user);
 
     const [ reviews, setReviews ] = useState([]);
@@ -20,10 +20,12 @@ const ReviewModal = ({ restaurant, onClose, onReviewSubmitted, fetchReview, onDe
     const [ isWriteReviewModalOpen, setIsWriteReviewModalOpen ] = useState(false);
     const [ reviewToEdit, setReviewToEdit ] = useState(null);
 
+    const [sortOrder, setSortOrder] = useState('recommendation');
+
     const fetchReviews = async () => {
         setLoading(true);
         try {
-            const data = await getRestaurantReviews(restaurant.id);
+            const data = await getRestaurantReviews(restaurant.id, 0, 100, sortOrder);
             setReviews(data);
             setLoading(false);
         } catch (e) {
@@ -36,7 +38,12 @@ const ReviewModal = ({ restaurant, onClose, onReviewSubmitted, fetchReview, onDe
 
     useEffect(() => {
         fetchReviews();
-    }, [ restaurant.id ]);
+        setCurrentPage(1);
+    }, [restaurant.id, sortOrder]);
+
+    const handleSortChange = (e) => {
+        setSortOrder(e.target.value);
+    };
 
     useEffect(() => {
         const handleClickOutside = (event) => {
@@ -65,7 +72,8 @@ const ReviewModal = ({ restaurant, onClose, onReviewSubmitted, fetchReview, onDe
             return;
         }
         try {
-            onDeleteReview(reviewId);
+            await onDeleteReview(reviewId);
+            alert("리뷰가 삭제되었습니다.");
             fetchReviews();
             
         } catch (error) {
@@ -100,9 +108,21 @@ const ReviewModal = ({ restaurant, onClose, onReviewSubmitted, fetchReview, onDe
                 <div className="modal-content" onClick={(e) => e.stopPropagation()}>
                     <div className="modal-header">
                         <h3>전체 리뷰 ({reviews.length})</h3>
-                        <button onClick={onClose} className="modal-close-btn">&times;</button>
+                        <div style={{display:'flex'}}>
+                            <div className="rd-sort-option">
+                                <select onChange={handleSortChange} value={sortOrder}>
+                                    <option value="recommendation">추천순</option>
+                                    <option value="latest">최신순</option>
+                                    <option value="highestRating">별점 높은 순</option>
+                                    <option value="lowestRating">별점 낮은 순</option>
+                                </select>
+                            </div>
+                            <button onClick={onClose} className="modal-close-btn">&times;</button>
+                        </div>
+                        
                     </div>
                     <div className="modal-body">
+                        
                         {currentReviews.length > 0 ? (
                             <ul className="review-list">
                                 {currentReviews.map((review) => (

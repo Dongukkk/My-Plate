@@ -12,7 +12,7 @@
         AND DELETED_AT IS NULL
     </select>
     
-    <select id="getReviewsByRestaurantId" parameterType="long" resultType="Review">
+    <select id="getReviewsByRestaurantId" parameterType="java.util.Map" resultType="Review">
         SELECT
         r.ID,
         r.RESTAURANT_ID,
@@ -29,7 +29,21 @@
         u.USERNAME as USERNAME  FROM mp_review r
     INNER JOIN mp_user u ON r.USER_ID = u.ID  WHERE r.RESTAURANT_ID = #{restaurantId}
     AND r.DELETED_AT IS NULL
-    ORDER BY r.CREATED_AT DESC
+    <choose>
+        <when test="sortOrder == 'recommendation'">
+            ORDER BY LENGTHB(r.REVIEW_COMMENT) DESC
+        </when>
+        <when test="sortOrder == 'highestRating'">
+            ORDER BY r.RATING DESC
+        </when>
+        <when test="sortOrder == 'lowestRating'">
+            ORDER BY r.RATING ASC
+        </when>
+        <otherwise>
+            ORDER BY r.CREATED_AT DESC
+        </otherwise>
+    </choose>
+    OFFSET #{offset} ROWS FETCH NEXT #{limit} ROWS ONLY
     </select>
     
     <insert id="createReview" parameterType="Review">

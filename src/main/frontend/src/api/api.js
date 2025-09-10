@@ -145,13 +145,14 @@ export const getMyBookmarks = () => {
   return api.get('/bookmarks/me');
 };
 
-export const getRestaurantReviews = async (restaurantId, page = 0, size = 10) => {
+export const getRestaurantReviews = async (restaurantId, page = 0, size = 10, sortOrder = 'latest') => {
     try {
-        const response = await api.get(`/reviews/${restaurantId}`,{
-          params: {
-            page: page,
-            size: size
-          }
+        const response = await api.get(`/reviews/${restaurantId}`, {
+            params: {
+                page: page,
+                size: size,
+                sortOrder: sortOrder
+            }
         });
         return response.data;
     } catch (error) {

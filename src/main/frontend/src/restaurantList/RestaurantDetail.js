@@ -43,6 +43,8 @@ function RestaurantDetail() {
   const [ selectedReviewId, setSelectedReviewId ] = useState(null);
   const menuRef = useRef(null);
 
+  const [ sortOrder, setSortOrder ] = useState('recommendation');
+
   const fetchRestaurantData = async () => {
       try {
 
@@ -76,16 +78,20 @@ function RestaurantDetail() {
     };
 
   const fetchReviews = async () => {
-    if (!id) {
-      return;
-    }
-    try {
-      const data = await getRestaurantReviews(id);
-      setReviews(data);
-      fetchRestaurantData();
-    } catch (e) {
-      console.error("리뷰를 가져오는 데 실패했습니다:", e);
-    }
+      if (!id) {
+          return;
+      }
+      try {
+          const data = await getRestaurantReviews(id, 0, 10, sortOrder);
+          setReviews(data);
+          fetchRestaurantData();
+      } catch (e) {
+          console.error("리뷰를 가져오는 데 실패했습니다:", e);
+      }
+  };
+
+  const handleSortChange = (e) => {
+      setSortOrder(e.target.value);
   };
 
   useEffect(() => {
@@ -107,7 +113,7 @@ function RestaurantDetail() {
   useEffect(() => {
     
     fetchReviews();
-  }, [ id, user ]);
+  }, [ id, user, sortOrder ]);
 
 
   useEffect(() => {
@@ -318,7 +324,18 @@ function RestaurantDetail() {
               </div>
 
               <div className="rd-card" style={{ minHeight: '300px' }}>
-                <h3>리뷰 ({restaurant.ratingCount})</h3>
+                <div className="rd-review-header" style={{display:'flex', justifyContent:'space-between'}}>
+                  <h3>리뷰 ({restaurant.ratingCount})</h3>
+                  <div className="rd-sort-option">
+                    <select onChange={handleSortChange} value={sortOrder}>
+                      <option value="recommendation">추천순</option>
+                      <option value="latest">최신순</option>
+                      <option value="highestRating">별점 높은 순</option>
+                      <option value="lowestRating">별점 낮은 순</option>
+                    </select>
+                  </div>
+                </div>
+                
                 {reviews.length > 0 ? (
                   <ul style={{ listStyleType: 'none', padding: 0, minHeight: '200px' }}>
                     {reviews.slice(0, 3).map((review) => (
@@ -467,6 +484,7 @@ function RestaurantDetail() {
           onReviewSubmitted={handleReviewSubmitted}
           fetchReview={fetchReviews}
           onDeleteReview={handleDeleteReview}
+          sortOrder={sortOrder}
         />
       )}
 
