@@ -27,7 +27,8 @@ function RestaurantDetail() {
   const [ menus, setMenus ] = useState([]);
   const [ operationTimes, setOperationTimes ] = useState([]);
   const [ todayOperationTimes, setTodayOperationTimes ] = useState([]);
-  const [isCurrentlyOpen, setIsCurrentlyOpen] = useState(false);
+
+  const [ operationStatus, setOperationStatus ] = useState('영업 종료');
 
   const bookmarkURL = bookmarked
     ? "/images/restaurant/bookmark/BOOKMARK_ON.png"
@@ -117,37 +118,56 @@ function RestaurantDetail() {
 
 
   useEffect(() => {
-    const checkOpenStatus = () => {
+    const checkStatus = () => {
+      const now = new Date();
+      const currentTimeInMinutes = now.getHours() * 60 + now.getMinutes();
+
       if (todayOperationTimes.length === 0) {
-        setIsCurrentlyOpen(false);
+        setOperationStatus('영업 종료');
         return;
       }
-      const now = new Date();
-      const currentHours = now.getHours();
-      const currentMinutes = now.getMinutes();
-      const currentTimeInMinutes = currentHours * 60 + currentMinutes;
 
-      for (const timeSlot of todayOperationTimes) {
-        // 예: "2025-09-08 10:00:00" -> "10:00"
-        const openTime = timeSlot.openTime.split(' ')[ 1 ].substring(0, 5);
-        const closeTime = timeSlot.closeTime.split(' ')[ 1 ].substring(0, 5);
+      // 오늘 영업 시간대들을 시간순으로 정렬
+      const sortedTimes = [...todayOperationTimes].sort((a, b) => {
+        const [aHour, aMinute] = a.openTime.split(' ')[1].substring(0, 5).split(':').map(Number);
+        const [bHour, bMinute] = b.openTime.split(' ')[1].substring(0, 5).split(':').map(Number);
+        return (aHour * 60 + aMinute) - (bHour * 60 + bMinute);
+      });
 
-        const [ openHour, openMinute ] = openTime.split(':').map(Number);
-        const [ closeHour, closeMinute ] = closeTime.split(':').map(Number);
-
+      let statusFound = false;
+      for (let i = 0; i < sortedTimes.length; i++) {
+        const timeSlot = sortedTimes[i];
+        const [openHour, openMinute] = timeSlot.openTime.split(' ')[1].substring(0, 5).split(':').map(Number);
+        const [closeHour, closeMinute] = timeSlot.closeTime.split(' ')[1].substring(0, 5).split(':').map(Number);
         const openTimeInMinutes = openHour * 60 + openMinute;
         const closeTimeInMinutes = closeHour * 60 + closeMinute;
 
         if (currentTimeInMinutes >= openTimeInMinutes && currentTimeInMinutes < closeTimeInMinutes) {
-          setIsCurrentlyOpen(true);
-          return;
+          setOperationStatus('영업 중');
+          statusFound = true;
+          break;
+        }
+
+        if (i < sortedTimes.length - 1) {
+          const nextTimeSlot = sortedTimes[i + 1];
+          const [nextOpenHour, nextOpenMinute] = nextTimeSlot.openTime.split(' ')[1].substring(0, 5).split(':').map(Number);
+          const nextOpenTimeInMinutes = nextOpenHour * 60 + nextOpenMinute;
+
+          if (currentTimeInMinutes >= closeTimeInMinutes && currentTimeInMinutes < nextOpenTimeInMinutes) {
+            setOperationStatus('브레이크 타임');
+            statusFound = true;
+            break;
+          }
         }
       }
-      setIsCurrentlyOpen(false);
+
+      if (!statusFound) {
+        setOperationStatus('영업 종료');
+      }
     };
 
-    checkOpenStatus();
-    const intervalId = setInterval(checkOpenStatus, 60000);
+    checkStatus();
+    const intervalId = setInterval(checkStatus, 60000);
 
     return () => clearInterval(intervalId);
   }, [ todayOperationTimes ]);
@@ -425,8 +445,8 @@ function RestaurantDetail() {
             <aside className="rd-right-info">
               <h3>
                 영업시간
-                <span className={`operation-status ${isCurrentlyOpen ? 'open' : 'closed'}`}>
-                  {isCurrentlyOpen ? '영업 중' : '영업 종료'}
+                <span className={`operation-status ${operationStatus === '영업 중' ? 'open' : 'closed'}`}>
+                  {operationStatus}
                 </span>
               </h3>
 
