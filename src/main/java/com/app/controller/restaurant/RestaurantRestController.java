@@ -251,10 +251,6 @@ public class RestaurantRestController {
     public ResponseEntity<List<MyReviewResponse>> getMyReviews(@RequestParam("userId") Long userId) {
         List<MyReviewResponse> myReviews = reviewService.findReviewsByUserId(userId);
 
-        if (myReviews.isEmpty()) {
-            return ResponseEntity.notFound().build();
-        }
-
         return ResponseEntity.ok(myReviews);
     }
 }
