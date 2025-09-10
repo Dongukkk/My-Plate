@@ -18,6 +18,7 @@ const mapStatusFromServer = (s = "") =>
     DELETED: "비활성",
     PENDING: "수정 필요",
 }[s.toUpperCase()] ?? "수정 필요");
+
 const mapStatusToServer = (label = "") =>
 ({
     "활성": "ACTIVE",
@@ -33,6 +34,7 @@ const mapReportStatusFromServer = (s = "") =>
     RESOLVED: "완료",
     REJECTED: "반려",
 }[s.toUpperCase()] ?? "대기");
+
 const mapReportStatusToServer = (label = "") =>
 ({
     "대기": "PENDING",
@@ -63,6 +65,7 @@ const toViewUser = (u) => ({
     status: mapStatusFromServer(u.status),
     joined: toDateStr(u.createdAt ?? u.joined),
 });
+
 const toViewReport = (r) => ({
     id: r.id,
     reporterId: r.reporterId,
@@ -72,6 +75,7 @@ const toViewReport = (r) => ({
     decision: r.decision || "NONE",
     memo: r.memo || "",
 });
+
 const toViewAction = (a) => ({
     id: a.id,
     reportId: a.reportId,
@@ -81,6 +85,7 @@ const toViewAction = (a) => ({
     date: toDateStr(a.createdAt ?? a.date),
     memo: a.memo || "",
 });
+
 const reportStatusToPill = (st) => (st === "완료" ? "활성" : st === "반려" ? "비활성" : "수정 필요");
 
 /* 표시용 컴포넌트 */
@@ -88,28 +93,30 @@ const StatusPill = ({ status = "비활성" }) => {
     const cls = { "활성": "ok", "수정 필요": "warn", "비활성": "off", "정지": "ban" }[status] || "off";
     return <span className={`admin-status ${cls}`}>{status}</span>;
 };
+
 const ActionBadge = ({ action = "처분 없음" }) => {
     const tone = action.includes("정지") ? "ban" : action.includes("경고") ? "warn" : "ok";
     return <span className={`admin-status ${tone}`}>{action}</span>;
 };
+
 const Pager = ({ page, total, onPage }) => {
     const max = Math.max(1, Math.ceil(total || 1));
     const start = Math.max(1, Math.min(page - 2, Math.max(1, max - 4)));
     const pages = Array.from({ length: Math.min(5, max) }, (_, i) => start + i);
     return (
         <div className="admin-pager">
-            <button disabled={page <= 1} onClick={() => onPage(page - 1)}>이전</button>
+            <button type="button" disabled={page <= 1} onClick={() => onPage(page - 1)}>이전</button>
             {pages.map((p) => (
-                <button key={p} className={p === page ? "on" : ""} onClick={() => onPage(p)}>
+                <button type="button" key={p} className={p === page ? "on" : ""} onClick={() => onPage(p)}>
                     {p}
                 </button>
             ))}
-            <button disabled={page >= max} onClick={() => onPage(page + 1)}>다음</button>
+            <button type="button" disabled={page >= max} onClick={() => onPage(page + 1)}>다음</button>
         </div>
     );
 };
 
-/* 라인차트  */
+/* 라인차트 (SVG) */
 const LineChart = ({ series, height = 200, xLabels = [] }) => {
     const width = 540;
     const padding = { top: 12, right: 16, bottom: 28, left: 40 };
@@ -160,9 +167,7 @@ const LineChart = ({ series, height = 200, xLabels = [] }) => {
 
             {xLabels.length >= 2 && (
                 <g fontSize="10" fill="#555">
-                    <text x={x(0)} y={height - 10} textAnchor="start">
-                        {xLabels[0]}
-                    </text>
+                    <text x={x(0)} y={height - 10} textAnchor="start">{xLabels[0]}</text>
                     <text x={x(Math.floor((len - 1) / 2))} y={height - 10} textAnchor="middle">
                         {xLabels[Math.floor(xLabels.length / 2)]}
                     </text>
@@ -187,7 +192,7 @@ function niceTickStep(raw) {
     return step * pow10;
 }
 
-/* 로컬 폴백 */
+/* 로컬 폴백 (처리 이력) */
 const ACTIONS_KEY = "mp_actions";
 const readLocalActions = () => {
     try {
@@ -197,6 +202,7 @@ const readLocalActions = () => {
     }
 };
 
+/* 메인 컴포넌트 */
 export default function AdminUser() {
     const navigate = useNavigate();
     const { alert } = useAlert(); // 전역 알림
@@ -223,6 +229,16 @@ export default function AdminUser() {
     const [reportData, setReportData] = useState(null);
     const [reportSaving, setReportSaving] = useState(false);
 
+    /* 신고 모달 열기 */
+    const openReport = (r = {}) => {
+        setReportData({
+            ...r,
+            action: r.decision || r.action || "NONE",
+            memo: r.memo || "",
+        });
+        setReportOpen(true);
+    };
+
     /* 처리 이력 */
     const [recentActions, setRecentActions] = useState([]);
     const [actionModalOpen, setActionModalOpen] = useState(false);
@@ -245,11 +261,13 @@ export default function AdminUser() {
         const items = Array.isArray(data) ? data : data?.items || [];
         setUsers(items.map(toViewUser).filter((u) => u.role !== "ADM"));
     };
+
     const loadReports = async () => {
         const { data } = await axios.get("/api/adminUser/reports");
         const items = Array.isArray(data) ? data : data?.items || [];
         setReports(items.map(toViewReport));
     };
+
     const loadActionsFromServer = async () => {
         const { data } = await axios.get("/api/adminActions/UR");
         const items = Array.isArray(data) ? data : data?.items || [];
@@ -257,6 +275,7 @@ export default function AdminUser() {
         setAllActions(view);
         setRecentActions(view.slice(0, 3));
     };
+
     const loadActionsFallbackLocal = async () => {
         const items = readLocalActions().sort((a, b) =>
             String(b.createdAt || b.date).localeCompare(String(a.createdAt || a.date))
@@ -294,6 +313,7 @@ export default function AdminUser() {
                 (statusFilter === "전체" || u.status === statusFilter)
         );
     }, [users, query, statusFilter]);
+
     const userPages = Math.max(1, Math.ceil(filteredUsers.length / pageSize));
     const pagedUsers = filteredUsers.slice((page - 1) * pageSize, page * pageSize);
 
@@ -380,6 +400,7 @@ export default function AdminUser() {
             setEditLoading(false);
         }
     };
+
     const saveEdit = async () => {
         if (!editData?.id) {
             alert("사용자 ID가 없어 저장 불가");
@@ -407,6 +428,7 @@ export default function AdminUser() {
             setSaving(false);
         }
     };
+
     const handleDelete = async (user) => {
         if (!window.confirm(`${user.name || user.email} 사용자를 삭제할까요?`)) return;
         setDeletingId(user.id);
@@ -423,41 +445,13 @@ export default function AdminUser() {
         }
     };
 
-    /* 신고 모달 */
-    const openReport = (r) => {
-        setReportData({ ...r, action: r.decision || "NONE", memo: r.memo || "" });
-        setReportOpen(true);
-    };
-    const saveReport = async () => {
-        if (!reportData?.id) return;
-        setReportSaving(true);
-        try {
-            await axios.post(
-                `/api/reports/ur/${reportData.id}`,
-                {
-                    status: mapReportStatusToServer(reportData.status),
-                    decision: reportData.action || "NONE",
-                    memo: reportData.memo ?? "",
-                    excerpt: reportData.reason ?? "",
-                },
-                { headers: { "Content-Type": "application/json" } }
-            );
-            await loadActionsFromServer();
-            await loadReports();
-            setReportOpen(false);
-        } catch {
-            alert("신고 저장 실패");
-        } finally {
-            setReportSaving(false);
-        }
-    };
-
-    /* 액션 탭 필터 */
+    /* ===== 액션 탭 필터 ===== */
     const actionFiltered = useMemo(() => {
         if (actionTab === "전체") return allActions;
         return allActions.filter((a) => a.status === actionTab);
     }, [allActions, actionTab]);
 
+    /* 렌더 */
     return (
         <div className="admin-container">
             <aside className="admin-sidebar">
@@ -533,8 +527,9 @@ export default function AdminUser() {
                                         <td>{u.joined}</td>
                                         <td><StatusPill status={u.status} /></td>
                                         <td className="admin-ops">
-                                            <button onClick={() => openEdit(u.id)} className="admin-link">수정</button>
+                                            <button type="button" onClick={() => openEdit(u.id)} className="admin-link">수정</button>
                                             <button
+                                                type="button"
                                                 onClick={() => handleDelete(u)}
                                                 className="admin-link danger"
                                                 disabled={deletingId === u.id}
@@ -618,7 +613,9 @@ export default function AdminUser() {
                                         <td>{stripSanction(r.reason)}</td>
                                         <td><StatusPill status={reportStatusToPill(r.status)} /></td>
                                         <td className="admin-ops">
-                                            <button className="admin-link" onClick={() => openReport(r)}>내용</button>
+                                            <button type="button" className="admin-link" onClick={() => openReport(r)}>
+                                                내용
+                                            </button>
                                         </td>
                                     </tr>
                                 ))}
@@ -640,6 +637,7 @@ export default function AdminUser() {
                             <div className="admin-panel-head">
                                 <h3>최근 처리 이력</h3>
                                 <button
+                                    type="button"
                                     className="admin-view"
                                     onClick={async () => {
                                         try {
@@ -675,13 +673,94 @@ export default function AdminUser() {
                 </div>
             </div>
 
+            {/* 사용자 수정 모달 */}
+            {editOpen && (
+                <div
+                    className="admin-modal-backdrop"
+                    onClick={() => !saving && setEditOpen(false)}
+                    onKeyDown={(e) => {
+                        if (e.key === "Escape" && !saving) setEditOpen(false);
+                    }}
+                    role="dialog"
+                    aria-modal="true"
+                >
+                    <div className="admin-modal" onClick={(e) => e.stopPropagation()}>
+                        <div className="admin-modal-head">
+                            <h3>사용자 수정</h3>
+                            <button type="button" className="admin-close" onClick={() => !saving && setEditOpen(false)} disabled={saving}>
+                                ×
+                            </button>
+                        </div>
+
+                        <div className="admin-modal-body">
+                            {editLoading && <div className="admin-empty">불러오는 중…</div>}
+                            {!editLoading && editData && (
+                                <div className="admin-form-grid">
+                                    <label>
+                                        이메일
+                                        <input value={String(editData.email ?? "")} disabled />
+                                    </label>
+                                    <label>
+                                        이름
+                                        <input
+                                            value={String(editData.name ?? "")}
+                                            onChange={(e) => setEditData((d) => ({ ...d, name: e.target.value }))}
+                                        />
+                                    </label>
+                                    <label>
+                                        전화번호
+                                        <input
+                                            value={String(editData.phone ?? "")}
+                                            onChange={(e) => setEditData((d) => ({ ...d, phone: e.target.value }))}
+                                        />
+                                    </label>
+                                    <label style={{ gridColumn: "1 / -1" }}>
+                                        주소
+                                        <input
+                                            value={String(editData.address ?? "")}
+                                            onChange={(e) => setEditData((d) => ({ ...d, address: e.target.value }))}
+                                        />
+                                    </label>
+                                    <label>
+                                        상태
+                                        <select
+                                            value={String(editData.status ?? "수정 필요")}
+                                            onChange={(e) => setEditData((d) => ({ ...d, status: e.target.value }))}
+                                        >
+                                            <option>활성</option>
+                                            <option>수정 필요</option>
+                                            <option>비활성</option>
+                                            <option>정지</option>
+                                        </select>
+                                    </label>
+                                </div>
+                            )}
+                        </div>
+
+                        <div className="admin-modal-foot">
+                            <button type="button" className="admin-btn admin-ghost" onClick={() => !saving && setEditOpen(false)} disabled={saving}>
+                                취소
+                            </button>
+                            <button
+                                type="button"
+                                className="admin-btn admin-primary"
+                                onClick={saveEdit}
+                                disabled={saving || editLoading || !editData?.id}
+                            >
+                                {saving ? "저장 중…" : "저장"}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
             {/* 신고 내용/처리 모달 */}
             {reportOpen && (
                 <div className="admin-modal-backdrop" onClick={() => !reportSaving && setReportOpen(false)}>
                     <div className="admin-modal" onClick={(e) => e.stopPropagation()}>
                         <div className="admin-modal-head">
                             <h3>신고 상세</h3>
-                            <button className="admin-close" onClick={() => !reportSaving && setReportOpen(false)} disabled={reportSaving}>
+                            <button type="button" className="admin-close" onClick={() => !reportSaving && setReportOpen(false)} disabled={reportSaving}>
                                 ×
                             </button>
                         </div>
@@ -690,24 +769,24 @@ export default function AdminUser() {
                                 <div className="admin-form-grid">
                                     <label>
                                         신고 ID
-                                        <input value={reportData.id} disabled />
+                                        <input value={String(reportData.id ?? "")} disabled />
                                     </label>
                                     <label>
                                         신고자(ID)
-                                        <input value={reportData.reporterId ?? "-"} disabled />
+                                        <input value={String(reportData.reporterId ?? "-")} disabled />
                                     </label>
                                     <label>
                                         접수일
-                                        <input value={reportData.date} disabled />
+                                        <input value={String(reportData.date ?? "")} disabled />
                                     </label>
 
                                     <label style={{ gridColumn: "1 / -1" }}>
                                         사유
-                                        <textarea value={reportData.reason} readOnly rows={4} />
+                                        <textarea value={String(reportData.reason ?? "")} readOnly rows={4} />
                                     </label>
                                     <label>
                                         상태
-                                        <select value={reportData.status} onChange={(e) => setReportData((d) => ({ ...d, status: e.target.value }))}>
+                                        <select value={String(reportData.status ?? "대기")} onChange={(e) => setReportData((d) => ({ ...d, status: e.target.value }))}>
                                             <option>대기</option>
                                             <option>처리중</option>
                                             <option>완료</option>
@@ -716,7 +795,7 @@ export default function AdminUser() {
                                     </label>
                                     <label>
                                         처분
-                                        <select value={reportData.action} onChange={(e) => setReportData((d) => ({ ...d, action: e.target.value }))}>
+                                        <select value={String(reportData.action ?? "NONE")} onChange={(e) => setReportData((d) => ({ ...d, action: e.target.value }))}>
                                             {SANCTIONS.map((s) => (
                                                 <option key={s.value} value={s.value}>
                                                     {s.label}
@@ -728,7 +807,7 @@ export default function AdminUser() {
                                         메모
                                         <textarea
                                             placeholder="처리 사유/비고를 적어주세요."
-                                            value={reportData.memo}
+                                            value={String(reportData.memo ?? "")}
                                             onChange={(e) => setReportData((d) => ({ ...d, memo: e.target.value }))}
                                             rows={3}
                                         />
@@ -737,10 +816,32 @@ export default function AdminUser() {
                             )}
                         </div>
                         <div className="admin-modal-foot">
-                            <button className="admin-btn admin-ghost" onClick={() => !reportSaving && setReportOpen(false)} disabled={reportSaving}>
+                            <button type="button" className="admin-btn admin-ghost" onClick={() => !reportSaving && setReportOpen(false)} disabled={reportSaving}>
                                 닫기
                             </button>
-                            <button className="admin-btn admin-primary" onClick={saveReport} disabled={reportSaving || !reportData}>
+                            <button type="button" className="admin-btn admin-primary" onClick={async () => {
+                                if (!reportData?.id) return;
+                                setReportSaving(true);
+                                try {
+                                    await axios.post(
+                                        `/api/reports/ur/${reportData.id}`,
+                                        {
+                                            status: mapReportStatusToServer(reportData.status),
+                                            decision: reportData.action || "NONE",
+                                            memo: reportData.memo ?? "",
+                                            excerpt: reportData.reason ?? "",
+                                        },
+                                        { headers: { "Content-Type": "application/json" } }
+                                    );
+                                    await loadActionsFromServer();
+                                    await loadReports();
+                                    setReportOpen(false);
+                                } catch {
+                                    alert("신고 저장 실패");
+                                } finally {
+                                    setReportSaving(false);
+                                }
+                            }} disabled={reportSaving || !reportData}>
                                 {reportSaving ? "저장 중…" : "저장"}
                             </button>
                         </div>
@@ -754,12 +855,12 @@ export default function AdminUser() {
                     <div className="admin-modal large" onClick={(e) => e.stopPropagation()}>
                         <div className="admin-modal-head">
                             <h3>처리 이력</h3>
-                            <button className="admin-close" onClick={() => setActionModalOpen(false)}>×</button>
+                            <button type="button" className="admin-close" onClick={() => setActionModalOpen(false)}>×</button>
                         </div>
                         <div className="admin-modal-body">
                             <div className="admin-tabs">
                                 {["전체", "대기", "처리중", "반려", "완료"].map((t) => (
-                                    <button key={t} className={`admin-tab ${actionTab === t ? "on" : ""}`} onClick={() => setActionTab(t)}>{t}</button>
+                                    <button type="button" key={t} className={`admin-tab ${actionTab === t ? "on" : ""}`} onClick={() => setActionTab(t)}>{t}</button>
                                 ))}
                             </div>
                             <table className="admin-table">
@@ -789,7 +890,7 @@ export default function AdminUser() {
                             </table>
                         </div>
                         <div className="admin-modal-foot">
-                            <button className="admin-btn admin-primary" onClick={() => setActionModalOpen(false)}>닫기</button>
+                            <button type="button" className="admin-btn admin-primary" onClick={() => setActionModalOpen(false)}>닫기</button>
                         </div>
                     </div>
                 </div>
