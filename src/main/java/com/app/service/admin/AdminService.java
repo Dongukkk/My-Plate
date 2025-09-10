@@ -14,7 +14,7 @@ public interface AdminService {
 	AdminRestaurantDTO findRestaurantById(long id);
 	int modifyAdminRestaurant(AdminRestaurantDTO dto);	
 	int saveAdminRestaurant(AdminRestaurantDTO dto);
-	int DeleteAdminRestaurant(long id);
+	int deleteAdminRestaurant(long id);
 	
 	//사용자관리
 	List <AdminUserDTO> findUserList();

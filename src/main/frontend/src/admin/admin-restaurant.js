@@ -1,24 +1,22 @@
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
-import { useAlert } from "../ui/alert-center"; // ✅ 전역 알림 훅
+import { useAlert } from "../ui/alert-center";
 import "./admin-restaurant.css";
 
 // axios.defaults.baseURL = "http://localhost:8080";
 // axios.defaults.withCredentials = true;
 
-/* 상태 뱃지 */
+/* ───────────── UI 소품 ───────────── */
 const StatusPill = ({ status }) => {
     const map = { 활성: "ok", "수정 필요": "warn", 비활성: "off" };
     return <span className={`admin-status-pill ${map[status] || "off"}`}>{status}</span>;
 };
 
-/* 복지카드 점표시 */
 const WelfareDot = ({ ok }) => (
     <span className={`admin-welfare-dot ${ok ? "on" : "off"}`} aria-label={ok ? "가능" : "불가"} />
 );
 
-/* 페이지네이션: 5개씩 윈도우 */
 const Pagination = ({ page, pages, onChange, windowSize = 5 }) => {
     if (!pages || pages <= 1) return null;
     const current = Math.max(1, Math.min(page, pages));
@@ -26,18 +24,12 @@ const Pagination = ({ page, pages, onChange, windowSize = 5 }) => {
     const start = groupIndex * windowSize + 1;
     const end = Math.min(pages, start + windowSize - 1);
     const nums = Array.from({ length: end - start + 1 }, (_, i) => start + i);
-
     return (
         <div className="admin-pg">
             <button className="admin-pg-item admin-ghost" onClick={() => onChange(current - 1)} disabled={current === 1}>이전</button>
             {start > 1 && (<button className="admin-pg-item admin-ghost" onClick={() => onChange(start - 1)} title="이전 구간">…</button>)}
             {nums.map((p) => (
-                <button
-                    key={p}
-                    className={`admin-pg-item ${current === p ? "admin-active" : ""}`}
-                    onClick={() => onChange(p)}
-                    aria-current={current === p ? "page" : undefined}
-                >
+                <button key={p} className={`admin-pg-item ${current === p ? "admin-active" : ""}`} onClick={() => onChange(p)} aria-current={current === p ? "page" : undefined}>
                     {p}
                 </button>
             ))}
@@ -47,7 +39,6 @@ const Pagination = ({ page, pages, onChange, windowSize = 5 }) => {
     );
 };
 
-/* 파이차트 */
 const PieChart = ({ data }) => {
     const total = data.reduce((s, d) => s + d.value, 0) || 1;
     let acc = 0;
@@ -71,7 +62,6 @@ const PieChart = ({ data }) => {
     );
 };
 
-/* 혼잡도 분포 막대 */
 const StackedBars = ({ items }) => (
     <div className="admin-bars">
         {items.map((row) => {
@@ -96,7 +86,31 @@ const StackedBars = ({ items }) => (
     </div>
 );
 
-/* 유틸(NEW) */
+/* meters (전체 혼밥레벨 분포) */
+const LevelMeters = ({ dist }) => {
+    const total = Math.max(1, dist?.total ?? 0);
+    const rows = [
+        { label: "LV.1", value: dist.lv1 ?? 0 },
+        { label: "LV.2", value: dist.lv2 ?? 0 },
+        { label: "LV.3", value: dist.lv3 ?? 0 },
+    ];
+    return (
+        <div className="admin-meters">
+            {rows.map((r) => {
+                const pct = Math.round((r.value / total) * 100);
+                return (
+                    <div className="admin-meter-row" key={r.label}>
+                        <span className="admin-meter-label">{r.label}</span>
+                        <div className="admin-meter-track"><div className="admin-meter-fill" style={{ width: `${pct}%` }} /></div>
+                        <span className="admin-meter-value">{r.value.toLocaleString()} ({pct}%)</span>
+                    </div>
+                );
+            })}
+        </div>
+    );
+};
+
+/* ───────────── 유틸 ───────────── */
 const safeNum = (v, d = 0) => (Number.isFinite(+v) ? +v : d);
 const statusKo = (s = "") =>
     ({ ACTIVE: "활성", INACTIVE: "비활성", NEEDS_FIX: "수정 필요", DELETED: "비활성" }[String(s).toUpperCase()] || s || "비활성");
@@ -109,14 +123,32 @@ const baseCategory = (c) => {
 };
 const toTimeKey = (x) => (x?.createdAt ? new Date(x.createdAt).getTime() : safeNum(x?.id, 0));
 
+/* 혼밥레벨 계산 규칙 (프론트 계산) */
+export function calculateSoloLevel(value) {
+    const v = Number(value);
+    if (!Number.isFinite(v)) return null;
+    if (v >= 0 && v < 0.5) return 1;
+    if (v >= 0.5 && v < 1.5) return 2;
+    if (v >= 1.5 && v < 2.0) return 3;
+    return null;
+}
+
+/* 레벨 → UI 버킷 매핑 (리턴 3이 LV.1) */
+const levelToBucket = (lvl) => {
+    if (lvl === 3) return "lv1"; // LV.1
+    if (lvl === 2) return "lv2"; // LV.2
+    if (lvl === 1) return "lv3"; // LV.3
+    return null;
+};
+
 export default function AdminRestaurant() {
     const navigate = useNavigate();
-    const { alert } = useAlert(); // ✅ 전역 알림
+    const { alert } = useAlert();
 
     /* 삭제 */
     const [deletingId, setDeletingId] = useState(null);
     const onDelete = async (row) => {
-        if (!window.confirm(`${row.name}을(를) 삭제하시겠습니까?`)) return; // (원하면 전역 confirm으로도 바꿔줄게)
+        if (!window.confirm(`${row.name}을(를) 삭제하시겠습니까?`)) return;
         try {
             setDeletingId(row.id);
             await axios.delete(`/api/adminRestaurant/${row.id}`);
@@ -130,7 +162,7 @@ export default function AdminRestaurant() {
         }
     };
 
-    /* 모달 수정 */
+    /* 편집 모달 */
     const [editOpen, setEditOpen] = useState(false);
     const [editData, setEditData] = useState(null);
     const [editLoading, setEditLoading] = useState(false);
@@ -141,7 +173,7 @@ export default function AdminRestaurant() {
         category: d.category ?? "",
         address: d.address ?? "",
         phone: d.phone ?? "",
-        photo_url: d.photo_url ?? "",
+        photoUrl: d.photoUrl ?? "",
         description: d.description ?? "",
         status: d.status ?? "ACTIVE",
     });
@@ -160,18 +192,13 @@ export default function AdminRestaurant() {
             setEditLoading(false);
         }
     };
-    const closeEdit = () => {
-        if (saving) return;
-        setEditOpen(false);
-        setEditData(null);
-    };
+    const closeEdit = () => { if (!saving) { setEditOpen(false); setEditData(null); } };
     const saveEdit = async () => {
         if (!editData) return;
         try {
             setSaving(true);
             const payload = buildUpdatePayload(editData);
-            const url = `/api/adminRestaurant/${editData.id}`;
-            await axios.post(url, payload);
+            await axios.post(`/api/adminRestaurant/${editData.id}`, payload);
             setRows((prev) => prev.map((x) => (x.id === editData.id ? { ...x, ...payload } : x)));
             setEditOpen(false);
             setEditData(null);
@@ -184,20 +211,13 @@ export default function AdminRestaurant() {
         }
     };
 
-    /* ── 새 식당 추가 모달 상태 ── */
+    /* 추가 모달 */
     const [createOpen, setCreateOpen] = useState(false);
     const [createData, setCreateData] = useState({
-        name: "",
-        category: "",
-        address: "",
-        phone: "",
-        photo_url: "",
-        description: "",
-        status: "ACTIVE",
+        name: "", category: "", address: "", phone: "", photoUrl: "", description: "", status: "ACTIVE",
     });
     const [creating, setCreating] = useState(false);
 
-    /* 목록 재조회 (등록 실패/확인용) */
     const reloadList = async () => {
         try {
             const res = await axios.get("/api/adminRestaurant");
@@ -207,29 +227,15 @@ export default function AdminRestaurant() {
         }
     };
 
-    /* 모달 열기/닫기 */
     const openCreate = () => {
-        setCreateData({
-            name: "",
-            category: "",
-            address: "",
-            phone: "",
-            photo_url: "",
-            description: "",
-            status: "ACTIVE",
-        });
+        setCreateData({ name: "", category: "", address: "", phone: "", photoUrl: "", description: "", status: "ACTIVE" });
         setCreateOpen(true);
     };
-    const closeCreate = () => {
-        if (creating) return;
-        setCreateOpen(false);
-    };
+    const closeCreate = () => { if (!creating) setCreateOpen(false); };
 
-    /* 저장 */
     const saveCreate = async () => {
         if (!createData.name?.trim() || !createData.category?.trim() || !createData.address?.trim()) {
-            alert("이름, 카테고리, 주소는 필수입니다.");
-            return;
+            alert("이름, 카테고리, 주소는 필수입니다."); return;
         }
         try {
             setCreating(true);
@@ -247,7 +253,7 @@ export default function AdminRestaurant() {
         }
     };
 
-    /* 검색/필터/정렬/페이지 */
+    /* 검색/정렬/페이지 */
     const [query, setQuery] = useState("");
     const [category, setCategory] = useState("ALL");
     const [sort, setSort] = useState("latest");
@@ -256,10 +262,8 @@ export default function AdminRestaurant() {
 
     /* 목록 */
     const [rows, setRows] = useState([]);
-    const categories = useMemo(
-        () => ["ALL", "한식", "일식, 라멘", "카페, 브런치", "양식", "중식", "분식", "퓨전, 현대식"],
-        []
-    );
+    const categories = useMemo(() =>
+        ["ALL", "한식", "일식, 라멘", "카페, 브런치", "양식", "중식", "분식", "퓨전, 현대식"], []);
 
     useEffect(() => {
         (async () => {
@@ -291,14 +295,11 @@ export default function AdminRestaurant() {
         const toKey = (x) => toTimeKey(x);
         switch (sort) {
             case "ratingDesc":
-                arr.sort((a, b) => (safeNum(b.avgRating ?? b.avg_rating) - safeNum(a.avgRating ?? a.avg_rating)));
-                break;
+                arr.sort((a, b) => safeNum(b.avgRating) - safeNum(a.avgRating)); break;
             case "busyDesc":
-                arr.sort((a, b) => (safeNum(b.solo_index) - safeNum(a.solo_index)));
-                break;
+                arr.sort((a, b) => safeNum(b.soloIndex) - safeNum(a.soloIndex)); break;
             case "nameAsc":
-                arr.sort((a, b) => (a.name || "").localeCompare(b.name || ""));
-                break;
+                arr.sort((a, b) => (a.name || "").localeCompare(b.name || "")); break;
             default:
                 arr.sort((a, b) => toKey(b) - toKey(a));
         }
@@ -310,9 +311,9 @@ export default function AdminRestaurant() {
     const view = sorted.slice((page - 1) * pageSize, page * pageSize);
     useEffect(() => setPage(1), [query, category, sort]);
 
-    /* 차트 데이터 (rows → 집계) */
+    /* ───────────── 차트 데이터 ───────────── */
 
-    // 파이차트: 카테고리 분포
+    // 파이: 카테고리 분포
     const pieData = useMemo(() => {
         if (!rows.length) return [];
         const counts = {};
@@ -321,56 +322,28 @@ export default function AdminRestaurant() {
             counts[cat] = (counts[cat] || 0) + 1;
         });
         const palette = {
-            "한식": "#e74c3c",
-            "카페, 브런치": "#f39c12",
-            "카페/브런치": "#f39c12",
-            "일식": "#2ecc71",
-            "일식, 라멘": "#2ecc71",
-            "양식": "#3498db",
-            "중식": "#9b59b6",
-            "분식": "#16a085",
-            "퓨전, 현대식": "#8e44ad",
-            "기타": "#95a5a6",
+            "한식": "#e74c3c", "카페, 브런치": "#f39c12", "카페/브런치": "#f39c12",
+            "일식": "#2ecc71", "일식, 라멘": "#2ecc71", "양식": "#3498db",
+            "중식": "#9b59b6", "분식": "#16a085", "퓨전, 현대식": "#8e44ad", "기타": "#95a5a6",
         };
         const others = ["#34495e", "#27ae60", "#d35400", "#7f8c8d"];
         let oi = 0;
         return Object.entries(counts)
             .sort((a, b) => b[1] - a[1])
             .map(([label, value]) => ({
-                label,
-                value,
-                color: palette[label] || others[oi++ % others.length],
+                label, value, color: palette[label] || others[oi++ % others.length],
             }));
     }, [rows]);
 
-    // 스택막대
-    const busyItems = useMemo(() => {
-        if (!rows.length) return [];
-        const byCat = {};
+    // 전체 혼밥지수 분포(프론트 계산)
+    const soloDist = useMemo(() => {
+        const acc = { lv1: 0, lv2: 0, lv3: 0, total: 0 };
         rows.forEach((r) => {
-            const cat = baseCategory(r.category);
-            (byCat[cat] ||= []).push(r);
+            const lvl = calculateSoloLevel(r.soloIndex);
+            const bucket = levelToBucket(lvl);
+            if (bucket) { acc[bucket]++; acc.total++; }
         });
-
-        const bucketize = (list) => {
-            let low = 0, mid = 0, high = 0;
-            list.forEach((r) => {
-                const v = safeNum(r.solo_index);
-                if (v >= 9) high++;
-                else if (v >= 8) mid++;
-                else low++;
-            });
-            return [
-                { value: low, title: "LV.1" },
-                { value: mid, title: "LV.2" },
-                { value: high, title: "LV.3" },
-            ];
-        };
-
-        return Object.entries(byCat)
-            .sort((a, b) => b[1].length - a[1].length)
-            .slice(0, 5)
-            .map(([label, list]) => ({ label, segments: bucketize(list) }));
+        return acc;
     }, [rows]);
 
     const handleSearch = () => setPage(1);
@@ -429,61 +402,62 @@ export default function AdminRestaurant() {
                     <div className="admin-table-wrap">
                         <table className="admin-rest-table">
                             <thead>
-                                <tr><th>식당 이름</th><th>카테고리</th><th>위치</th><th>혼밥레벨</th><th>평점</th><th>복지카드</th><th>상태</th><th>작업</th></tr>
+                                <tr><th>식당 이름</th><th>카테고리</th><th>위치</th><th>혼밥지수</th><th>평점</th><th>복지카드</th><th>상태</th><th>작업</th></tr>
                             </thead>
                             <tbody>
-                                {view.map((r) => (
-                                    <tr key={r.id}>
-                                        <td>
-                                            <div className="admin-name-col">
-                                                <strong className="admin-link" onClick={() => navigate(`/adminrestaurants/${r.id}`)}>{r.name}</strong>
-                                            </div>
-                                        </td>
-                                        <td>{r.category}</td>
-                                        <td className="admin-truncate">{r.address}</td>
-                                        <td>
-                                            <span className={`admin-busy ${safeNum(r.solo_index) >= 9 ? "admin-high" : safeNum(r.solo_index) >= 8 ? "admin-mid" : ""}`}>
-                                                {safeNum(r.solo_index).toFixed(1)}
-                                            </span>
-                                        </td>
-                                        <td>
-                                            {safeNum(r.avgRating ?? r.avg_rating).toFixed(1)}{" "}
-                                            <span className="admin-muted">({r.rating_count || 0})</span>
-                                        </td>
-                                        <td><WelfareDot ok={false} /></td>
-                                        <td><StatusPill status={statusKo(r.status)} /></td>
-                                        <td className="admin-row-actions">
-                                            <button className="admin-mini" onClick={() => openEdit(r.id)}>수정</button>
-                                            <button
-                                                className="admin-mini admin-danger"
-                                                disabled={deletingId === r.id}
-                                                onClick={() => onDelete(r)}
-                                            >
-                                                {deletingId === r.id ? "삭제 중..." : "삭제"}
-                                            </button>
-                                        </td>
-                                    </tr>
-                                ))}
+                                {view.map((r) => {
+                                    const lvl = calculateSoloLevel(r.soloIndex);
+                                    const lvlText = (() => {
+                                        const b = levelToBucket(lvl);
+                                        if (!b) return "-";
+                                        return `LV.${b.slice(-1)}`;
+                                    })();
+                                    return (
+                                        <tr key={r.id}>
+                                            <td>
+                                                <div className="admin-name-col">
+                                                    <strong className="admin-link" onClick={() => navigate(`/adminrestaurants/${r.id}`)}>{r.name}</strong>
+                                                </div>
+                                            </td>
+                                            <td>{r.category}</td>
+                                            <td className="admin-truncate">{r.address}</td>
+                                            <td>
+                                                <span className={`admin-busy ${lvl === 3 ? "admin-high" : lvl === 2 ? "admin-mid" : ""}`}>
+                                                    {safeNum(r.soloIndex).toFixed(1)} <span className="admin-muted">/ {lvlText}</span>
+                                                </span>
+                                            </td>
+                                            <td>{safeNum(r.avgRating).toFixed(1)} <span className="admin-muted">({r.ratingCount || 0})</span></td>
+                                            <td><WelfareDot ok={typeof r.welfare === "boolean" ? r.welfare : Number(r.welfare) === 1} /></td>
+                                            <td><StatusPill status={statusKo(r.status)} /></td>
+                                            <td className="admin-row-actions">
+                                                <button className="admin-mini" onClick={() => openEdit(r.id)}>수정</button>
+                                                <button className="admin-mini admin-danger" disabled={deletingId === r.id} onClick={() => onDelete(r)}>
+                                                    {deletingId === r.id ? "삭제 중..." : "삭제"}
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    );
+                                })}
                                 {view.length === 0 && (<tr><td colSpan={8} className="admin-empty">조건에 맞는 레스토랑이 없습니다.</td></tr>)}
                             </tbody>
                         </table>
                     </div>
+
                     <Pagination page={page} pages={pages} onChange={setPage} />
                 </div>
 
                 <div className="admin-charts-grid">
                     <div className="admin-card">
+                        <div className="admin-card-head">
+                            <h3>식당 혼밥레벨 분포</h3>
+                            <div className="admin-muted" style={{ fontSize: 12 }}>총 {soloDist.total?.toLocaleString()}곳</div>
+                        </div>
+                        <LevelMeters dist={soloDist} />
+                    </div>
+
+                    <div className="admin-card">
                         <div className="admin-card-head"><h3>식당 카테고리 분포</h3></div>
                         <PieChart data={pieData} />
-                    </div>
-                    <div className="admin-card">
-                        <div className="admin-card-head"><h3>식당 혼밥레벨 분포</h3></div>
-                        <StackedBars items={busyItems} />
-                        <div className="admin-bar-legend">
-                            <span className="admin-seg admin-s1" /> LV.1
-                            <span className="admin-seg admin-s2" /> LV.2
-                            <span className="admin-seg admin-s3" /> LV.3
-                        </div>
                     </div>
                 </div>
             </main>
@@ -496,7 +470,6 @@ export default function AdminRestaurant() {
                             <h3>식당 수정</h3>
                             <button className="admin-close" onClick={closeEdit} disabled={saving}>×</button>
                         </div>
-
                         <div className="admin-modal-body">
                             {editLoading ? (
                                 <div style={{ padding: 20 }}>불러오는 중...</div>
@@ -506,7 +479,7 @@ export default function AdminRestaurant() {
                                     <label>카테고리<input value={editData.category || ""} onChange={(e) => setEditData(d => ({ ...d, category: e.target.value }))} /></label>
                                     <label>주소<input value={editData.address || ""} onChange={(e) => setEditData(d => ({ ...d, address: e.target.value }))} /></label>
                                     <label>전화<input value={editData.phone || ""} onChange={(e) => setEditData(d => ({ ...d, phone: e.target.value }))} /></label>
-                                    <label>사진 URL<input value={editData.photo_url || ""} onChange={(e) => setEditData(d => ({ ...d, photo_url: e.target.value }))} /></label>
+                                    <label>사진 URL<input value={editData.photoUrl || ""} onChange={(e) => setEditData(d => ({ ...d, photoUrl: e.target.value }))} /></label>
                                     <label>상태
                                         <select value={editData.status || "ACTIVE"} onChange={(e) => setEditData(d => ({ ...d, status: e.target.value }))}>
                                             <option value="ACTIVE">ACTIVE</option>
@@ -527,7 +500,7 @@ export default function AdminRestaurant() {
                 </div>
             )}
 
-            {/* 새 식당 추가 모달 */}
+            {/* 추가 모달 */}
             {createOpen && (
                 <div className="admin-modal-backdrop" onClick={closeCreate}>
                     <div className="admin-modal" onClick={(e) => e.stopPropagation()}>
@@ -538,7 +511,7 @@ export default function AdminRestaurant() {
                                 <label>카테고리*<input value={createData.category} onChange={(e) => setCreateData(d => ({ ...d, category: e.target.value }))} placeholder="예) 한식" /></label>
                                 <label className="col-span-2">주소*<input value={createData.address} onChange={(e) => setCreateData(d => ({ ...d, address: e.target.value }))} placeholder="예) 서울시 마포구 ..." /></label>
                                 <label>전화<input value={createData.phone} onChange={(e) => setCreateData(d => ({ ...d, phone: e.target.value }))} /></label>
-                                <label>사진 URL<input value={createData.photo_url} onChange={(e) => setCreateData(d => ({ ...d, photo_url: e.target.value }))} placeholder="https://..." /></label>
+                                <label>사진 URL<input value={createData.photoUrl} onChange={(e) => setCreateData(d => ({ ...d, photoUrl: e.target.value }))} placeholder="https://..." /></label>
                                 <label className="col-span-2">설명<textarea rows={3} value={createData.description} onChange={(e) => setCreateData(d => ({ ...d, description: e.target.value }))} placeholder="간단한 소개를 적어주세요" /></label>
                                 <label>상태
                                     <select value={createData.status} onChange={(e) => setCreateData(d => ({ ...d, status: e.target.value }))}>
@@ -549,15 +522,11 @@ export default function AdminRestaurant() {
                                 </label>
                             </div>
                         </div>
-
                         <div className="admin-modal-foot">
                             <button className="admin-btn admin-ghost" onClick={closeCreate} disabled={creating}>취소</button>
-                            <button
-                                className="admin-btn admin-primary"
-                                onClick={saveCreate}
+                            <button className="admin-btn admin-primary" onClick={saveCreate}
                                 disabled={creating || !createData.name?.trim() || !createData.category?.trim() || !createData.address?.trim()}
-                                title="이름/카테고리/주소는 필수"
-                            >
+                                title="이름/카테고리/주소는 필수">
                                 {creating ? "저장 중..." : "저장"}
                             </button>
                         </div>

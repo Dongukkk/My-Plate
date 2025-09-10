@@ -46,8 +46,8 @@ public class AdminServiceImpl implements AdminService {
 	}
 
 	@Override
-	public int DeleteAdminRestaurant(long id) {
-		return adminDAO.DeleteAdminRestaurant(id);
+	public int deleteAdminRestaurant(long id) {
+		return adminDAO.deleteAdminRestaurant(id);
 	}
 
 	// 사용자 관리

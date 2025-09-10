@@ -46,10 +46,10 @@ public class AdminDAOImpl implements AdminDAO {
 	}
     
 	@Override
-	public int DeleteAdminRestaurant(long id) {
+	public int deleteAdminRestaurant(long id) {
 		AdminRestaurantDTO p = new AdminRestaurantDTO();
         p.setId((long) id);
-        return sqlSessionTemplate.update(AM + "DeleteAdminRestaurant", p);
+        return sqlSessionTemplate.update(AM + "deleteAdminRestaurant", p);
 	}
 
 	
