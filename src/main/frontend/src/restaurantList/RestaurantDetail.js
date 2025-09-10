@@ -3,6 +3,7 @@ import { useEffect, useState, useRef } from "react";
 import axios from "axios";
 import SideBarMenu from "../components/SideBarMenu";
 import "../restaurantList/RestaurantDetail.css";
+import {useAlert} from '../ui/alert-center';
 
 import ReviewReportModal from "../report/review-report";
 import StoreEditReportModal from "../report/store-report";
@@ -22,6 +23,7 @@ const today = new Date().getDay();
 function RestaurantDetail() {
   const navigate = useNavigate();
 
+  const {alert} = useAlert();
   const user = useSelector(state => state.user);
 
   const { id } = useParams();

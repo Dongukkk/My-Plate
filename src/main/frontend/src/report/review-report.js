@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useSelector } from "react-redux";
 import axios from "axios";
 import "./review-report.css";
+import {useAlert} from '../ui/alert-center';
 
 export default function ReviewReportModal({
     open = false,
@@ -10,6 +11,7 @@ export default function ReviewReportModal({
     onClose,
     onReported,
 }) {
+    const {alert} = useAlert();
     const user = useSelector((s) => s.user);
     const [reason, setReason] = useState("욕설/비하");
     const [memo, setMemo] = useState("");

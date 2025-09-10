@@ -3,12 +3,14 @@ import { useNavigate } from "react-router-dom";
 import { toggleBookmark } from "../api/api";
 import { useSelector } from 'react-redux';
 import { calculateSoloLevel } from "../utils/calculate";
+import {useAlert} from '../ui/alert-center';
 
 export const DEFAULT_IMAGE_URL = "/images/restaurant/BASIC_RESTAURANT_IMAGE.jpg";
 
 const RestaurantCard = ({ restaurant, selectedTags, onTagClick, initialBookmarkStatus, onBookmarkToggle }) => {
   const navigate = useNavigate();
 
+  const {alert} = useAlert();
   const user = useSelector(state => state.user);
 
   const [bookmarked, setBookmarked] = useState(initialBookmarkStatus);
