@@ -1,0 +1,67 @@
+/* src/components/MobileHeader.css */
+
+/* PC에서는 숨김 */
+.mobile-header {
+    display: none;
+}
+
+/* 모바일 전용 스타일 (768px 이하) */
+@media (max-width: 768px) {
+    .mobile-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        width: 100%;
+        background-color: var(--primary-color, #e74c3c);
+        color: #fff;
+        padding: 0px;
+        position: fixed;
+        top: 0;
+        z-index: 100;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+
+        height: 60px;
+    }
+
+    .mobile-header-logo {
+        height: 30px; /* 로고 높이 조정 */
+    }
+
+    .mobile-auth-section {
+        position: relative;
+    }
+
+    .mobile-auth-text {
+        font-size: 14px;
+        font-weight: bold;
+        cursor: pointer;
+        color: #fff;
+    }
+
+    .mobile-dropdown-menu {
+        position: absolute;
+        top: 100%;
+        right: 0;
+        background-color: #fff;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        margin-top: 5px;
+        z-index: 100;
+        display: flex;
+        flex-direction: column;
+        min-width: 120px;
+    }
+
+    .mobile-dropdown-menu span {
+        padding: 10px 15px;
+        font-size: 14px;
+        color: #333;
+        cursor: pointer;
+        white-space: nowrap;
+    }
+
+    .mobile-dropdown-menu span:hover {
+        background-color: #f0f0f0;
+    }
+}

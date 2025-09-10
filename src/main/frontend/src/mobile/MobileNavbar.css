@@ -1,0 +1,42 @@
+/* src/components/MobileNavbar.css */
+
+/* PC에서는 숨기기 */
+.mobile-navbar {
+    display: none;
+}
+
+/* ------------------------------------------- */
+/* 모바일 전용 스타일 (768px 이하) */
+/* ------------------------------------------- */
+@media (max-width: 768px) {
+    .mobile-navbar {
+        display: flex;
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        height: 60px; /* 네브바 높이 */
+        background-color: #fff;
+        box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.1);
+        z-index: 100;
+        justify-content: space-around;
+        align-items: center;
+        padding: 0;
+    }
+
+    .mobile-nav-item {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        text-decoration: none;
+        color: #888;
+        transition: color 0.2s;
+        font-size: 12px;
+        flex: 1; /* 모든 아이템이 동일한 공간 차지 */
+        text-align: center;
+    }
+
+    .mobile-nav-item.active {
+        color: var(--primary-color, #e74c3c);
+    }
+}

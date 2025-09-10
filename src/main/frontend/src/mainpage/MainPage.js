@@ -134,6 +134,7 @@ function MainPage() {
 
     return (
         <>
+            <div className="mainpage-mobile-gap"></div>
             <section className="mainpage-hero">
                 <video muted autoPlay loop>
                     <source src={`${process.env.PUBLIC_URL}/video/MAIN_VIDEO.mp4`} type="video/mp4"></source>

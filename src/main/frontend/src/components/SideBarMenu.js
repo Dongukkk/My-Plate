@@ -8,7 +8,7 @@ function SideBarMenu(){
       const user = useSelector(state => state.user);
     return(
         <>
-            <nav className="main-sidebar-menu" style={{display:'flex', flexDirection:'column', justifyContent:'space-between'}}>
+            <nav className="main-sidebar-menu">
                 <ul>
                     <li className={`main-menu-item ${location.pathname === '/' ? 'active' : ''}`}>
                         <Link to="/">

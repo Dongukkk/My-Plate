@@ -1,3 +1,4 @@
+
 .main-header {
     background: var(--primary-color);
     padding: 10px 20px;
@@ -39,4 +40,10 @@
 
 .mh-dropdown-menu span:hover {
   background-color: #f0f0f0;
+}
+
+@media (max-width: 768px) {
+    .main-header {
+        display: none;
+    }
 }

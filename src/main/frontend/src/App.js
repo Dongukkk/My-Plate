@@ -37,6 +37,8 @@ import BookmarkList from './restaurantList/BookmarkList';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import ReviewPage from './restaurantList/ReviewPage';
+import MobileHeader from './mobile/MobileHeader';
+import MobileNavbar from './mobile/MobileNavbar';
 
 function ScrollToTop() {
   const { pathname } = useLocation();
@@ -55,8 +57,9 @@ const MainLayout = () => {
   const showHeaderFooter = !noHeaderFooterRoutes.some(route => location.pathname.startsWith(route));
 
   return (
-    <>
+    <div className='service-container'>
       {showHeaderFooter && <Header />}
+      <MobileHeader />
       <Routes>
         <Route path="/" element={<MainPage />} />
         <Route path="/search" element={<RestaurantSearchResult />} />
@@ -91,8 +94,9 @@ const MainLayout = () => {
 
         <Route path="*" element={<ErrorPage />} />
       </Routes>
+      <MobileNavbar />
       {showHeaderFooter && <Footer />}
-    </>
+    </div>
   );
 };
 
