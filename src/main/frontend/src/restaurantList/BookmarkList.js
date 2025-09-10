@@ -99,6 +99,8 @@ function BookmarkList() {
   }
 
   return (
+    <>
+    <div className="mainpage-mobile-gap"></div>
     <div className="restaurantList-page">
       <SideBarMenu />
       <div className="rl-container">
@@ -123,7 +125,7 @@ function BookmarkList() {
         </main>
       </div>
     </div>
-  );
+  </>);
 }
 
 export default BookmarkList;

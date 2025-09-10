@@ -1,6 +1,5 @@
 .rm-restaurantMap-page {
   display: flex;
-  max-height: 100vh;
   background-color: #f5f5f5;
   font-family: 'Noto Sans KR', sans-serif;
 }
@@ -138,4 +137,48 @@
 .rm-restaurant-card:hover {
   transform: translateY(-3px);
   box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+@media (max-width: 768px) {
+  .rm-container {
+    flex-direction: column;
+    padding: 10px;
+    width: 95%;
+    height:100%;
+  }
+
+  .rm-left,
+  .rm-right {
+    flex: unset;
+    width: 90%;
+    margin: 0 0 20px 0;
+    box-shadow: 0 1px 6px rgba(0,0,0,0.1);
+  }
+
+  .rm-map-container {
+    height: 400px; /* 모바일에서는 지도 높이 줄임 */
+  }
+
+  .rm-restList {
+    height: 300px; /* 리스트 높이도 줄임 */
+  }
+
+  .rm-slot-machine {
+    width: 200px; /* 슬롯머신 크기 줄임 */
+    height: 50px;
+  }
+
+  .rm-slot-item {
+    line-height: 50px;
+    font-size: 18px;
+  }
+
+  .rm-spin-btn {
+    font-size: 14px;
+    padding: 8px 16px;
+  }
+
+  .rm-recommend-box {
+    padding: 16px;
+  }
 }

@@ -88,6 +88,8 @@ function RestaurantMap() {
   };
 
   return (
+    <>
+    <div className="mainpage-mobile-gap"></div>
     <div className="rm-restaurantMap-page">
       <SideBarMenu />
       <div className="rm-container">
@@ -132,9 +134,9 @@ function RestaurantMap() {
                   <></>
                 )}
           </div>
-
+          <h3>식당 리스트</h3>
           <div className="rm-restList">
-            <h3>식당 리스트</h3>
+            
             {displayedRestaurants.length > 0 ? (
               displayedRestaurants.map((rest) => (
                 <div key={rest.id} className="rm-restaurant-card" onClick={() => navigate(`/restaurants/detail/${rest.id}`)}>
@@ -155,7 +157,7 @@ function RestaurantMap() {
         </div>
       </div>
     </div>
-  );
+  </>);
 }
 
 export default RestaurantMap;
