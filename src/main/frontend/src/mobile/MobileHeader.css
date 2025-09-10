@@ -11,7 +11,7 @@
         display: flex;
         justify-content: space-between;
         align-items: center;
-        width: 100%;
+        width: 100vw;
         background-color: var(--primary-color, #e74c3c);
         color: #fff;
         padding: 0px;
@@ -25,6 +25,7 @@
 
     .mobile-header-logo {
         height: 30px; /* 로고 높이 조정 */
+        margin-left: 10px;
     }
 
     .mobile-auth-section {
@@ -36,6 +37,7 @@
         font-weight: bold;
         cursor: pointer;
         color: #fff;
+        margin-right: 10px;
     }
 
     .mobile-dropdown-menu {

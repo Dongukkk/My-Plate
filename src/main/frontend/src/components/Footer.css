@@ -6,8 +6,7 @@
 }
 
 .footer-container {
-    max-width: 1120px;
-    margin: 0 auto;
+    margin: 0;
     padding: 28px 16px 22px;
 }
 
@@ -90,7 +89,7 @@
 }
 
 .footer-btn {
-    width: 100%;
+    width: 90%;
     display: inline-flex;
     justify-content: center;
     align-items: center;

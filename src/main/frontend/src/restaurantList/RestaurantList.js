@@ -160,6 +160,8 @@ function RestaurantList() {
     }
 
     return (
+        <>
+        <div className="mainpage-mobile-gap"></div>
         <div className="restaurantList-page">
             <SideBarMenu />
             <div className="rl-container">
@@ -167,7 +169,7 @@ function RestaurantList() {
                     <div className="restaurant-list">
                         <div className="list-header">
                             <h2>레스토랑 목록</h2>
-                            <div>
+                            <div className='sort-select-container' style={{width:'100%'}}>
                                 <label htmlFor="sort-select">정렬 기준: </label>
                                 <select id="sort-select" value={sort+'_'+direction} onChange={(e)=>{handleSortChange(e.target.value);}}>
                                     <option value="name_ASC">이름 순</option>
@@ -218,7 +220,7 @@ function RestaurantList() {
                 </main>
             </div>
         </div>
-    );
+    </>);
 };
 
 export default RestaurantList;

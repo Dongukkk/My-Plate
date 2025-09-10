@@ -176,3 +176,78 @@ body {
 .rc-details-button:hover {
     background-color: #c75a00;
 }
+
+@media (max-width: 768px) {
+    .restaurant-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 12px;
+    }
+
+    .restaurant-card {
+        min-width: auto;
+        max-width: 100%;
+    }
+    .sort-select-container {
+        display: flex;
+        padding-left: 50px;
+    }
+}
+
+@media (max-width: 480px) {
+    .restaurant-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 768px) {
+    .list-header h2 {
+        font-size: 20px;
+    }
+
+    .list-header select {
+        padding: 6px;
+        font-size: 14px;
+    }
+
+    .rc-tag-badge {
+        font-size: 11px;
+        padding: 3px 6px;
+    }
+
+    .rc-card-content h3 {
+        font-size: 16px;
+    }
+}
+
+@media (max-width: 768px) {
+    .list-header {
+        flex-direction: column; /* 제목과 select 세로 배치 */
+        align-items: flex-start;
+        gap: 8px;
+    }
+
+    .list-header h2 {
+        font-size: 20px;
+    }
+
+    .list-header select {
+        width: 100%;
+        max-width: 200px;
+    }
+
+    .restaurant-list-tag-container {
+        display: flex;
+        gap: 6px;
+        overflow-x: auto;    /* 가로 스크롤 가능 */
+        padding: 20px 6px 0;
+    }
+
+    .restaurant-list-tag-container::-webkit-scrollbar {
+        display: none;       /* 스크롤바 숨김 */
+    }
+
+    .rc-tag-badge {
+        flex-shrink: 0; /* 스크롤 시 줄어들지 않도록 */
+    }
+}
