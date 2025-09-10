@@ -19,6 +19,7 @@ import SiteIntro from './introduce/site-intro';
 import CardIntro from './introduce/card-intro';
 import Chating from './introduce/chating-support';
 import FAQ from './introduce/faq-page';
+import { AlertProvider } from "./ui/alert-center";
 
 import MainPage from './mainpage/MainPage';
 import RestaurantList from './restaurantList/RestaurantList';
@@ -125,13 +126,15 @@ const App = () => {
 
   return (
     <>
+    <AlertProvider>
       <BrowserRouter>
       <ScrollToTop />
         <LoadingProvider>
           <MainLayout />
         </LoadingProvider>
       </BrowserRouter>
-      <ToastContainer toastClassName="custom-toast"/>
+      {/* <ToastContainer toastClassName="custom-toast"/> */}
+      </AlertProvider>
     </>
     
   );

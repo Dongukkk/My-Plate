@@ -6,92 +6,104 @@
 <mapper namespace="admin_mapper">
 
 	<!-- 식당 관리 -->
-	<select id="findRestaurantList" resultType="AdminRestaurant">
-		SELECT
-		R.ID AS id,
-		R.NAME AS name,
-		R.CATEGORY AS category,
-		R.ADDRESS AS address,
-		NVL(R.SOLO_INDEX, 0) AS solo_index,
-		NVL(R.AVG_RATING, 0) AS avgRating,
-		NVL(R.RATING_COUNT, 0) AS rating_count,
-		R.STATUS AS status,
-		TO_CHAR(R.created_at, 'YYYY-MM-DD"T"HH24:MI:SS') AS createdAt,
-		TO_CHAR(R.updated_at, 'YYYY-MM-DD"T"HH24:MI:SS') AS updatedAt
-		FROM
-		MP_RESTAURANT R
-		WHERE R.DELETED_AT IS NULL
-		ORDER BY R.ID
+	<select id="findRestaurantList" parameterType="map" resultType="AdminRestaurant">
+				SELECT
+		r.id,
+		r.name,
+		r.description,
+		r.category,
+		r.avg_rating AS avgRating,
+		r.rating_count AS ratingCount,
+		r.solo_index AS soloIndex,
+		r.photo_url AS photoUrl,
+		r.address,
+		r.phone,
+		r.status,
+		CASE
+			WHEN EXISTS (
+			SELECT 1
+			FROM MP_RESTAURANT_TAGS rt
+			JOIN MP_TAGS t ON t.id = rt.tag_id
+			WHERE rt.restaurant_id = r.id
+			AND (t.name IN ('복지카드사용')
+			OR t.code = 'WELFARE_CARD')
+			) THEN 1 ELSE 0
+		END AS welfare,
+		TO_CHAR(r.created_at, 'YYYY-MM-DD"T"HH24:MI:SS') AS createdAt,
+		TO_CHAR(r.updated_at, 'YYYY-MM-DD"T"HH24:MI:SS') AS updatedAt
+		FROM MP_RESTAURANT r
+		WHERE r.id = #{id}
+		AND r.deleted_at IS NULL
 	</select>
 
-	<select id="findRestaurantById" parameterType="long"
-		resultType="AdminRestaurant">
+	<!-- 상세 -->
+	<select id="findRestaurantById" parameterType="long" resultType="AdminRestaurant">
 		SELECT
-		ID AS id,
-		NAME AS name,
-		DESCRIPTION AS description,
-		CATEGORY AS category,
-		AVG_RATING AS avgRating,
-		RATING_COUNT AS
-		rating_count,
-		SOLO_INDEX AS solo_index,
-		PHOTO_URL AS photo_url,
-		ADDRESS
-		AS address,
-		PHONE AS phone,
-		STATUS AS status,
-		TO_CHAR(created_at,
-		'YYYY-MM-DD"T"HH24:MI:SS') AS createdAt,
-		TO_CHAR(updated_at,
-		'YYYY-MM-DD"T"HH24:MI:SS') AS updatedAt
-		FROM MP_RESTAURANT
-		WHERE ID =
-		#{id} AND DELETED_AT IS NULL
+		r.id,
+		r.name,
+		r.description,
+		r.category,
+		r.avg_rating AS avgRating,
+		r.rating_count AS ratingCount,
+		r.solo_index AS soloIndex,
+		r.photo_url AS photoUrl,
+		r.address,
+		r.phone,
+		r.status,
+		CASE
+			WHEN EXISTS (
+			SELECT 1
+			FROM MP_RESTAURANT_TAGS rt
+			JOIN MP_TAGS t ON t.id = rt.tag_id
+			WHERE rt.restaurant_id = r.id
+			AND (t.name IN ('복지카드사용')
+			OR t.code = 'WELFARE_CARD')
+			) THEN 1 ELSE 0
+		END AS welfare,
+		TO_CHAR(r.created_at, 'YYYY-MM-DD"T"HH24:MI:SS') AS createdAt,
+		TO_CHAR(r.updated_at, 'YYYY-MM-DD"T"HH24:MI:SS') AS updatedAt
+		FROM MP_RESTAURANT r
+		WHERE r.id = #{id}
+		AND r.deleted_at IS NULL
 	</select>
 
-	<update id="modifyAdminRestaurant"
-		parameterType="AdminRestaurant">
+	<!-- 수정 -->
+	<update id="modifyAdminRestaurant" parameterType="AdminRestaurant">
 		UPDATE MP_RESTAURANT
-		SET NAME = #{name},
-		DESCRIPTION =
-		#{description},
-		CATEGORY = #{category},
-		PHOTO_URL = #{photo_url},
-		ADDRESS = #{address},
-		PHONE = #{phone},
-		STATUS = #{status},
-		UPDATED_AT =
-		SYSTIMESTAMP
-		WHERE ID = #{id}
+		SET
+		name = #{name},
+		description = #{description},
+		category = #{category},
+		photo_url = #{photoUrl},
+		address = #{address},
+		phone = #{phone},
+		status = #{status},
+		updated_at = SYSTIMESTAMP
+		WHERE id = #{id}
 	</update>
 
-	<insert id="saveAdminRestaurant" parameterType="AdminRestaurant">
-		<selectKey keyProperty="id" resultType="long" order="BEFORE">SELECT
-			MP_RESTAURANT_SEQ.NEXTVAL FROM DUAL
+	<!-- 저장 -->
+	<insert id="saveAdminRestaurant" parameterType="AdminRestaurant" useGeneratedKeys="false">
+		<selectKey keyProperty="id" resultType="long" order="BEFORE">
+			SELECT MP_RESTAURANT_SEQ.NEXTVAL FROM DUAL
 		</selectKey>
-		INSERT INTO MP_RESTAURANT (ID, NAME, DESCRIPTION, CATEGORY, PHOTO_URL,
-		ADDRESS, PHONE, STATUS, CREATED_AT, UPDATED_AT) VALUES (
-		MP_RESTAURANT_SEQ.NEXTVAL,
-		#{name},
-		#{description},
-		#{category},
-		#{photo_url},
-		#{address},
+		INSERT INTO MP_RESTAURANT
+		(id, name, description, category, photo_url, address, phone, status,
+		created_at, updated_at)
+		VALUES
+		(#{id}, #{name}, #{description}, #{category}, #{photoUrl}, #{address},
 		#{phone},
-		#{status},
-		SYSTIMESTAMP,
-		SYSTIMESTAMP
-		)
+		#{status}, SYSTIMESTAMP, SYSTIMESTAMP)
 	</insert>
 
-	<update id="DeleteAdminRestaurant"
-		parameterType="AdminRestaurant">
+	<!-- 삭제(소프트) -->
+	<update id="deleteAdminRestaurant" parameterType="long">
 		UPDATE MP_RESTAURANT
-		SET STATUS = 'DELETED',
-		DELETED_AT =
-		SYSTIMESTAMP
-		WHERE ID = #{id}
+		SET status = 'DELETED',
+		deleted_at = SYSTIMESTAMP
+		WHERE id = #{id}
 	</update>
+
 
 
 	<!-- 사용자 관리 -->

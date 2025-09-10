@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
+import { useAlert } from "../ui/alert-center"; // ✅ 전역 알림 훅
 import "./admin-analysis.css";
 
 // axios.defaults.baseURL = "http://localhost:8080";
@@ -8,6 +9,7 @@ import "./admin-analysis.css";
 
 export default function AdminAnalysis() {
     const navigate = useNavigate();
+    const { alert } = useAlert(); // ✅ PrettyAlert 전역 사용
 
     // 서버 데이터
     const [users, setUsers] = useState([]);
@@ -17,13 +19,15 @@ export default function AdminAnalysis() {
     const [reportsRER, setReportsRER] = useState([]);
     const [loading, setLoading] = useState(true);
 
-    // 안전 GET
-    const safeGet = async (url) => {
+    // 안전 GET (실패시 전역 알림)
+    const safeGet = async (url, name) => {
         try {
             const { data } = await axios.get(url);
             const list = Array.isArray(data) ? data : data?.items || data?.rows || data?.list || [];
             return list || [];
-        } catch {
+        } catch (e) {
+            console.error(`[AdminAnalysis] ${name} 불러오기 실패:`, e);
+            alert(`${name ?? "데이터"}를 불러오지 못했습니다. 잠시 후 다시 시도해주세요.`);
             return [];
         }
     };
@@ -31,19 +35,22 @@ export default function AdminAnalysis() {
     useEffect(() => {
         (async () => {
             setLoading(true);
-            const [u, r, ip, oh, rr] = await Promise.all([
-                safeGet("/api/adminUser"),
-                safeGet("/api/adminRestaurant"),
-                safeGet("/api/adminContent/IPC"),
-                safeGet("/api/adminContent/OTH"),
-                safeGet("/api/adminContent/RER"),
-            ]);
-            setUsers(u);
-            setRestaurants(r);
-            setReportsIPC(ip);
-            setReportsOHT(oh);
-            setReportsRER(rr);
-            setLoading(false);
+            try {
+                const [u, r, ip, oh, rr] = await Promise.all([
+                    safeGet("/api/adminUser", "사용자 데이터"),
+                    safeGet("/api/adminRestaurant", "식당 데이터"),
+                    safeGet("/api/adminContent/IPC", "부적절 신고"),
+                    safeGet("/api/adminContent/OTH", "기타 문의"),
+                    safeGet("/api/adminContent/RER", "수정 요청"),
+                ]);
+                setUsers(u);
+                setRestaurants(r);
+                setReportsIPC(ip);
+                setReportsOHT(oh);
+                setReportsRER(rr);
+            } finally {
+                setLoading(false);
+            }
         })();
     }, []);
 
@@ -154,14 +161,17 @@ export default function AdminAnalysis() {
     };
 
     // 신고 합산
-    const allReports = useMemo( () => [...reportsIPC, ...reportsOHT, ...reportsRER], [reportsIPC, reportsOHT, reportsRER] );
+    const allReports = useMemo(() => [...reportsIPC, ...reportsOHT, ...reportsRER], [reportsIPC, reportsOHT, reportsRER]);
 
     // KPI
     const kpis = useMemo(() => {
         const totalUsers = users.length;
         const activeUsers = users.filter((u) => normStatus(u.status) === "ACTIVE").length;
         const totalRestaurants = restaurants.length;
-        const totalReviews = restaurants.reduce( (sum, r) => sum + (num(r?.rating_count ?? r?.ratingCount) || 0), 0 );
+        const totalReviews = restaurants.reduce(
+            (sum, r) => sum + (num(r?.rating_count ?? r?.ratingCount) || 0),
+            0
+        );
         const totalReports = allReports.length;
         const dash = "—";
 
@@ -169,13 +179,14 @@ export default function AdminAnalysis() {
             { key: "totalUsers", label: "총 사용자", value: totalUsers, diff: dash, note: "지난달 대비" },
             { key: "activeUsers", label: "활성 사용자", value: activeUsers, diff: dash, note: "지난달 대비" },
             { key: "restaurants", label: "등록된 식당", value: totalRestaurants, diff: dash, note: "지난달 대비" },
-            totalReviews > 0 ? { key: "reviews", label: "작성된 리뷰", value: totalReviews, diff: dash, note: "지난달 대비" } : { key: "reports", label: "신고 접수", value: totalReports, diff: dash, note: "지난달 대비" },
+            totalReviews > 0
+                ? { key: "reviews", label: "작성된 리뷰", value: totalReviews, diff: dash, note: "지난달 대비" }
+                : { key: "reports", label: "신고 접수", value: totalReports, diff: dash, note: "지난달 대비" },
         ];
     }, [users, restaurants, allReports]);
 
-    // 라인차트(활동 추이) 데이터 + 축/그리드 계산
+    // 라인차트(활동 추이)
     const activity = useMemo(() => {
-        // 5개의 최근 2주 구간
         const now = new Date();
         const buckets = Array.from({ length: 5 }).map((_, i) => {
             const end = new Date(now);
@@ -185,7 +196,6 @@ export default function AdminAnalysis() {
             return { start, end };
         }).reverse();
 
-        // 원시값 집계
         const redRaw = buckets.map(({ start, end }) =>
             users.filter((u) => {
                 const d = pickDate(u);
@@ -200,7 +210,6 @@ export default function AdminAnalysis() {
             }).length
         );
 
-        // nice 스케일 계산 (0 ~ niceMax, 4 interval)
         const rawMax = Math.max(1, ...redRaw, ...tealRaw);
         const niceNumber = (x, round = true) => {
             const exp = Math.floor(Math.log10(x));
@@ -224,7 +233,6 @@ export default function AdminAnalysis() {
         const niceMax = step * Math.ceil(rawMax / step);
         const ticks = Array.from({ length: targetIntervals + 1 }, (_, i) => i * step);
 
-        // 좌표 변환
         const xStep = buckets.length > 1 ? 100 / (buckets.length - 1) : 100;
         const toY = (v) => 100 - (v / Math.max(1, niceMax)) * 100;
         const pointsFrom = (arr) => arr.map((v, i) => `${i * xStep},${toY(v)}`).join(" ");
@@ -264,9 +272,7 @@ export default function AdminAnalysis() {
             .map((r) => {
                 const rating = getAvgRating(r);
                 const count = getReviewCount(r);
-                const label = String(
-                    r?.name ?? r?.restaurantName ?? r?.title ?? (r?.id ? `#${r.id}` : "식당")
-                );
+                const label = String(r?.name ?? r?.restaurantName ?? r?.title ?? (r?.id ? `#${r.id}` : "식당"));
                 return { label, rating, count };
             })
             .filter((x) => x.rating > 0)
@@ -280,14 +286,11 @@ export default function AdminAnalysis() {
         }));
     }, [restaurants]);
 
-    // 혼잡지수
+    // 혼잡지수 (데코용)
     const congestion = useMemo(() => {
         const totalU = users.length;
         const totalR = restaurants.length;
-        const activeRate = percent(
-            users.filter((u) => normStatus(u.status) === "ACTIVE").length,
-            Math.max(1, totalU)
-        );
+        const activeRate = percent(users.filter((u) => normStatus(u.status) === "ACTIVE").length, Math.max(1, totalU));
         return [
             { label: `${totalU.toLocaleString()}명`, width: Math.min(100, Math.round((totalU / Math.max(1, totalU)) * 100)) },
             { label: `${totalR.toLocaleString()}곳`, width: Math.min(100, Math.round((totalR / Math.max(1, totalR)) * 100)) },
@@ -337,7 +340,9 @@ export default function AdminAnalysis() {
         return (
             <div className="admin-container">
                 <aside className="admin-sidebar">
-                    <h2 className="admin-logo"><img src={"https://i.imgur.com/tiY7WKl.png"} alt="My Plate Logo" className="admin-logo-img" /></h2>
+                    <h2 className="admin-logo">
+                        <img src={"https://i.imgur.com/tiY7WKl.png"} alt="My Plate Logo" className="admin-logo-img" />
+                    </h2>
                     <nav>
                         <ul>
                             <li onClick={() => navigate("/adminMain")}>홈</li>
@@ -350,7 +355,9 @@ export default function AdminAnalysis() {
                 </aside>
                 <div className="admin-analysis-page">
                     <div className="admin-analysis-top">
-                        <div className="admin-analysis-headings"><h2 className="admin-analysis-title">분석 대시보드</h2></div>
+                        <div className="admin-analysis-headings">
+                            <h2 className="admin-analysis-title">분석 대시보드</h2>
+                        </div>
                         <div className="admin-analysis-actions">
                             <select className="admin-select" disabled>
                                 <option>최근 7일</option>
@@ -359,7 +366,7 @@ export default function AdminAnalysis() {
                             </select>
                         </div>
                     </div>
-                    <div className="admin-kpi-grid">{[1, 2, 3, 4].map((i) => (<div key={i} className="admin-kpi-slot skeleton" />))}</div>
+                    <div className="admin-kpi-grid">{[1, 2, 3, 4].map((i) => <div key={i} className="admin-kpi-slot skeleton" />)}</div>
                 </div>
             </div>
         );
@@ -368,7 +375,9 @@ export default function AdminAnalysis() {
     return (
         <div className="admin-container">
             <aside className="admin-sidebar">
-                <h2 className="admin-logo" onClick={() => navigate(`/adminMain`)}><img src={"https://i.imgur.com/tiY7WKl.png"} alt="My Plate Logo" className="admin-logo-img" /></h2>
+                <h2 className="admin-logo" onClick={() => navigate(`/adminMain`)}>
+                    <img src={"https://i.imgur.com/tiY7WKl.png"} alt="My Plate Logo" className="admin-logo-img" />
+                </h2>
                 <nav>
                     <ul>
                         <li onClick={() => navigate("/adminMain")}>홈</li>
@@ -382,14 +391,18 @@ export default function AdminAnalysis() {
 
             <div className="admin-analysis-page">
                 <div className="admin-analysis-top">
-                    <div className="admin-analysis-headings"><h2 className="admin-analysis-title">분석 대시보드</h2></div>
+                    <div className="admin-analysis-headings">
+                        <h2 className="admin-analysis-title">분석 대시보드</h2>
+                    </div>
                 </div>
 
                 {/* KPI */}
                 <div className="admin-kpi-grid">
                     {kpis.map((k) => (
                         <div key={k.key} className="admin-kpi-slot">
-                            <div className="admin-kpi-top"><span className="admin-kpi-label">{k.label}</span></div>
+                            <div className="admin-kpi-top">
+                                <span className="admin-kpi-label">{k.label}</span>
+                            </div>
                             <div className="admin-kpi-value">{Number(k.value || 0).toLocaleString()}</div>
                             <div className="admin-kpi-foot">
                                 <span className="admin-kpi-up">{k.diff}</span>
@@ -402,31 +415,59 @@ export default function AdminAnalysis() {
                 {/* 메인 그리드 */}
                 <div className="admin-grid-2col">
                     <div className="admin-col">
-
-                        {/* 사용자 활동 추이 — 컴팩트/클린 (라벨 제거) */}
+                        {/* 사용자 활동 추이 */}
                         <section className="admin-slot">
-                            <div className="admin-slot-head"><h3 className="admin-slot-title">사용자 활동 추이</h3></div>
+                            <div className="admin-slot-head">
+                                <h3 className="admin-slot-title">사용자 활동 추이</h3>
+                            </div>
 
-                            <div className="admin-linechart admin-linechart--compact" style={{ position: "relative", paddingLeft: 44, overflow: "hidden" }}>
+                            <div
+                                className="admin-linechart admin-linechart--compact"
+                                style={{ position: "relative", paddingLeft: 44, overflow: "hidden" }}
+                            >
                                 {/* Y축 라벨 */}
-                                <div style={{ position: "absolute", left: 8, top: 6, bottom: 28, display: "flex", flexDirection: "column", justifyContent: "space-between",
-                                        fontSize: 11, color: "#9ca3af", pointerEvents: "none", paddingBottom: 15, }}>{activity.ticks.map((t, i) => (<span key={i}>{t.toLocaleString()}명</span>))}</div>
+                                <div
+                                    style={{
+                                        position: "absolute",
+                                        left: 8,
+                                        top: 6,
+                                        bottom: 28,
+                                        display: "flex",
+                                        flexDirection: "column",
+                                        justifyContent: "space-between",
+                                        fontSize: 11,
+                                        color: "#9ca3af",
+                                        pointerEvents: "none",
+                                        paddingBottom: 15,
+                                    }}
+                                >
+                                    {activity.ticks.map((t, i) => (
+                                        <span key={i}>{t.toLocaleString()}명</span>
+                                    ))}
+                                </div>
 
                                 {/* SVG Chart */}
                                 <svg viewBox="0 0 100 100" preserveAspectRatio="none" style={{ display: "block", width: "90%", height: 140 }}>
                                     {/* 가로 그리드 */}
-                                    <g>{activity.ticks.map((t, i) => {
+                                    <g>
+                                        {activity.ticks.map((t, i) => {
                                             const y = 100 - (t / Math.max(1, activity.yMax)) * 100;
-                                            return <line key={i} x1="0" x2="100" y1={y} y2={y} stroke="#eef2f7" strokeWidth="0.7" />; })}</g>
+                                            return <line key={i} x1="0" x2="100" y1={y} y2={y} stroke="#eef2f7" strokeWidth="0.7" />;
+                                        })}
+                                    </g>
                                     {/* 데이터 라인 */}
                                     <polyline className="admin-line-teal" points={activity.tealPoints} />
                                     <polyline className="admin-line-red" points={activity.redPoints} />
                                     {/* 포인트 */}
-                                    {activity.tealDots.map((p, i) => (<circle key={`t-${i}`} cx={p.cx} cy={p.cy} r="0.9" fill="#20b2aa" />))}
-                                    {activity.redDots.map((p, i) => (<circle key={`r-${i}`} cx={p.cx} cy={p.cy} r="1.1" fill="#e74c3c" />))}
+                                    {activity.tealDots.map((p, i) => (
+                                        <circle key={`t-${i}`} cx={p.cx} cy={p.cy} r="0.9" fill="#20b2aa" />
+                                    ))}
+                                    {activity.redDots.map((p, i) => (
+                                        <circle key={`r-${i}`} cx={p.cx} cy={p.cy} r="1.1" fill="#e74c3c" />
+                                    ))}
                                 </svg>
                                 {/* 범례 & X축 */}
-                                <div className="admin-linechart-x">{activity.labels.map((l) => (<span key={l}>{l}</span>))}</div>
+                                <div className="admin-linechart-x">{activity.labels.map((l) => <span key={l}>{l}</span>)}</div>
                                 <div className="admin-linechart-legend" style={{ marginTop: 8 }}>
                                     <span className="admin-dot red" /> 방문/이용
                                     <span className="admin-dot teal" /> 이탈/비활성
@@ -438,35 +479,69 @@ export default function AdminAnalysis() {
                         <div className="admin-grid-2col inner-gap">
                             {/* 도넛 */}
                             <section className="admin-slot">
-                                <div className="admin-slot-head"><h3 className="admin-slot-title">사용자 분포</h3></div>
+                                <div className="admin-slot-head">
+                                    <h3 className="admin-slot-title">사용자 분포</h3>
+                                </div>
                                 <div className="admin-pie-wrap">
-                                    <div className="admin-pie" aria-label="사용자 분포 차트"
-                                        style={{ background: `conic-gradient(
-                                                    var(--admin-red) 0 ${userDist[0]?.value || 0}%,
-                                                    var(--admin-teal) ${userDist[0]?.value || 0}% ${(userDist[0]?.value || 0) + (userDist[1]?.value || 0)}%,
-                                                    var(--admin-orange) ${(userDist[0]?.value || 0) + (userDist[1]?.value || 0)}% ${(userDist[0]?.value || 0) + (userDist[1]?.value || 0) + (userDist[2]?.value || 0)}%,
-                                                    #e5e7eb ${(userDist[0]?.value || 0) + (userDist[1]?.value || 0) + (userDist[2]?.value || 0)}% 100%
-                                                )`, }} />
+                                    <div
+                                        className="admin-pie"
+                                        aria-label="사용자 분포 차트"
+                                        style={{
+                                            background: `conic-gradient(
+                        var(--admin-red) 0 ${userDist[0]?.value || 0}%,
+                        var(--admin-teal) ${userDist[0]?.value || 0}% ${(userDist[0]?.value || 0) + (userDist[1]?.value || 0)}%,
+                        var(--admin-orange) ${(userDist[0]?.value || 0) + (userDist[1]?.value || 0)}% ${(userDist[0]?.value || 0) + (userDist[1]?.value || 0) + (userDist[2]?.value || 0)}%,
+                        #e5e7eb ${(userDist[0]?.value || 0) + (userDist[1]?.value || 0) + (userDist[2]?.value || 0)}% 100%
+                      )`,
+                                        }}
+                                    />
                                     <ul className="admin-legend">
-                                        <li><span className="admin-dot red" />활성 ({userDist[0]?.value ?? 0}%)</li>
-                                        <li><span className="admin-dot teal" />정지 ({userDist[1]?.value ?? 0}%)</li>
-                                        <li><span className="admin-dot orange" />비활성 ({userDist[2]?.value ?? 0}%)</li>
-                                        <li><span className="admin-dot gray" />기타 ({userDist[3]?.value ?? 0}%)</li>
+                                        <li>
+                                            <span className="admin-dot red" />
+                                            활성 ({userDist[0]?.value ?? 0}%)
+                                        </li>
+                                        <li>
+                                            <span className="admin-dot teal" />
+                                            정지 ({userDist[1]?.value ?? 0}%)
+                                        </li>
+                                        <li>
+                                            <span className="admin-dot orange" />
+                                            비활성 ({userDist[2]?.value ?? 0}%)
+                                        </li>
+                                        <li>
+                                            <span className="admin-dot gray" />
+                                            기타 ({userDist[3]?.value ?? 0}%)
+                                        </li>
                                     </ul>
                                 </div>
                             </section>
 
                             {/* 평점 높은 식당 TOP5 */}
                             <section className="admin-slot">
-                                <div className="admin-slot-head"><h3 className="admin-slot-title">평점 높은 식당 TOP5</h3></div>
+                                <div className="admin-slot-head">
+                                    <h3 className="admin-slot-title">평점 높은 식당 TOP5</h3>
+                                </div>
                                 <div className="admin-barchart-vert">
                                     {topRatedTop5.map((it) => (
                                         <div key={it.label} className="admin-barv" style={{ position: "relative" }}>
-                                            <div className="admin-barv-stick"><div className="admin-barv-red" style={{ height: `${it.value}%` }} /></div>
-                                            {/* 막대 끝 평점 */}
-                                            <span className="admin-barv-val"
-                                                style={{ position: "absolute", left: "50%", transform: "translateX(-50%)", bottom: `calc(${it.value}% + 6px)`, fontSize: 11,
-                                                    color: "#bbc0c7ff", whiteSpace: "nowrap", fontWeight: 500, }}>{it.rating.toFixed(1)}</span>
+                                            <div className="admin-barv-stick">
+                                                <div className="admin-barv-red" style={{ height: `${it.value}%` }} />
+                                            </div>
+                                            <span
+                                                className="admin-barv-val"
+                                                style={{
+                                                    position: "absolute",
+                                                    left: "50%",
+                                                    transform: "translateX(-50%)",
+                                                    bottom: `calc(${it.value}% + 6px)`,
+                                                    fontSize: 11,
+                                                    color: "#bbc0c7ff",
+                                                    whiteSpace: "nowrap",
+                                                    fontWeight: 500,
+                                                }}
+                                            >
+                                                {it.rating.toFixed(1)}
+                                            </span>
                                             <span className="admin-barv-label">{it.label}</span>
                                         </div>
                                     ))}
@@ -476,11 +551,18 @@ export default function AdminAnalysis() {
 
                         {/* 혼잡지수 분포 */}
                         <section className="admin-slot">
-                            <div className="admin-slot-head"><h3 className="admin-slot-title">혼잡지수 분포</h3></div>
+                            <div className="admin-slot-head">
+                                <h3 className="admin-slot-title">혼잡지수 분포</h3>
+                            </div>
                             <div className="admin-congestion">
-                                <div className="admin-congestion-grid">{[...Array(4)].map((_, i) => (<div key={i} className="admin-cong-row" />))}</div>
-                                <div className="admin-congestion-lines">{congestion.map((c, i) => (<div key={i} className="admin-cong-line" style={{ width: `${c.width}%` }}>
-                                    <span className="admin-cong-xlabel">{c.label}</span></div>))}</div>
+                                <div className="admin-congestion-grid">{[...Array(4)].map((_, i) => <div key={i} className="admin-cong-row" />)}</div>
+                                <div className="admin-congestion-lines">
+                                    {congestion.map((c, i) => (
+                                        <div key={i} className="admin-cong-line" style={{ width: `${c.width}%` }}>
+                                            <span className="admin-cong-xlabel">{c.label}</span>
+                                        </div>
+                                    ))}
+                                </div>
                             </div>
                         </section>
                     </div>
@@ -489,7 +571,9 @@ export default function AdminAnalysis() {
                     <div className="admin-col">
                         {/* 기능 사용률 */}
                         <section className="admin-slot">
-                            <div className="admin-slot-head"><h3 className="admin-slot-title">기능 사용률</h3></div>
+                            <div className="admin-slot-head">
+                                <h3 className="admin-slot-title">기능 사용률</h3>
+                            </div>
                             <div className="admin-barchart-hori">
                                 {(() => {
                                     const totalR = Math.max(1, restaurants.length);
@@ -501,19 +585,34 @@ export default function AdminAnalysis() {
                                             String(x.status || "").toUpperCase().includes("RESOLVED") ||
                                             String(x.decision || "").toUpperCase().includes("RESOLVED")
                                     ).length;
-                                    const pending = allReports.filter((x) =>
-                                        String(x.status || "").toUpperCase().includes("PENDING")
-                                    ).length;
+                                    const pending = allReports.filter((x) => String(x.status || "").toUpperCase().includes("PENDING"))
+                                        .length;
 
                                     const resolvedRate = Math.round((resolved / totalRep) * 100);
                                     const pendingRate = Math.round((pending / totalRep) * 100);
                                     const featureUsage = [
-                                        { key: "activeRate", label: "활성 식당 비율", red: activeRRate, teal: 100 - activeRRate, right: `${activeRRate}%` },
-                                        { key: "resolveRate", label: "신고 처리율", red: resolvedRate, teal: pendingRate, right: `${resolvedRate}%` },
+                                        {
+                                            key: "activeRate",
+                                            label: "활성 식당 비율",
+                                            red: activeRRate,
+                                            teal: 100 - activeRRate,
+                                            right: `${activeRRate}%`,
+                                        },
+                                        {
+                                            key: "resolveRate",
+                                            label: "신고 처리율",
+                                            red: resolvedRate,
+                                            teal: pendingRate,
+                                            right: `${resolvedRate}%`,
+                                        },
                                     ];
 
                                     return featureUsage.map((f) => (
-                                        <div key={f.key} className="admin-barh" style={{ display: "grid", gridTemplateColumns: "1fr auto", alignItems: "center", gap: 12 }}>
+                                        <div
+                                            key={f.key}
+                                            className="admin-barh"
+                                            style={{ display: "grid", gridTemplateColumns: "1fr auto", alignItems: "center", gap: 12 }}
+                                        >
                                             <div>
                                                 <div className="admin-barh-label">{f.label}</div>
                                                 <div className="admin-barh-track">
@@ -521,7 +620,9 @@ export default function AdminAnalysis() {
                                                     <div className="admin-barh-teal" style={{ width: `${f.teal}%` }} />
                                                 </div>
                                             </div>
-                                            <div className="admin-bar-list-val" style={{ minWidth: 28, marginTop: 12 }}>{f.right}</div>
+                                            <div className="admin-bar-list-val" style={{ minWidth: 28, marginTop: 12 }}>
+                                                {f.right}
+                                            </div>
                                         </div>
                                     ));
                                 })()}
@@ -530,12 +631,16 @@ export default function AdminAnalysis() {
 
                         {/* 지역별 사용자 분포 */}
                         <section className="admin-slot">
-                            <div className="admin-slot-head"><h3 className="admin-slot-title">지역별 사용자 분포</h3></div>
+                            <div className="admin-slot-head">
+                                <h3 className="admin-slot-title">지역별 사용자 분포</h3>
+                            </div>
                             <div className="admin-barchart-list">
                                 {regionUsers.map((r) => (
                                     <div key={r.label} className="admin-bar-list-row">
                                         <span className="admin-bar-list-name">{r.label}</span>
-                                        <div className="admin-bar-list-track"><div className="admin-bar-list-fill" style={{ width: `${r.width}%` }} /></div>
+                                        <div className="admin-bar-list-track">
+                                            <div className="admin-bar-list-fill" style={{ width: `${r.width}%` }} />
+                                        </div>
                                         <span className="admin-bar-list-val">{r.value}%</span>
                                     </div>
                                 ))}
@@ -544,7 +649,9 @@ export default function AdminAnalysis() {
 
                         {/* 인기 카테고리 */}
                         <section className="admin-slot">
-                            <div className="admin-slot-head"><h3 className="admin-slot-title">인기 카테고리</h3></div>
+                            <div className="admin-slot-head">
+                                <h3 className="admin-slot-title">인기 카테고리</h3>
+                            </div>
                             <ul className="admin-keyword-list">
                                 {hotKeywords_week.map((k, i) => (
                                     <li key={k.word} className="admin-keyword-item">

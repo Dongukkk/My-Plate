@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
-import PrettyAlert from "./pretty-alert";
+import { useAlert } from "../ui/alert-center";
 import "./admin-main.css";
 
 // axios.defaults.baseURL = "http://localhost:8080";
@@ -44,12 +44,8 @@ const LogoutModal = ({ isOpen, onClose, onConfirm }) =>
             <div className="admin-modal-content">
                 <p>정말 로그아웃하시겠습니까?</p>
                 <div className="admin-modal-actions">
-                    <button onClick={onConfirm} className="admin-btn-logout">
-                        로그아웃
-                    </button>
-                    <button onClick={onClose} className="admin-btn-cancel">
-                        취소
-                    </button>
+                    <button onClick={onConfirm} className="admin-btn-logout">로그아웃</button>
+                    <button onClick={onClose} className="admin-btn-cancel">취소</button>
                 </div>
             </div>
         </div>
@@ -118,6 +114,7 @@ const MiniPie = ({ data }) => {
 
 export default function AdminMain() {
     const navigate = useNavigate();
+    const { alert } = useAlert();
 
     // 세션 정보
     const [me, setMe] = useState(null);
@@ -129,11 +126,10 @@ export default function AdminMain() {
     const [reportsOHT, setReportsOHT] = useState([]);
     const [reportsRER, setReportsRER] = useState([]);
 
-    // 로딩/알림
+    // 로딩/UI 상태
     const [loading, setLoading] = useState(true);
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
     const [isModalOpen, setIsModalOpen] = useState(false);
-    const [logoutAlertOpen, setLogoutAlertOpen] = useState(false);
 
     /* 세션 확인 */
     useEffect(() => {
@@ -268,8 +264,7 @@ export default function AdminMain() {
     }, [users, weekBuckets]);
 
     const activeSeries = useMemo(() => {
-        const act = [],
-            inact = [];
+        const act = [], inact = [];
         weekBuckets.forEach(({ start, end }) => {
             const a = users.filter((u) => {
                 const d = pickDate(u);
@@ -310,10 +305,11 @@ export default function AdminMain() {
         try {
             await axios.post("/api/admin/logout");
         } catch {
+            alert("로그아웃 요청 중 오류가 발생했습니다.");
         } finally {
             localStorage.removeItem("mp_admin_authed");
             setMe(null);
-            setLogoutAlertOpen(true);
+            alert("로그아웃되었습니다.", { autoCloseMs: 1500 });
             navigate("/admin");
         }
     };
@@ -321,7 +317,9 @@ export default function AdminMain() {
     return (
         <div className="admin-container">
             <aside className="admin-sidebar">
-                <h2 className="admin-logo" onClick={() => navigate(`/adminMain`)}><img src={"https://i.imgur.com/tiY7WKl.png"} alt="My Plate Logo" className="admin-logo-img" /></h2>
+                <h2 className="admin-logo" onClick={() => navigate(`/adminMain`)}>
+                    <img src={"https://i.imgur.com/tiY7WKl.png"} alt="My Plate Logo" className="admin-logo-img" />
+                </h2>
                 <nav>
                     <ul>
                         <li onClick={() => navigate("/adminMain")}>홈</li>
@@ -336,8 +334,16 @@ export default function AdminMain() {
             <main className="admin-main-content">
                 <div className="admin-topbar">
                     <div className="admin-profile-container">
-                        <div className="admin-profile" onClick={() => setIsDropdownOpen(!isDropdownOpen)}>{me?.username ?? "관리자"}</div>
-                        {isDropdownOpen && (<div className="admin-dropdown-menu"><button onClick={() => { setIsDropdownOpen(false); setIsModalOpen(true); }}>로그아웃</button></div>)}
+                        <div className="admin-profile" onClick={() => setIsDropdownOpen(!isDropdownOpen)}>
+                            {me?.username ?? "관리자"}
+                        </div>
+                        {isDropdownOpen && (
+                            <div className="admin-dropdown-menu">
+                                <button onClick={() => { setIsDropdownOpen(false); setIsModalOpen(true); }}>
+                                    로그아웃
+                                </button>
+                            </div>
+                        )}
                     </div>
                 </div>
 
@@ -355,7 +361,7 @@ export default function AdminMain() {
                         <MiniLine title="사용자 등록 추이 (최근 8주)" legend1="신규 가입" series1={signupSeries} xLabels={weekLabels} />
                     </div>
                     <div className="admin-chart-box" onClick={() => navigate("/adminanalysis")}>
-                        <MiniLine title="사용자 활동 분석 (최근 8주)" legend1="활성 사용자" legend2="비활성/정지" series1={activeSeries.red} series2={activeSeries.teal} xLabels={weekLabels}/>
+                        <MiniLine title="사용자 활동 분석 (최근 8주)" legend1="활성 사용자" legend2="비활성/정지" series1={activeSeries.red} series2={activeSeries.teal} xLabels={weekLabels} />
                     </div>
                 </section>
 
@@ -383,14 +389,13 @@ export default function AdminMain() {
                                 <tbody>
                                     {loading && (<tr><td colSpan={3}>불러오는 중…</td></tr>)}
                                     {!loading && top5.length === 0 && (<tr><td colSpan={3}>표시할 데이터가 없습니다.</td></tr>)}
-                                    {!loading &&
-                                        top5.map((r) => (
-                                            <tr key={r.id}>
-                                                <td><span className="ellipsis">{r.name}</span></td>
-                                                <td><span className="ellipsis">{r.address}</span></td>
-                                                <td className="td-num">{r.rating.toFixed(1)}</td>
-                                            </tr>
-                                        ))}
+                                    {!loading && top5.map((r) => (
+                                        <tr key={r.id}>
+                                            <td><span className="ellipsis">{r.name}</span></td>
+                                            <td><span className="ellipsis">{r.address}</span></td>
+                                            <td className="td-num">{r.rating.toFixed(1)}</td>
+                                        </tr>
+                                    ))}
                                 </tbody>
                             </table>
                         </div>
@@ -403,21 +408,20 @@ export default function AdminMain() {
                             <button className="admin-section-btn" onClick={() => navigate("/adminUser")}>사용자 관리</button>
                         </div>
                         <div className="admin-user-stats">
-                            <p>신규 가입자 (이번 주):{" "}<strong className="num">{loading ? "—" : weeklyNewUsers.toLocaleString()}</strong></p>
-                            <p>활성 사용자 (일간):{" "}<strong className="num">{loading ? "—" : dailyActiveUsers.toLocaleString()}</strong></p>
+                            <p>신규 가입자 (이번 주): <strong className="num">{loading ? "—" : weeklyNewUsers.toLocaleString()}</strong></p>
+                            <p>활성 사용자 (일간): <strong className="num">{loading ? "—" : dailyActiveUsers.toLocaleString()}</strong></p>
                         </div>
                         <div className="admin-recent-users">
                             <h4>최근 가입한 사용자</h4>
                             <ul>
                                 {loading && <li>불러오는 중…</li>}
                                 {!loading && recentUsers.length === 0 && <li>최근 가입자가 없습니다.</li>}
-                                {!loading &&
-                                    recentUsers.map((u) => (
-                                        <li key={u.id}>
-                                            <span className="user-name ellipsis">{u.name}</span>
-                                            <span className="user-date">{u.date ? u.date.toISOString().slice(0, 10) : "-"}</span>
-                                        </li>
-                                    ))}
+                                {!loading && recentUsers.map((u) => (
+                                    <li key={u.id}>
+                                        <span className="user-name ellipsis">{u.name}</span>
+                                        <span className="user-date">{u.date ? u.date.toISOString().slice(0, 10) : "-"}</span>
+                                    </li>
+                                ))}
                             </ul>
                         </div>
                     </section>
@@ -441,12 +445,16 @@ export default function AdminMain() {
                             <h3>분석 및 통계</h3>
                             <button className="admin-section-btn" onClick={() => navigate("/adminanalysis")}>자세한 분석</button>
                         </div>
-                        <div className="admin-analysis-charts"><div className="admin-chart-box"><MiniPie data={pieData} /></div></div>
+                        <div className="admin-analysis-charts">
+                            <div className="admin-chart-box">
+                                <MiniPie data={pieData} />
+                            </div>
+                        </div>
                     </section>
                 </div>
             </main>
-            <LogoutModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} onConfirm={handleLogout}/>
-            <PrettyAlert open={logoutAlertOpen} message="로그아웃되었습니다." onClose={() => setLogoutAlertOpen(false)} />
+
+            <LogoutModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} onConfirm={handleLogout} />
         </div>
     );
 }

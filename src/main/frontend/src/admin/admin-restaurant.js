@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
-import PrettyAlert from "./pretty-alert";
+import { useAlert } from "../ui/alert-center"; // ✅ 전역 알림 훅
 import "./admin-restaurant.css";
 
 // axios.defaults.baseURL = "http://localhost:8080";
@@ -31,7 +31,16 @@ const Pagination = ({ page, pages, onChange, windowSize = 5 }) => {
         <div className="admin-pg">
             <button className="admin-pg-item admin-ghost" onClick={() => onChange(current - 1)} disabled={current === 1}>이전</button>
             {start > 1 && (<button className="admin-pg-item admin-ghost" onClick={() => onChange(start - 1)} title="이전 구간">…</button>)}
-            {nums.map((p) => (<button key={p} className={`admin-pg-item ${current === p ? "admin-active" : ""}`} onClick={() => onChange(p)} aria-current={current === p ? "page" : undefined}>{p}</button>))}
+            {nums.map((p) => (
+                <button
+                    key={p}
+                    className={`admin-pg-item ${current === p ? "admin-active" : ""}`}
+                    onClick={() => onChange(p)}
+                    aria-current={current === p ? "page" : undefined}
+                >
+                    {p}
+                </button>
+            ))}
             {end < pages && (<button className="admin-pg-item admin-ghost" onClick={() => onChange(end + 1)} title="다음 구간">…</button>)}
             <button className="admin-pg-item admin-ghost" onClick={() => onChange(current + 1)} disabled={current === pages}>다음</button>
         </div>
@@ -71,8 +80,15 @@ const StackedBars = ({ items }) => (
                 <div className="admin-bar-row" key={row.label}>
                     <div className="admin-bar-label">{row.label}</div>
                     <div className="admin-bar-track" role="list">
-                        {row.segments.map((s, i) => ( <div key={i} role="listitem" className="admin-bar-seg" 
-                                style={{ width: `${(s.value / total) * 100}%` }} title={`${row.label} · ${s.title} ${s.value}`} /> ))}
+                        {row.segments.map((s, i) => (
+                            <div
+                                key={i}
+                                role="listitem"
+                                className="admin-bar-seg"
+                                style={{ width: `${(s.value / total) * 100}%` }}
+                                title={`${row.label} · ${s.title} ${s.value}`}
+                            />
+                        ))}
                     </div>
                 </div>
             );
@@ -85,32 +101,30 @@ const safeNum = (v, d = 0) => (Number.isFinite(+v) ? +v : d);
 const statusKo = (s = "") =>
     ({ ACTIVE: "활성", INACTIVE: "비활성", NEEDS_FIX: "수정 필요", DELETED: "비활성" }[String(s).toUpperCase()] || s || "비활성");
 const baseCategory = (c) => {
-    if (c == null) return "기타";        
+    if (c == null) return "기타";
     const text = String(c).trim();
-    if (!text) return "기타";           
-    const head = text.split(",")[0].trim(); 
+    if (!text) return "기타";
+    const head = text.split(",")[0].trim();
     return head || "기타";
 };
 const toTimeKey = (x) => (x?.createdAt ? new Date(x.createdAt).getTime() : safeNum(x?.id, 0));
 
 export default function AdminRestaurant() {
     const navigate = useNavigate();
-    const [alertOpen, setAlertOpen] = useState(false);
-    const [alertMsg, setAlertMsg] = useState("");
-    const notify = (msg) => { setAlertMsg(msg); setAlertOpen(true); };
+    const { alert } = useAlert(); // ✅ 전역 알림
 
     /* 삭제 */
     const [deletingId, setDeletingId] = useState(null);
     const onDelete = async (row) => {
-        if (!window.confirm(`${row.name}을(를) 삭제하시겠습니까?`)) return;
+        if (!window.confirm(`${row.name}을(를) 삭제하시겠습니까?`)) return; // (원하면 전역 confirm으로도 바꿔줄게)
         try {
             setDeletingId(row.id);
             await axios.delete(`/api/adminRestaurant/${row.id}`);
             setRows((prev) => prev.filter((x) => x.id !== row.id));
-            notify("삭제되었습니다.");
+            alert("삭제되었습니다.", { autoCloseMs: 1500 });
         } catch (e) {
             console.error(e);
-            notify(`삭제 실패${e?.response?.status ? ` (HTTP ${e.response.status})` : ""}`);
+            alert(`삭제 실패${e?.response?.status ? ` (HTTP ${e.response.status})` : ""}`);
         } finally {
             setDeletingId(null);
         }
@@ -140,7 +154,7 @@ export default function AdminRestaurant() {
             setEditData(data);
         } catch (e) {
             console.error(e);
-            notify("상세 조회 실패");
+            alert("상세 조회 실패");
             setEditOpen(false);
         } finally {
             setEditLoading(false);
@@ -161,10 +175,10 @@ export default function AdminRestaurant() {
             setRows((prev) => prev.map((x) => (x.id === editData.id ? { ...x, ...payload } : x)));
             setEditOpen(false);
             setEditData(null);
-            notify("저장되었습니다.");
+            alert("저장되었습니다.", { autoCloseMs: 1500 });
         } catch (e) {
             console.error(e);
-            notify(`저장 실패${e?.response?.status ? ` (HTTP ${e.response.status})` : ""}`);
+            alert(`저장 실패${e?.response?.status ? ` (HTTP ${e.response.status})` : ""}`);
         } finally {
             setSaving(false);
         }
@@ -214,7 +228,7 @@ export default function AdminRestaurant() {
     /* 저장 */
     const saveCreate = async () => {
         if (!createData.name?.trim() || !createData.category?.trim() || !createData.address?.trim()) {
-            notify("이름, 카테고리, 주소는 필수입니다.");
+            alert("이름, 카테고리, 주소는 필수입니다.");
             return;
         }
         try {
@@ -223,10 +237,10 @@ export default function AdminRestaurant() {
             await axios.post("/api/adminRestaurant", payload);
             await reloadList();
             setCreateOpen(false);
-            notify("등록되었습니다.");
+            alert("등록되었습니다.", { autoCloseMs: 1500 });
         } catch (e) {
             console.error(e);
-            notify(`등록 실패${e?.response?.status ? ` (HTTP ${e.response.status})` : ""}`);
+            alert(`등록 실패${e?.response?.status ? ` (HTTP ${e.response.status})` : ""}`);
             await reloadList();
         } finally {
             setCreating(false);
@@ -364,7 +378,9 @@ export default function AdminRestaurant() {
     return (
         <div className="admin-container">
             <aside className="admin-sidebar">
-                <h2 className="admin-logo" onClick={() => navigate(`/adminMain`)}><img src={"https://i.imgur.com/tiY7WKl.png"} alt="My Plate Logo" className="admin-logo-img" /></h2>
+                <h2 className="admin-logo" onClick={() => navigate(`/adminMain`)}>
+                    <img src={"https://i.imgur.com/tiY7WKl.png"} alt="My Plate Logo" className="admin-logo-img" />
+                </h2>
                 <nav>
                     <ul>
                         <li onClick={() => navigate("/adminMain")}>홈</li>
@@ -390,11 +406,18 @@ export default function AdminRestaurant() {
 
                     <div className="admin-controls">
                         <div className="admin-search">
-                            <input value={query} onChange={(e) => setQuery(e.target.value)} onKeyDown={(e) => e.key === "Enter" && handleSearch()} placeholder="음식, 식당 또는 메뉴 검색..." aria-label="식당 검색"/>
+                            <input
+                                value={query}
+                                onChange={(e) => setQuery(e.target.value)}
+                                onKeyDown={(e) => e.key === "Enter" && handleSearch()}
+                                placeholder="음식, 식당 또는 메뉴 검색..."
+                                aria-label="식당 검색"
+                            />
                             <button type="button" className="admin-search-btn" onClick={handleSearch} aria-label="검색" title="검색">검색</button>
                         </div>
                         <select value={category} onChange={(e) => setCategory(e.target.value)} aria-label="카테고리 필터">
-                                        {categories.map((c) => (<option key={c} value={c}>{c === "ALL" ? "모든 카테고리" : c}</option>))}</select>
+                            {categories.map((c) => (<option key={c} value={c}>{c === "ALL" ? "모든 카테고리" : c}</option>))}
+                        </select>
                         <select value={sort} onChange={(e) => setSort(e.target.value)} aria-label="정렬">
                             <option value="latest">최신순</option>
                             <option value="ratingDesc">평점높은순</option>
@@ -411,16 +434,33 @@ export default function AdminRestaurant() {
                             <tbody>
                                 {view.map((r) => (
                                     <tr key={r.id}>
-                                        <td><div className="admin-name-col"><strong className="admin-link" onClick={() => navigate(`/adminrestaurants/${r.id}`)}>{r.name}</strong></div></td>
+                                        <td>
+                                            <div className="admin-name-col">
+                                                <strong className="admin-link" onClick={() => navigate(`/adminrestaurants/${r.id}`)}>{r.name}</strong>
+                                            </div>
+                                        </td>
                                         <td>{r.category}</td>
                                         <td className="admin-truncate">{r.address}</td>
-                                        <td><span className={`admin-busy ${safeNum(r.solo_index) >= 9 ? "admin-high" : safeNum(r.solo_index) >= 8 ? "admin-mid" : ""}`}>{safeNum(r.solo_index).toFixed(1)}</span></td>
-                                        <td>{safeNum(r.avgRating ?? r.avg_rating).toFixed(1)}{" "}<span className="admin-muted">({r.rating_count || 0})</span></td>
+                                        <td>
+                                            <span className={`admin-busy ${safeNum(r.solo_index) >= 9 ? "admin-high" : safeNum(r.solo_index) >= 8 ? "admin-mid" : ""}`}>
+                                                {safeNum(r.solo_index).toFixed(1)}
+                                            </span>
+                                        </td>
+                                        <td>
+                                            {safeNum(r.avgRating ?? r.avg_rating).toFixed(1)}{" "}
+                                            <span className="admin-muted">({r.rating_count || 0})</span>
+                                        </td>
                                         <td><WelfareDot ok={false} /></td>
                                         <td><StatusPill status={statusKo(r.status)} /></td>
                                         <td className="admin-row-actions">
                                             <button className="admin-mini" onClick={() => openEdit(r.id)}>수정</button>
-                                            <button className="admin-mini admin-danger" disabled={deletingId === r.id} onClick={() => onDelete(r)}>{deletingId === r.id ? "삭제 중..." : "삭제"}</button>
+                                            <button
+                                                className="admin-mini admin-danger"
+                                                disabled={deletingId === r.id}
+                                                onClick={() => onDelete(r)}
+                                            >
+                                                {deletingId === r.id ? "삭제 중..." : "삭제"}
+                                            </button>
                                         </td>
                                     </tr>
                                 ))}
@@ -512,12 +552,18 @@ export default function AdminRestaurant() {
 
                         <div className="admin-modal-foot">
                             <button className="admin-btn admin-ghost" onClick={closeCreate} disabled={creating}>취소</button>
-                            <button className="admin-btn admin-primary" onClick={saveCreate} disabled={creating || !createData.name?.trim() || !createData.category?.trim() || !createData.address?.trim()} title="이름/카테고리/주소는 필수">{creating ? "저장 중..." : "저장"}</button>
+                            <button
+                                className="admin-btn admin-primary"
+                                onClick={saveCreate}
+                                disabled={creating || !createData.name?.trim() || !createData.category?.trim() || !createData.address?.trim()}
+                                title="이름/카테고리/주소는 필수"
+                            >
+                                {creating ? "저장 중..." : "저장"}
+                            </button>
                         </div>
                     </div>
                 </div>
             )}
-            <PrettyAlert open={alertOpen} message={alertMsg} onClose={() => setAlertOpen(false)} />
         </div>
     );
 }
