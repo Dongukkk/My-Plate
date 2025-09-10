@@ -13,7 +13,7 @@ import SideBarMenu from '../components/SideBarMenu';
 
 const NICK_RULE = /^[가-힣a-zA-Z0-9_-]{2,20}$/;
 
-const MONTH_IDX = { Jan:0, Feb:1, Mar:2, Apr:3, May:4, Jun:5, Jul:6, Aug:7, Sep:8, Oct:9, Nov:10, Dec:11 };
+const MONTH_IDX = { Jan: 0, Feb: 1, Mar: 2, Apr: 3, May: 4, Jun: 5, Jul: 6, Aug: 7, Sep: 8, Oct: 9, Nov: 10, Dec: 11 };
 
 function parseLegacyBookmarkDate(str) {
   if (!str || typeof str !== 'string') return null;
@@ -21,8 +21,8 @@ function parseLegacyBookmarkDate(str) {
     /^[A-Za-z]{3}\s+(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)\s+(\d{1,2})\s+(\d{2}):(\d{2}):(\d{2})\s+[A-Z]{2,5}\s+(\d{4})$/
   );
   if (!m) return null;
-  const [, mon, d, hh, mm, ss, yyyy] = m;
-  return new Date(Number(yyyy), MONTH_IDX[mon], Number(d), Number(hh), Number(mm), Number(ss));
+  const [ , mon, d, hh, mm, ss, yyyy ] = m;
+  return new Date(Number(yyyy), MONTH_IDX[ mon ], Number(d), Number(hh), Number(mm), Number(ss));
 }
 function coerceDate(v) {
   if (!v) return null;
@@ -41,9 +41,9 @@ function ProviderBadge({ provider }) {
   const p = String(provider || 'MYPLATE').toUpperCase();
   const label =
     p === 'GOOGLE' ? 'GOOGLE' :
-    p === 'NAVER' ? 'NAVER' :
-    (p === 'KAKAO' || p === 'KAKAOTALK' || p === 'KAKAO_TALK') ? 'KAKAOTALK' :
-    'MYPLATE';
+      p === 'NAVER' ? 'NAVER' :
+        (p === 'KAKAO' || p === 'KAKAOTALK' || p === 'KAKAO_TALK') ? 'KAKAOTALK' :
+          'MYPLATE';
 
   // CRA(dev/prod)와 톰캣(/MyPlate) 모두 커버
   const BASE =
@@ -56,7 +56,7 @@ function ProviderBadge({ provider }) {
     NAVER: `${BASE}/images/icon/sns/naver.png`,
     KAKAOTALK: `${BASE}/images/icon/sns/kakao.png`,
   };
-  const src = ICON_SRC[label] || null;
+  const src = ICON_SRC[ label ] || null;
 
   return (
     <span className="lp-provider">
@@ -71,17 +71,17 @@ function ProviderBadge({ provider }) {
 }
 
 export default function MyPage() {
-  const [me, setMe] = useState(null);
-  const [msg, setMsg] = useState('');
+  const [ me, setMe ] = useState(null);
+  const [ msg, setMsg ] = useState('');
 
   // 닉네임 편집
-  const [editing, setEditing] = useState(false);
-  const [nickname, setNickname] = useState('');
-  const [error, setError] = useState('');
-  const [saving, setSaving] = useState(false);
+  const [ editing, setEditing ] = useState(false);
+  const [ nickname, setNickname ] = useState('');
+  const [ error, setError ] = useState('');
+  const [ saving, setSaving ] = useState(false);
 
   // KPI
-  const [stats, setStats] = useState({
+  const [ stats, setStats ] = useState({
     reviewCount: 0,
     bookmarkCount: 0,
     visitCount: 0,
@@ -89,17 +89,17 @@ export default function MyPage() {
   });
 
   // 최근 리뷰(3)
-  const [reviews, setReviews] = useState([]);
-  const [rvLoading, setRvLoading] = useState(true);
+  const [ reviews, setReviews ] = useState([]);
+  const [ rvLoading, setRvLoading ] = useState(true);
 
   // 즐겨찾기 미리보기(3)
-  const [bm3, setBm3] = useState([]);
-  const [bmLoading, setBmLoading] = useState(true);
+  const [ bm3, setBm3 ] = useState([]);
+  const [ bmLoading, setBmLoading ] = useState(true);
 
   // ===== 월간 통계(신규) =====
-  const [mRows, setMRows] = useState([]);
-  const [mLoading, setMLoading] = useState(true);
-  const [mError, setMError] = useState('');
+  const [ mRows, setMRows ] = useState([]);
+  const [ mLoading, setMLoading ] = useState(true);
+  const [ mError, setMError ] = useState('');
 
   const navigate = useNavigate();
 
@@ -198,14 +198,14 @@ export default function MyPage() {
           const r1 = await api.get('/account/bookmarks', { params: { limit: 3 } });
           const list = toArr(r1?.data).map(normalizeBookmarkItem);
           preview = dedupById(list).slice(0, 3);
-        } catch (_) {}
+        } catch (_) { }
 
         if (!preview.length) {
           try {
             const r2 = await getMyBookmarks();
             const list = toArr(r2?.data).map(normalizeBookmarkItem);
             preview = dedupById(list).slice(0, 3);
-          } catch (_) {}
+          } catch (_) { }
         }
 
         if (preview.length) {
@@ -214,16 +214,16 @@ export default function MyPage() {
             .filter(i => i >= 0);
           if (needIdx.length) {
             const results = await Promise.allSettled(
-              needIdx.map(i => getRestaurantDetail(preview[i].id))
+              needIdx.map(i => getRestaurantDetail(preview[ i ].id))
             );
             results.forEach((res, k) => {
-              const i = needIdx[k];
+              const i = needIdx[ k ];
               if (res.status === 'fulfilled') {
                 const d = res.value?.data ?? {};
-                preview[i].name = preview[i].name || d.name || d.restaurantName || d.title || d.storeName;
-                preview[i].roadAddress = preview[i].roadAddress || d.roadAddress || d.address2 || d.address || d.roadAddr || d.addr;
-                preview[i].phone = preview[i].phone || d.phone || d.tel || d.telephone || d.phoneNumber;
-                preview[i].rating = preview[i].rating ?? d.rating ?? d.avgRating;
+                preview[ i ].name = preview[ i ].name || d.name || d.restaurantName || d.title || d.storeName;
+                preview[ i ].roadAddress = preview[ i ].roadAddress || d.roadAddress || d.address2 || d.address || d.roadAddr || d.addr;
+                preview[ i ].phone = preview[ i ].phone || d.phone || d.tel || d.telephone || d.phoneNumber;
+                preview[ i ].rating = preview[ i ].rating ?? d.rating ?? d.avgRating;
               }
             });
           }
@@ -269,7 +269,7 @@ export default function MyPage() {
       bookmarks: d?.bookmarkCount || 0,
       rating: d?.avgRating == null ? null : Number(d.avgRating),
     })),
-    [mRows]
+    [ mRows ]
   );
 
   // 이벤트
@@ -279,16 +279,16 @@ export default function MyPage() {
     navigate('/login', { replace: true });
   };
 
-  const role = useMemo(() => String(me?.role || '').toUpperCase(), [me]);
-  const providerName = useMemo(() => String(me?.provider || 'MYPLATE').toUpperCase(), [me]);
+  const role = useMemo(() => String(me?.role || '').toUpperCase(), [ me ]);
+  const providerName = useMemo(() => String(me?.provider || 'MYPLATE').toUpperCase(), [ me ]);
 
   const initials = useMemo(() => {
     const base = me?.name || me?.username || me?.email || '?';
     const parts = String(base).trim().split(/\s+/);
-    const first = parts[0]?.[0] ?? '';
-    const second = parts[1]?.[0] ?? '';
+    const first = parts[ 0 ]?.[ 0 ] ?? '';
+    const second = parts[ 1 ]?.[ 0 ] ?? '';
     return (first + second || first || '?').toUpperCase();
-  }, [me]);
+  }, [ me ]);
 
   // 닉네임 편집
   const startEdit = () => {
@@ -331,19 +331,22 @@ export default function MyPage() {
   if (!me) return <div className="lp-myp-wrap"><div className="lp-myp-loading">불러오는 중…</div></div>;
 
   return (
-    <div className="app-shell with-sidebar">
-      <aside className="app-sidebar">
-        <SideBarMenu />
-      </aside>
-
+    <>
+      <div className="mainpage-mobile-gap"></div>
+    <div className="mp-mypage-page">
+      <SideBarMenu />
       <main className="app-main">
         <div className="lp-myp-wrap in-layout">
           <div className="lp-myp-card">
             {/* 헤더 */}
             <div className="lp-myp-header">
-              <div className="lp-myp-avatar" aria-hidden>{initials}</div>
-              <div className="lp-myp-id">
+              <div style={{display:'flex', alignItems:'center', gap:'15px'}}>
+                <div className="lp-myp-avatar" aria-hidden>{initials}</div>
+                <div className="lp-myp-id">
+              
+              
                 <div className="lp-myp-name">{me.name || me.username || '사용자'}</div>
+              </div>
               </div>
               <div className="lp-myp-right">
                 {role && <span className={`myp-badge ${role === 'ADMIN' ? 'is-admin' : 'is-user'}`}>{role}</span>}
@@ -413,7 +416,7 @@ export default function MyPage() {
               </div>
 
               {/* 월간 통계 (신규) */}
-              <div className="lp-myp-section">
+              <div className="lp-hidden-mobile lp-myp-section">
                 <div className="lp-myp-sec-head">
                   <div className="lp-myp-sec-title">월간 통계</div>
                 </div>
@@ -425,7 +428,7 @@ export default function MyPage() {
                 ) : monthlyData.length === 0 ? (
                   <div className="lp-myp-empty">표시할 데이터가 없습니다.</div>
                 ) : (
-                  <MonthlyStatsInlineChart data={monthlyData} height={320} />
+                  <MonthlyStatsInlineChart data={monthlyData} />
                 )}
               </div>
 
@@ -443,12 +446,13 @@ export default function MyPage() {
                 ) : (
                   <ul className="lp-myp-reviewlist is-bookmarks">
                     {bm3.map((bm, i) => (
-                      <li key={bm.id ?? i} className="lp-myp-rv">
-                        <div
-                          className="rv-row"
-                          onClick={() => bm.id && navigate(`/restaurants/detail/${bm.id}`)}
-                          style={{ cursor: bm.id ? 'pointer' : 'default' }}
-                        >
+                      <li
+                        key={bm.id ?? i}
+                        className="lp-myp-rv"
+                        onClick={() => bm.id && navigate(`/restaurants/detail/${bm.id}`)}
+                        style={{ cursor: bm.id ? 'pointer' : 'default' }}
+                      >
+                        <div className="rv-row">
                           <span className="rv-name">{bm.name || '(이름 없음)'}</span>
                           {bm.createdAt && (
                             <div className="rv-date" style={{ marginBottom: '5px', fontSize: '12px' }}>
@@ -505,19 +509,19 @@ export default function MyPage() {
 
             {/* 하단 */}
             <div className="lp-myp-actions">
-              {role === 'ADMIN' && <Link to="/admin" className="lp-myp-link">관리자 페이지로</Link>}
+              {role === 'ADM' && <Link to="/admin" className="lp-myp-link">관리자 페이지로</Link>}
             </div>
           </div>
         </div>
       </main>
     </div>
-  );
+  </>);
 }
 
 // =============================
 // Inline SVG Chart (no deps)
 // =============================
-function MonthlyStatsInlineChart({ data, height = 320 }) {
+function MonthlyStatsInlineChart({ data, height }) {
   const VB_W = 1000, VB_H = 300;
   const P_LEFT = 64, P_RIGHT = 64, P_TOP = 24, P_BOTTOM = 48;
   const plotW = VB_W - P_LEFT - P_RIGHT;
@@ -528,13 +532,13 @@ function MonthlyStatsInlineChart({ data, height = 320 }) {
   const xCenter = (i) => P_LEFT + step * i + step / 2;
 
   const countMax = Math.max(1, ...data.map(d => Math.max(d.reviews, d.bookmarks)));
-  const yCount  = (v) => P_TOP + (1 - v / countMax) * plotH;
+  const yCount = (v) => P_TOP + (1 - v / countMax) * plotH;
 
   const ratingMin = 0, ratingMax = 5;
   const yRating = (r) => r == null ? null : P_TOP + (1 - (r - ratingMin) / (ratingMax - ratingMin)) * plotH;
 
   const groupW = step * 0.6;
-  const barW   = groupW / 2;
+  const barW = groupW / 2;
 
   // rating 라인 path (null 구간은 끊김)
   const ratingPath = (() => {
@@ -566,7 +570,7 @@ function MonthlyStatsInlineChart({ data, height = 320 }) {
       })}
 
       {/* 우측 평점 축 0~5 */}
-      {[0,1,2,3,4,5].map((r) => {
+      {[ 0, 1, 2, 3, 4, 5 ].map((r) => {
         const y = yRating(r);
         return <text key={r} x={VB_W - P_RIGHT + 8} y={y + 4} fontSize="12" fill="#6b7280">{r}</text>;
       })}
@@ -576,12 +580,12 @@ function MonthlyStatsInlineChart({ data, height = 320 }) {
         const xc = xCenter(i);
         const x1 = xc - groupW / 2, x2 = x1 + barW;
 
-        const hRev = plotH - (yCount(d.reviews)   - P_TOP);
-        const hBm  = plotH - (yCount(d.bookmarks) - P_TOP);
+        const hRev = plotH - (yCount(d.reviews) - P_TOP);
+        const hBm = plotH - (yCount(d.bookmarks) - P_TOP);
         return (
           <g key={i}>
-            <rect x={x1} y={yCount(d.reviews)}   width={barW - 2} height={hRev} fill="#60a5fa" />
-            <rect x={x2} y={yCount(d.bookmarks)} width={barW - 2} height={hBm}  fill="#34d399" />
+            <rect x={x1} y={yCount(d.reviews)} width={barW - 2} height={hRev} fill="#60a5fa" />
+            <rect x={x2} y={yCount(d.bookmarks)} width={barW - 2} height={hBm} fill="#34d399" />
           </g>
         );
       })}

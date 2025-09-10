@@ -2,6 +2,7 @@ import { useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { getRestaurants } from '../api/api';
 import '../mainpage/MainPage.css';
+import Footer from "../components/Footer";
 
 function MainPage() {
     const navigate = useNavigate();
@@ -205,6 +206,7 @@ function MainPage() {
                     </div>
                 </div>
             </section>
+
         </>
     );
 }
