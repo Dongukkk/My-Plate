@@ -7,7 +7,7 @@ import "./admin-restaurant.css";
 // axios.defaults.baseURL = "http://localhost:8080";
 // axios.defaults.withCredentials = true;
 
-/* ───────────── UI 소품 ───────────── */
+/* UI 소품 */
 const StatusPill = ({ status }) => {
     const map = { 활성: "ok", "수정 필요": "warn", 비활성: "off" };
     return <span className={`admin-status-pill ${map[status] || "off"}`}>{status}</span>;
@@ -110,7 +110,7 @@ const LevelMeters = ({ dist }) => {
     );
 };
 
-/* ───────────── 유틸 ───────────── */
+/* 유틸 */
 const safeNum = (v, d = 0) => (Number.isFinite(+v) ? +v : d);
 const statusKo = (s = "") =>
     ({ ACTIVE: "활성", INACTIVE: "비활성", NEEDS_FIX: "수정 필요", DELETED: "비활성" }[String(s).toUpperCase()] || s || "비활성");
@@ -143,12 +143,35 @@ const levelToBucket = (lvl) => {
 
 export default function AdminRestaurant() {
     const navigate = useNavigate();
-    const { alert } = useAlert();
+    const { alert, confirm } = useAlert();
+
+    // 전역 confirm(모달) → 미지원 시 window.confirm 폴백
+    const confirmOrNative = async (message, opts = {}) => {
+        try {
+            if (typeof confirm === "function") {
+                return await confirm({
+                    title: opts.title ?? "확인",
+                    message,
+                    okText: opts.okText ?? "확인",
+                    cancelText: opts.cancelText ?? "취소",
+                    tone: opts.tone ?? "default",
+                });
+            }
+        } catch { }
+        return window.confirm(message);
+    };
 
     /* 삭제 */
     const [deletingId, setDeletingId] = useState(null);
     const onDelete = async (row) => {
-        if (!window.confirm(`${row.name}을(를) 삭제하시겠습니까?`)) return;
+        const ok = await confirmOrNative(`${row.name}을(를) 삭제하시겠습니까?`, {
+            title: "삭제 확인",
+            okText: "삭제",
+            cancelText: "취소",
+            tone: "danger",
+        });
+        if (!ok) return;
+
         try {
             setDeletingId(row.id);
             await axios.delete(`/api/adminRestaurant/${row.id}`);
@@ -295,9 +318,9 @@ export default function AdminRestaurant() {
         const toKey = (x) => toTimeKey(x);
         switch (sort) {
             case "ratingDesc":
-                arr.sort((a, b) => safeNum(b.avgRating) - safeNum(a.avgRating)); break;
+                arr.sort((a, b) => (safeNum(b.avgRating ?? b.avg_rating) - safeNum(a.avgRating ?? a.avg_rating))); break;
             case "busyDesc":
-                arr.sort((a, b) => safeNum(b.soloIndex) - safeNum(a.soloIndex)); break;
+                arr.sort((a, b) => (safeNum(b.soloIndex ?? b.solo_index) - safeNum(a.soloIndex ?? a.solo_index))); break;
             case "nameAsc":
                 arr.sort((a, b) => (a.name || "").localeCompare(b.name || "")); break;
             default:
@@ -311,8 +334,7 @@ export default function AdminRestaurant() {
     const view = sorted.slice((page - 1) * pageSize, page * pageSize);
     useEffect(() => setPage(1), [query, category, sort]);
 
-    /* ───────────── 차트 데이터 ───────────── */
-
+    /*  차트 데이터  */
     // 파이: 카테고리 분포
     const pieData = useMemo(() => {
         if (!rows.length) return [];
@@ -339,7 +361,8 @@ export default function AdminRestaurant() {
     const soloDist = useMemo(() => {
         const acc = { lv1: 0, lv2: 0, lv3: 0, total: 0 };
         rows.forEach((r) => {
-            const lvl = calculateSoloLevel(r.soloIndex);
+            const raw = r.soloIndex ?? r.solo_index;
+            const lvl = calculateSoloLevel(raw);
             const bucket = levelToBucket(lvl);
             if (bucket) { acc[bucket]++; acc.total++; }
         });
@@ -406,12 +429,16 @@ export default function AdminRestaurant() {
                             </thead>
                             <tbody>
                                 {view.map((r) => {
-                                    const lvl = calculateSoloLevel(r.soloIndex);
+                                    const soloIndex = r.soloIndex ?? r.solo_index;
+                                    const lvl = calculateSoloLevel(soloIndex);
                                     const lvlText = (() => {
                                         const b = levelToBucket(lvl);
                                         if (!b) return "-";
                                         return `LV.${b.slice(-1)}`;
                                     })();
+                                    const avgRating = r.avgRating ?? r.avg_rating;
+                                    const ratingCount = r.ratingCount ?? r.rating_count ?? 0;
+
                                     return (
                                         <tr key={r.id}>
                                             <td>
@@ -423,10 +450,10 @@ export default function AdminRestaurant() {
                                             <td className="admin-truncate">{r.address}</td>
                                             <td>
                                                 <span className={`admin-busy ${lvl === 3 ? "admin-high" : lvl === 2 ? "admin-mid" : ""}`}>
-                                                    {safeNum(r.soloIndex).toFixed(1)} <span className="admin-muted">/ {lvlText}</span>
+                                                    {safeNum(soloIndex).toFixed(1)} <span className="admin-muted">/ {lvlText}</span>
                                                 </span>
                                             </td>
-                                            <td>{safeNum(r.avgRating).toFixed(1)} <span className="admin-muted">({r.ratingCount || 0})</span></td>
+                                            <td>{safeNum(avgRating).toFixed(1)} <span className="admin-muted">({ratingCount})</span></td>
                                             <td><WelfareDot ok={typeof r.welfare === "boolean" ? r.welfare : Number(r.welfare) === 1} /></td>
                                             <td><StatusPill status={statusKo(r.status)} /></td>
                                             <td className="admin-row-actions">

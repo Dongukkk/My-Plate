@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
-import { useAlert } from "../ui/alert-center"; // ✅ 전역 알림 훅
+import { useAlert } from "../ui/alert-center"; // 전역 알림 훅
 import "./admin-analysis.css";
 
 // axios.defaults.baseURL = "http://localhost:8080";
@@ -9,7 +9,7 @@ import "./admin-analysis.css";
 
 export default function AdminAnalysis() {
     const navigate = useNavigate();
-    const { alert } = useAlert(); // ✅ PrettyAlert 전역 사용
+    const { alert } = useAlert(); // PrettyAlert 전역 사용
 
     // 서버 데이터
     const [users, setUsers] = useState([]);

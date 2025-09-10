@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
-import { useAlert } from "../ui/alert-center"; // ✅ 전역 알림 훅
+import { useAlert, useConfirm } from "../ui/alert-center"; // ✅ 전역 알림 + 확인 모달
 import "./admin-content.css";
 
 // axios.defaults.baseURL = "http://localhost:8080";
@@ -76,7 +76,8 @@ const updateReport = async (type, id, payload) => {
 
 export default function AdminContent() {
     const navigate = useNavigate();
-    const { alert } = useAlert(); // ✅ 전역 알림 사용
+    const { alert } = useAlert();       // 알림
+    const { confirm } = useConfirm();   // 확인 모달
 
     const [pending, setPending] = useState([]);
     const [ipc, setIpc] = useState([]);
@@ -195,7 +196,16 @@ export default function AdminContent() {
         return [];
     }, [actionTab, actionsRer, actionsIpc, actionsOht]);
 
+    // 승인/거절 확인 모달 추가
     const approvePending = async (row) => {
+        const ok = await confirm({
+            title: "승인 확인",
+            message: `이 수정 요청을 승인하시겠습니까?\n식당: ${row.place}\n리포터: ${row.reporterId ?? "-"}`,
+            okText: "승인",
+            cancelText: "취소",
+        });
+        if (!ok) return;
+
         const prev = pending;
         setPending((list) => list.filter((p) => p.id !== row.id));
         try {
@@ -208,6 +218,14 @@ export default function AdminContent() {
         }
     };
     const rejectPending = async (row) => {
+        const ok = await confirm({
+            title: "거절 확인",
+            message: `이 수정 요청을 거절하시겠습니까?\n식당: ${row.place}\n리포터: ${row.reporterId ?? "-"}\n\n거절 후 되돌릴 수 없습니다.`,
+            okText: "거절",
+            cancelText: "취소",
+        });
+        if (!ok) return;
+
         const prev = pending;
         setPending((list) => list.filter((p) => p.id !== row.id));
         try {
@@ -220,8 +238,17 @@ export default function AdminContent() {
         }
     };
 
+    // IPC 저장 확인 모달 추가
     const saveIpcAction = async () => {
         if (!ipcModal) return;
+        const ok = await confirm({
+            title: "저장 확인",
+            message: "이 신고 처리 내용을 저장할까요?",
+            okText: "저장",
+            cancelText: "취소",
+        });
+        if (!ok) return;
+
         const payload = {
             decision: toServerDecision(ipcDecision),
             status: toServerStatus(ipcState),
@@ -259,8 +286,17 @@ export default function AdminContent() {
         }
     };
 
+    // ✅ OTH 저장/완료 확인 모달 추가
     const saveOhtAnswer = async () => {
         if (!ohtDetail) return;
+        const ok = await confirm({
+            title: "완료 확인",
+            message: "답변을 저장하고 문의를 완료로 처리할까요?",
+            okText: "저장 후 완료",
+            cancelText: "취소",
+        });
+        if (!ok) return;
+
         const id = ohtDetail.id;
         const prev = oht;
         setOht((rows) => rows.map((r) => (r.id === id ? { ...r, status: "완료", memo: ohtReply } : r)));

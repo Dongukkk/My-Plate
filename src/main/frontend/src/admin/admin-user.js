@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
-import { useAlert } from "../ui/alert-center"; // 전역 알림 훅
+import { useAlert, useConfirm } from "../ui/alert-center"; // 전역 알림 훅
 import "./admin-user.css";
 
 // axios.defaults.baseURL = "http://localhost:8080";
@@ -206,6 +206,7 @@ const readLocalActions = () => {
 export default function AdminUser() {
     const navigate = useNavigate();
     const { alert } = useAlert(); // 전역 알림
+    const { confirm } = useConfirm();
 
     /* 사용자 */
     const [users, setUsers] = useState([]);
