@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 import com.app.dao.restaurant.RestaurantDAO;
+import com.app.dto.restaurant.MenuDTO;
 import com.app.dto.restaurant.RestaurantDTO;
 import com.app.dto.restaurant.RestaurantTagDTO;
 import com.app.dto.restaurant.TagCodeDTO;
@@ -85,6 +86,11 @@ public class RestaurantDAOImpl implements RestaurantDAO {
 	@Override
 	public int updateAllRatingCounts() {
 		return sqlSessionTemplate.update("restaurant_mapper.updateAllRatingCounts");
+	}
+
+	@Override
+	public List<MenuDTO> findMenusByRestaurantId(long restaurantId) {
+		return sqlSessionTemplate.selectList("restaurant_mapper.findMenusByRestaurantId",restaurantId);
 	}
 
 }

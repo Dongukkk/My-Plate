@@ -102,7 +102,7 @@ export default function Login() {
   const anyBusy = loading || !!sso;
 
   return (
-    <AuthLayout imageSrc="/login-hero.jpg" title="My Plate">
+    <AuthLayout imageSrc="https://cdn.pixabay.com/photo/2016/12/26/17/28/spaghetti-1932466_640.jpg" title="MY PLATE" brandImageSrc={`https://i.imgur.com/Tp8HxhZ.png`} >
       <h2 className="lp-login-title">로그인</h2>
       <p className="lp-login-sub">계정에 로그인하여 맞춤형 추천을 받아보세요</p>
 

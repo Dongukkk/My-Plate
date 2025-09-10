@@ -14,22 +14,124 @@
     
     <select id="getReviewsByRestaurantId" parameterType="long" resultType="Review">
         SELECT
-            ID,
-            RESTAURANT_ID,
-            USER_ID,
-            RATING,
-            SOLO_SCORE,
-            REVIEW_COMMENT,
-            STATUS,
-            TO_CHAR(CREATED_AT, 'YYYY-MM-DD HH24:MI:SS') as CREATED_AT,
-            TO_CHAR(UPDATED_AT, 'YYYY-MM-DD HH24:MI:SS') as UPDATED_AT,
-            DELETED_AT,
-            MENU_SCORE,
-            SEAT_SCORE
-        FROM mp_review
-        WHERE RESTAURANT_ID = #{restaurantId}
-        AND DELETED_AT IS NULL
-        ORDER BY CREATED_AT DESC
+        r.ID,
+        r.RESTAURANT_ID,
+        r.USER_ID,
+        r.RATING,
+        r.SOLO_SCORE,
+        r.REVIEW_COMMENT,
+        r.STATUS,
+        TO_CHAR(r.CREATED_AT, 'YYYY-MM-DD HH24:MI:SS') as CREATED_AT,
+        TO_CHAR(r.UPDATED_AT, 'YYYY-MM-DD HH24:MI:SS') as UPDATED_AT,
+        r.DELETED_AT,
+        r.MENU_SCORE,
+        r.SEAT_SCORE,
+        u.USERNAME as USERNAME  FROM mp_review r
+    INNER JOIN mp_user u ON r.USER_ID = u.ID  WHERE r.RESTAURANT_ID = #{restaurantId}
+    AND r.DELETED_AT IS NULL
+    ORDER BY r.CREATED_AT DESC
     </select>
     
+    <insert id="createReview" parameterType="Review">
+		INSERT INTO mp_review (
+			id,
+			restaurant_id,
+			user_id,
+			rating,
+			solo_score,
+			menu_score,
+			seat_score,
+			review_comment,
+			status,
+			created_at
+		) VALUES (
+			mp_reviews_seq.NEXTVAL,
+			#{restaurantId},
+			#{userId},
+			#{rating},
+			#{menuScore} + #{seatScore},
+			#{menuScore},
+			#{seatScore},
+			#{reviewComment},
+			'ACTIVE',
+			SYSTIMESTAMP
+		)
+	</insert>
+	
+	<update id="incrementReviewCount" parameterType="long">
+        UPDATE mp_restaurant
+        SET rating_count = rating_count + 1
+        WHERE id = #{restaurantId}
+    </update>
+    
+    <update id="decrementReviewCount" parameterType="long">
+        UPDATE mp_restaurant
+        SET rating_count = rating_count - 1
+        WHERE id = #{restaurantId}
+    </update>
+    
+    <update id="updateReview" parameterType="Review">
+        UPDATE mp_review
+        SET
+            rating = #{rating},
+            review_comment = #{reviewComment},
+            menu_score = #{menuScore},
+            seat_score = #{seatScore},
+            solo_score = #{soloScore},
+            updated_at = SYSTIMESTAMP
+        WHERE
+            id = #{id}
+    </update>
+    
+    <update id="markReviewAsDeleted" parameterType="long">
+        UPDATE mp_review
+        SET 
+            status = 'DELETED',
+            deleted_at = SYSTIMESTAMP
+        WHERE id = #{id}
+    </update>
+    
+    <select id="getReviewById" parameterType="long" resultType="Review">
+        SELECT
+            *
+        FROM mp_review
+        WHERE ID = #{id}
+    </select>
+    
+    <update id="updateRestaurantInfoWhenReview" parameterType="Long">
+        UPDATE MP_RESTAURANT r
+        SET 
+            r.RATING_COUNT = (
+                SELECT COUNT(rw.ID)
+                FROM MP_REVIEW rw
+                WHERE rw.RESTAURANT_ID = r.ID
+                AND rw.DELETED_AT IS NULL
+            ),
+            r.AVG_RATING = (
+                SELECT ROUND(AVG(rw.RATING),1)
+                FROM MP_REVIEW rw
+                WHERE rw.RESTAURANT_ID = r.ID
+                AND rw.DELETED_AT IS NULL
+            ),
+            r.SOLO_INDEX = (
+                SELECT ROUND(AVG(rw.SOLO_SCORE),1)
+                FROM MP_REVIEW rw
+                WHERE rw.RESTAURANT_ID = r.ID
+                AND rw.DELETED_AT IS NULL
+            ),
+            r.AVG_MENU_SCORE = (
+                SELECT ROUND(AVG(rw.MENU_SCORE),1)
+                FROM MP_REVIEW rw
+                WHERE rw.RESTAURANT_ID = r.ID
+                AND rw.DELETED_AT IS NULL
+            ),
+            r.AVG_SEAT_SCORE = (
+                SELECT ROUND(AVG(rw.SEAT_SCORE),1)
+                FROM MP_REVIEW rw
+                WHERE rw.RESTAURANT_ID = r.ID
+                AND rw.DELETED_AT IS NULL
+            ),
+            r.UPDATED_AT = SYSTIMESTAMP
+            WHERE r.id = #{restaurantId}
+    </update>
 </mapper>

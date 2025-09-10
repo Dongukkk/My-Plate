@@ -3,7 +3,7 @@ import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
 import ErrorPage from './admin/error-page';
 import { LoadingProvider, useLoading } from './admin/loading-context';
 
-import { useEffect } from 'react';
+import { useEffect,useLayoutEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { setUser } from './store/store';
 
@@ -13,7 +13,10 @@ import AdminAnalysis from "./admin/admin-analysis";
 import AdminContent from "./admin/admin-content";
 import AdminRestaurant from "./admin/admin-restaurant";
 import AdminLogin from "./admin/admin-login";
+import AdminRequest from "./admin/admin-request";
 import TermsPage from "./admin/terms-page";
+import SiteIntro from './introduce/site-intro';
+import CardIntro from './introduce/card-intro';
 
 import MainPage from './mainpage/MainPage';
 import RestaurantList from './restaurantList/RestaurantList';
@@ -31,6 +34,19 @@ import OAuthCallback from './account/OAuthCallback';
 import Register from './account/Register';
 import BookmarkList from './restaurantList/BookmarkList';
 import PasswordChange from './account/PasswordChange';
+
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+
+function ScrollToTop() {
+  const { pathname } = useLocation();
+
+  useLayoutEffect(() => {
+    window.scrollTo(0, 0);
+  }, [pathname]);
+
+  return null;
+}
 
 const MainLayout = () => {
 
@@ -55,7 +71,10 @@ const MainLayout = () => {
         <Route path="/adminrestaurants" element={<AdminRestaurant />} />
         <Route path="/adminContent" element={<AdminContent />} />
         <Route path="/adminanalysis" element={<AdminAnalysis />} />
+        <Route path="/adminRequest" element={<AdminRequest />} />
 
+        <Route path="/cardIntro" element={<CardIntro />} />
+        <Route path="/siteIntro" element={<SiteIntro />} />
         <Route path="/termsOfUse" element={<TermsPage />} />
 
         <Route path="/login" element={<Login />} />
@@ -106,11 +125,16 @@ const App = () => {
   }, [dispatch, user]);
 
   return (
-    <BrowserRouter>
-      <LoadingProvider>
-        <MainLayout />
-      </LoadingProvider>
-    </BrowserRouter>
+    <>
+      <BrowserRouter>
+      <ScrollToTop />
+        <LoadingProvider>
+          <MainLayout />
+        </LoadingProvider>
+      </BrowserRouter>
+      <ToastContainer toastClassName="custom-toast"/>
+    </>
+    
   );
 };
 

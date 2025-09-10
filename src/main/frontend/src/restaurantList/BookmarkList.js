@@ -90,8 +90,9 @@ function BookmarkList() {
       <div className="restaurantList-page">
         <SideBarMenu />
         <div className="rl-container">
-          <h2>북마크 목록</h2>
-          <p>북마크된 식당이 없습니다.</p>
+          <div style={{ textAlign: 'center', marginTop:'20%' }}>
+              <img src={`${process.env.PUBLIC_URL}/images/icon/noresult/BOOKMARK_NORESULT.png`} style={{width:'60%', margin: '0 auto'}}></img>
+          </div>
         </div>
       </div>
     );

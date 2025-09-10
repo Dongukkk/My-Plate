@@ -93,7 +93,7 @@
         r.PHONE
     FROM MP_RESTAURANT r
     <where>
-        r.DELETED_AT IS NULL
+        r.DELETED_AT IS NULL AND NAME IS NOT NULL
         <if test="query != null and query != ''">
              AND r.NAME LIKE '%' || #{query} || '%'
         </if>
@@ -117,10 +117,11 @@
         <choose>
             <when test="sort == 'name'">r.NAME</when>
             <when test="sort == 'avg_Rating'">r.AVG_RATING</when>
+            <when test="sort == 'solo_index'">r.SOLO_INDEX</when>
             <otherwise>r.NAME</otherwise>
         </choose>
-        <if test="direction == 'DESC'">DESC</if>
-        <if test="direction == 'ASC'">ASC</if>
+        <if test="direction == 'DESC'">DESC NULLS LAST</if>
+        <if test="direction == 'ASC'">ASC NULLS LAST</if>
     </if>
     OFFSET #{offset} ROWS FETCH NEXT #{limit} ROWS ONLY
 	</select>
@@ -139,7 +140,9 @@
         LATITUDE,
         LONGITUDE,
         ADDRESS,
-        PHONE
+        PHONE,
+        AVG_MENU_SCORE,
+        AVG_SEAT_SCORE
         FROM MP_RESTAURANT
         WHERE ID = #{id}
 	</select>
@@ -205,4 +208,16 @@
             r.UPDATED_AT = SYSTIMESTAMP
     </update>
 
+	<select id="findMenusByRestaurantId" parameterType="Long" resultType="Menu">
+        SELECT
+            id,
+            restaurant_id AS restaurantId,
+            menu AS menu,
+            price,
+            description,
+            origin_info AS originInfo,
+            status
+        FROM mp_restaurant_menu
+        WHERE restaurant_id = #{restaurantId}
+    </select>
 </mapper>

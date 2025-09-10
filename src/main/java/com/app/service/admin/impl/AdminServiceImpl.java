@@ -87,9 +87,9 @@ public class AdminServiceImpl implements AdminService {
 	}
 
 	@Override
-	public List<AdminReportDTO> findOHTReportList() {
-		List<AdminReportDTO> findOHTReportList = adminDAO.findOHTReportList();
-		return findOHTReportList;
+	public List<AdminReportDTO> findOTHReportList() {
+		List<AdminReportDTO> findOTHReportList = adminDAO.findOTHReportList();
+		return findOTHReportList;
 	}
 
 	@Override
@@ -120,17 +120,17 @@ public class AdminServiceImpl implements AdminService {
 	}
 
 	@Override
-	public AdminReportDTO searchOHTReportsById(long id) {
-		return adminDAO.searchOHTReportsById(id);
+	public AdminReportDTO searchOTHReportsById(long id) {
+		return adminDAO.searchOTHReportsById(id);
 	}
 	@Override
-	public int updateOHTReport(AdminReportDTO dto) {
+	public int updateOTHReport(AdminReportDTO dto) {
 		if (dto == null)
 			return 0;
 		if (dto.getId() == 0) {
 			throw new IllegalArgumentException("수정 대상 ID가 비어 있습니다.");
 		}
-		return adminDAO.updateOHTReport(dto);
+		return adminDAO.updateOTHReport(dto);
 	}
 
 	@Override
@@ -170,9 +170,9 @@ public class AdminServiceImpl implements AdminService {
 	}
 
 	@Override
-	public List<AdminActionDTO> findRecentActionsOHT() {
-		List<AdminActionDTO> findRecentActionsOHT = adminDAO.findRecentActionsOHT();
-		return findRecentActionsOHT;
+	public List<AdminActionDTO> findRecentActionsOTH() {
+		List<AdminActionDTO> findRecentActionsOTH = adminDAO.findRecentActionsOTH();
+		return findRecentActionsOTH;
 	}
 
 	@Override
@@ -196,6 +196,13 @@ public class AdminServiceImpl implements AdminService {
 		    return n;
 	}
 	
+	
+	//로그인
+    @Override
+    public AdminUserDTO findAdminForLoginByEmail(String email) {
+        if (email == null || email.isBlank()) return null;
+        return adminDAO.findAdminForLoginByEmail(email);
+    }
 	
 
 }

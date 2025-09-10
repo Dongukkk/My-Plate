@@ -16,7 +16,7 @@
   flex-direction:column; 
   gap:12px; 
 }
-/* ✅ 그리드 안에서 수축 허용 (부모가 grid인 경우 잘림 방지) */
+
 .lp-login-form, .lp-login-field { 
   min-width: 0; 
 }
@@ -126,7 +126,7 @@
   align-items:center;
   gap:12px; 
   color:#999; 
-  margin:12px 0;
+  margin:12px 0 12px;
 }
 .lp-login-divider::before, 
 .lp-login-divider::after{ 
@@ -137,7 +137,7 @@
 }
 
 .lp-login-foot{ 
-  margin-top:8px; 
+  margin-top:16px; 
   font-size:13px;
   text-align: center; 
   color:#555; 
@@ -152,3 +152,5 @@
   }
   .lp-login-between a{ margin-left: 0; }
 }
+
+

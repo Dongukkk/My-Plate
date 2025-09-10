@@ -159,7 +159,7 @@ export default function Register() {
   };
 
   return (
-    <AuthLayout title="My Plate">
+    <AuthLayout title="My Plate" brandImageSrc={`https://i.imgur.com/Tp8HxhZ.png`}>
       {/* 하나의 폭 컨테이너로 감싸 정렬 깨짐 방지 */}
       <div className="lp-register-wrap">
         <h2 className="lp-register-title">새 사용자 등록</h2>

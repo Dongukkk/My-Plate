@@ -62,3 +62,33 @@ body {
     border-top: 1px solid #eee;
     margin: 20px 0;
 }
+
+.main-side-bar-divider {
+    border-top: 1px solid #eee;
+    margin: 20px 0;
+}
+
+
+.mini-footer-links {
+    margin: 20px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+    font-size: 12px;
+    color: gray;
+}
+
+.mini-footer-links .plain-link,
+.mini-footer-links .plain-link:visited,
+.mini-footer-links .plain-link:hover,
+.mini-footer-links .plain-link:active,
+.mini-footer-links .plain-link:focus {
+    color: inherit;
+    text-decoration: none;
+    outline: none;
+}
+
+.mini-footer-links .dot {
+    opacity: .45;
+}

@@ -122,6 +122,12 @@ function RestaurantList() {
         } else if (newSort === "avg_Rating_ASC"){
             setSort('avg_Rating');
             setDirection('ASC');
+        } else if (newSort === "solo_index_DESC") {
+            setSort('solo_index');
+            setDirection('DESC');
+        } else if (newSort === "solo_index_ASC") {
+            setSort('solo_index');
+            setDirection('ASC');
         }
         setPage(1);
     };
@@ -165,8 +171,11 @@ function RestaurantList() {
                                 <label htmlFor="sort-select">정렬 기준: </label>
                                 <select id="sort-select" value={sort+'_'+direction} onChange={(e)=>{handleSortChange(e.target.value);}}>
                                     <option value="name_ASC">이름 순</option>
-                                    <option value="avg_Rating_DESC">평점 순 (높은순)</option>
-                                    <option value="avg_Rating_ASC">평점 순 (낮은순)</option>
+                                    <option value="avg_Rating_DESC">평점 (높은순)</option>
+                                    <option value="avg_Rating_ASC">평점 (낮은순)</option>
+                                    
+                                    <option value="solo_index_ASC">혼밥난이도 (낮은순)</option>
+                                    <option value="solo_index_DESC">혼밥난이도 (높은순)</option>
                                 </select>
                             </div>
                         </div>
@@ -199,7 +208,11 @@ function RestaurantList() {
                         
                         <div ref={loadingRef} style={{ textAlign: 'center', marginTop: '20px' }}>
                             {loading && <div>로딩 중...</div>}
-                            {!hasMore && !loading && <div>더 이상 레스토랑이 없습니다.</div>}
+                            {!hasMore && !loading &&
+                                <div style={{ textAlign: 'center', marginTop:'5%' }}>
+                                    {/* <img src={`${process.env.PUBLIC_URL}/images/icon/noresult/SEARCH_NORESULT.png`} style={{width:'60%', margin: '0 auto'}}></img> */}
+                                </div>
+                            }
                         </div>
                     </div>
                 </main>

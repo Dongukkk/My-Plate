@@ -19,7 +19,7 @@ import com.app.dto.admin.AdminRestaurantDTO;
 import com.app.dto.admin.AdminUserDTO;
 import com.app.service.admin.AdminService;
 
-@CrossOrigin(origins = "http://localhost:3000")
+//@CrossOrigin(origins = "http://localhost:3000", allowCredentials = "true")
 @RestController
 public class AdminController {
 	
@@ -90,9 +90,9 @@ public class AdminController {
 	public List<AdminReportDTO> findUserReportList() {
 		return adminService.findUserReportList();
 	}
-	@GetMapping("/api/adminContent/OHT")
-	public List<AdminReportDTO> findOHTReportList() {
-		return adminService.findOHTReportList();
+	@GetMapping("/api/adminContent/OTH")
+	public List<AdminReportDTO> findOTHReportList() {
+		return adminService.findOTHReportList();
 	}
 	@GetMapping("/api/adminContent/RER")
 	public List<AdminReportDTO> findRERReportList() {
@@ -122,16 +122,16 @@ public class AdminController {
 	                         : ResponseEntity.status(HttpStatus.BAD_REQUEST).body("처리 실패");
 	}
 
-	/* 신고 업데이트 (OHT) */
-	@GetMapping("/api/reports/oht/{id}")
-	public AdminReportDTO getOHTReport(@PathVariable long id) {
-	    return adminService.searchOHTReportsById(id);
+	/* 신고 업데이트 (OTH) */
+	@GetMapping("/api/reports/oth/{id}")
+	public AdminReportDTO getOTHReport(@PathVariable long id) {
+	    return adminService.searchOTHReportsById(id);
 	}
-	@PostMapping("/api/reports/oht/{id}")
-	public ResponseEntity<?> updateOHTReport(@PathVariable long id, @RequestBody AdminReportDTO dto) {
+	@PostMapping("/api/reports/oth/{id}")
+	public ResponseEntity<?> updateOTHReport(@PathVariable long id, @RequestBody AdminReportDTO dto) {
 	    dto.setId(id);
-	    dto.setReportedItemType("OHT");
-	    AdminReportDTO report = adminService.searchOHTReportsById(id);
+	    dto.setReportedItemType("OTH");
+	    AdminReportDTO report = adminService.searchOTHReportsById(id);
 	    if (report != null) {
 	        dto.setReporterId(report.getReporterId());
 	    }
@@ -182,9 +182,9 @@ public class AdminController {
 	public List<AdminActionDTO> findRecentActionsUR() {
 		return adminService.findRecentActionsUR();
 	}
-	@GetMapping("/api/adminActions/OHT")
-	public List<AdminActionDTO> findRecentActionsOHT() {
-		return adminService.findRecentActionsOHT();
+	@GetMapping("/api/adminActions/OTH")
+	public List<AdminActionDTO> findRecentActionsOTH() {
+		return adminService.findRecentActionsOTH();
 	}
 	@GetMapping("/api/adminActions/RER")
 	public List<AdminActionDTO> findRecentActionsRER() {

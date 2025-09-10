@@ -231,3 +231,9 @@
     max-height: 64vh;
   }
 }
+.lp-register-foot { margin-top: 12px; font-size: 13px; color: #555; }
+.lp-register-link { color: #e53935; font-weight: 700; margin-left: 6px; text-decoration: underline; }
+
+.lp-auth-panel:has(.lp-register-title) .lp-auth-brand{
+  margin-top: 70px;
+}

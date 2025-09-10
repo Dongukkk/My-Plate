@@ -1,7 +1,8 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import api, { toggleBookmark } from "../api/api";
+import { toggleBookmark } from "../api/api";
 import { useSelector } from 'react-redux';
+import { calculateSoloLevel } from "../utils/calculate";
 
 export const DEFAULT_IMAGE_URL = "/images/restaurant/BASIC_RESTAURANT_IMAGE.jpg";
 
@@ -44,9 +45,47 @@ const RestaurantCard = ({ restaurant, selectedTags, onTagClick, initialBookmarkS
     }
   };
 
+  const levelBadge = {
+  1: "/images/icon/soloBadge/SOLO_BADGE_ICON_1.png",
+  2: "/images/icon/soloBadge/SOLO_BADGE_ICON_2.png",
+  3: "/images/icon/soloBadge/SOLO_BADGE_ICON_3.png",
+};
+
+const badgeSize = 40;
+const soloLevel = calculateSoloLevel(restaurant.soloIndex);
   return (
     <div className="restaurant-card" onClick={() => navigate(`/restaurants/detail/${restaurant.id}`)}>
-      <div className="rc-card-image" style={{ backgroundImage: `url(${sampleImageUrl})` }}></div>
+      <div className="rc-card-image" 
+        style={{
+            position: 'relative',
+            backgroundImage: `url(${sampleImageUrl})`,
+            backgroundSize: 'cover',
+            backgroundPosition: 'center',
+          }}
+        >
+        <div className="rc-badge" style={{
+          position: 'absolute',
+          top: '5px',
+          right: '5px',
+          display: 'flex',
+          width: `${badgeSize}px`,
+          height: `${badgeSize*1.5}px`,
+          fontSize: '14px',
+          fontWeight: 'bold',
+          color: 'white',
+          borderRadius: '50%',
+          justifyContent: 'center',
+          alignItems: 'center',
+          textAlign: 'center',
+          zIndex:'10',
+        }}>
+          <img
+            src={levelBadge[soloLevel]}
+            alt={`Solo Badge Level ${soloLevel}`}
+            style={{ width: '100%', height: '100%', borderRadius: '50%' }}
+          />
+        </div>
+      </div>
       <div className="rc-card-content">
         <div className="rc-card-title" style={{display:'flex', justifyContent:'space-between'}}>
           <h3>{restaurant.restrntNm}</h3>

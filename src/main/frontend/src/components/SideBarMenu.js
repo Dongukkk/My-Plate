@@ -8,7 +8,7 @@ function SideBarMenu(){
       const user = useSelector(state => state.user);
     return(
         <>
-            <nav className="main-sidebar-menu">
+            <nav className="main-sidebar-menu" style={{display:'flex', flexDirection:'column', justifyContent:'space-between'}}>
                 <ul>
                     <li className={`main-menu-item ${location.pathname === '/' ? 'active' : ''}`}>
                         <Link to="/">
@@ -49,7 +49,12 @@ function SideBarMenu(){
                     }
                 </ul>
                 <div className="main-side-bar-divider"></div>
-                
+
+                <nav className="mini-footer-links">
+                    <Link className="plain-link" to="/siteIntro">About Us</Link>
+                    <span className="dot" aria-hidden="true">•</span>
+                    <Link className="plain-link" to="/cardIntro">복지카드란?</Link>
+                </nav>
             </nav>
         </>
     );

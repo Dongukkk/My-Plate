@@ -1,19 +1,26 @@
 package com.app.controller.restaurant;
 
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.app.dto.restaurant.BookmarkDTO;
+import com.app.dto.restaurant.MenuDTO;
+import com.app.dto.restaurant.OperationTimeDTO;
 import com.app.dto.restaurant.RestaurantDTO;
 import com.app.dto.restaurant.RestaurantTagDTO;
 import com.app.dto.restaurant.ReviewDTO;
@@ -22,11 +29,12 @@ import com.app.security.JwtUtil;
 import com.app.service.ApiRestaurantService;
 import com.app.service.UserService;
 import com.app.service.restaurant.BookmarkService;
+import com.app.service.restaurant.OperationTimeService;
 import com.app.service.restaurant.RestaurantService;
 import com.app.service.restaurant.ReviewService;
 
 @RestController
-@CrossOrigin(origins = "http://localhost:3000")
+@CrossOrigin(origins = "http://localhost:3000", allowCredentials = "true")
 public class RestaurantRestController {
 	
 	@Autowired
@@ -43,6 +51,9 @@ public class RestaurantRestController {
 	
 	@Autowired
 	ReviewService reviewService;
+	
+	@Autowired
+	OperationTimeService operationTimeService;
 	
 	//공공데이터에서 식당 데이터 가져오기
 	@GetMapping("/api/restaurants/save")
@@ -156,6 +167,13 @@ public class RestaurantRestController {
         }
 	}
 	
+	@GetMapping("/api/restaurants/{restaurantId}/menus")
+    public ResponseEntity<List<MenuDTO>> getMenusByRestaurant(@PathVariable Long restaurantId) {
+		List<MenuDTO> menus = restaurantService.findMenusByRestaurantId(restaurantId);
+        // DTO로 변환하여 민감한 정보 노출 방지
+        return ResponseEntity.status(HttpStatus.OK).body(menus);
+    }
+	
 	@GetMapping("/api/reviews/{restaurantId}")
     public ResponseEntity<List<ReviewDTO>> getReviewsByRestaurantId(
     		@PathVariable Long restaurantId,
@@ -163,7 +181,6 @@ public class RestaurantRestController {
             @RequestParam(defaultValue = "10") int size) {
         try {
             List<ReviewDTO> reviews = reviewService.getReviewsByRestaurantId(restaurantId);
-            System.out.println("1");
             
             int start = page * size;
             int end = Math.min(start + size, reviews.size());
@@ -172,8 +189,60 @@ public class RestaurantRestController {
             return ResponseEntity.status(HttpStatus.OK).body(paginatedReviews);
             
         } catch (Exception e) {
-        	System.out.println("4");
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
+    }
+	
+	@PostMapping("/api/restaurants/{restaurantId}/reviews")
+	public ResponseEntity<ReviewDTO> createReview(
+        @PathVariable Long restaurantId, 
+        @RequestBody ReviewDTO reviewDTO) {
+        
+        reviewDTO.setRestaurantId(restaurantId);
+
+        ReviewDTO createdReview = reviewService.createReview(reviewDTO);
+
+        return ResponseEntity.status(HttpStatus.CREATED).body(createdReview);
+    }
+	
+	@PutMapping("/api/reviews/{reviewId}")
+	public ResponseEntity<ReviewDTO> updateReview(@PathVariable Long reviewId, @RequestBody ReviewDTO reviewDTO) {
+		reviewDTO.setId(reviewId);
+		reviewDTO.setSoloScore(reviewDTO.getMenuScore()+reviewDTO.getSeatScore());
+		
+	    
+	    ReviewDTO updatedReview =  reviewService.updateReview(reviewDTO);
+	    
+	    if (updatedReview == null) {
+            return ResponseEntity.notFound().build();
+        }
+        return ResponseEntity.ok(updatedReview);
+	}
+	
+	@DeleteMapping("/api/reviews/{reviewId}")
+	public ResponseEntity<Void> deleteReview(@PathVariable Long reviewId) {
+	    reviewService.markReviewAsDeleted(reviewId);
+	    
+	    return ResponseEntity.noContent().build();
+	}
+	
+	@GetMapping("/api/operation-times/restaurants/{restaurantId}")
+    public ResponseEntity<List<OperationTimeDTO>> getOperationTimesByRestaurantId(@PathVariable long restaurantId) {
+        List<OperationTimeDTO> operationTimes = operationTimeService.findByRestaurantId(restaurantId);
+        if (operationTimes.isEmpty()) {
+            return ResponseEntity.notFound().build();
+        }
+        return ResponseEntity.ok(operationTimes);
+    }
+	
+	@GetMapping("/api/operation-times/restaurants/{restaurantId}/today")
+    public ResponseEntity<List<OperationTimeDTO>> getOperationTimesForToday(@PathVariable long restaurantId) {
+        int todayOfWeek = java.time.LocalDate.now().getDayOfWeek().getValue();
+        if (todayOfWeek == 7) todayOfWeek = 0;
+        List<OperationTimeDTO> operationTimes = operationTimeService.findByRestaurantIdAndDayOfWeek(restaurantId, todayOfWeek);
+        if (operationTimes.isEmpty()) {
+            return ResponseEntity.notFound().build();
+        }
+        return ResponseEntity.ok(operationTimes);
     }
 }

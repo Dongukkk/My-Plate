@@ -25,7 +25,7 @@ public interface AdminService {
 	//신고관리
 	//신고 목록
 	List <AdminReportDTO> findUserReportList();
-	List <AdminReportDTO> findOHTReportList();
+	List <AdminReportDTO> findOTHReportList();
 	List <AdminReportDTO> findRERReportList();
 	List <AdminReportDTO> findIPCReportList();
 	
@@ -33,8 +33,8 @@ public interface AdminService {
 	AdminReportDTO searchURReportsById(long id);
 	int updateURReport(AdminReportDTO dto);
 	
-	AdminReportDTO searchOHTReportsById(long id);
-	int updateOHTReport(AdminReportDTO dto);
+	AdminReportDTO searchOTHReportsById(long id);
+	int updateOTHReport(AdminReportDTO dto);
 	
 	AdminReportDTO searchRERReportsById(long id);
 	int updateRERReport(AdminReportDTO dto);
@@ -44,8 +44,12 @@ public interface AdminService {
 	
 	//최근 처리 이력
     List<AdminActionDTO> findRecentActionsUR(); 
-    List<AdminActionDTO> findRecentActionsOHT();  
+    List<AdminActionDTO> findRecentActionsOTH();  
     List<AdminActionDTO> findRecentActionsRER();  
     List<AdminActionDTO> findRecentActionsIPC();  
     int processReport(AdminReportDTO dto);
+    
+    //로그인
+    AdminUserDTO findAdminForLoginByEmail(String email);
+    
 }
