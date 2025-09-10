@@ -404,3 +404,30 @@
     position: static;
   }
 }
+
+/* Provider badge */
+.lp-provider {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 600;
+  letter-spacing: 0.2px;
+}
+
+.lp-provider-logo {
+  width: 18px;
+  height: 18px;
+  border-radius: 4px;      /* 아이콘이 둥근 사각형이면 더 깔끔 */
+  object-fit: contain;     /* 원본 비율 유지 */
+  display: inline-block;
+  vertical-align: middle;
+}
+
+.lp-provider-logo.default {
+  font-size: 16px;
+  line-height: 1;
+}
+
+.lp-provider-name {
+  font-size: 13px;
+}

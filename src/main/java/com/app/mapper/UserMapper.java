@@ -1,6 +1,7 @@
 package com.app.mapper;
 
 import com.app.dto.UserDTO;
+import com.app.dto.stats.MonthlyStatDTO;
 import com.app.dto.user.BookmarkItemDTO;
 import com.app.dto.user.ReviewBrief;
 
@@ -51,4 +52,12 @@ public interface UserMapper {
     
     //북마크 
     List<BookmarkItemDTO> findBookmarksByEmail(@Param("email") String email);
+    
+    // USER_ID 기준 최근 N개월 집계
+    List<MonthlyStatDTO> findMonthlyStatsByUserId(
+            @Param("userId") Long userId,
+            @Param("months") int months
+            );
+    	
+    
 }

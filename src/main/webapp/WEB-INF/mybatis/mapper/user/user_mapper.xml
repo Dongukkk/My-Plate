@@ -211,6 +211,54 @@
   ORDER BY b.CREATED_AT DESC
 </select>
 
+	<resultMap id="MonthlyStatMap" type="com.app.dto.stats.MonthlyStatDTO">
+	    <result property="ym"             column="YM"/>
+	    <result property="reviewCount"    column="REVIEW_COUNT"/>
+	    <result property="bookmarkCount"  column="BOOKMARK_COUNT"/>
+	    <result property="avgRating"      column="AVG_RATING"/>
+	</resultMap>
+	
+	 <select id="findMonthlyStatsByUserId" resultMap="MonthlyStatMap">
+	    WITH months AS (
+	      SELECT
+	        TO_CHAR(ADD_MONTHS(TRUNC(SYSDATE,'MM'),-(LEVEL-1)),'YYYY-MM') AS YM,
+	        ADD_MONTHS(TRUNC(SYSDATE,'MM'),-(LEVEL-1)) AS MONTH_START
+	      FROM dual
+	      CONNECT BY LEVEL &lt;= #{months}
+	    ),
+	    review_agg AS (
+	      SELECT
+	        TO_CHAR(TRUNC(r.CREATED_AT,'MM'),'YYYY-MM') AS YM,
+	        COUNT(*) AS REVIEW_COUNT,
+	        ROUND(AVG(r.RATING), 2) AS AVG_RATING
+	      FROM MP_REVIEW r
+	      WHERE r.USER_ID = #{userId}
+	        AND r.CREATED_AT &gt;= ADD_MONTHS(TRUNC(SYSDATE,'MM'),-(#{months}-1))
+	        AND r.DELETED_AT IS NULL
+	        AND (r.STATUS = 'ACTIVE' OR r.STATUS IS NULL)
+	      GROUP BY TO_CHAR(TRUNC(r.CREATED_AT,'MM'),'YYYY-MM')
+	    ),
+	    bookmark_agg AS (
+	      SELECT
+	        TO_CHAR(TRUNC(b.CREATED_AT,'MM'),'YYYY-MM') AS YM,
+	        COUNT(*) AS BOOKMARK_COUNT
+	      FROM MP_BOOKMARK b
+	      WHERE b.USER_ID = #{userId}
+	        AND b.CREATED_AT &gt;= ADD_MONTHS(TRUNC(SYSDATE,'MM'),-(#{months}-1))
+	        AND b.DELETED_AT IS NULL
+	        AND (b.STATUS = 'true' OR b.STATUS IS NULL)
+	      GROUP BY TO_CHAR(TRUNC(b.CREATED_AT,'MM'),'YYYY-MM')
+	    )
+	    SELECT
+	      m.YM,
+	      NVL(r.REVIEW_COUNT, 0)   AS REVIEW_COUNT,
+	      r.AVG_RATING             AS AVG_RATING,       -- 리뷰 없으면 null
+	      NVL(b.BOOKMARK_COUNT, 0) AS BOOKMARK_COUNT
+	    FROM months m
+	    LEFT JOIN review_agg   r ON r.YM = m.YM
+	    LEFT JOIN bookmark_agg b ON b.YM = m.YM
+	    ORDER BY m.MONTH_START
+  </select>
 
 </mapper>
 

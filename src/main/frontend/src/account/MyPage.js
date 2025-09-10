@@ -37,6 +37,39 @@ function coerceDate(v) {
   return null;
 }
 
+function ProviderBadge({ provider }) {
+  const p = String(provider || 'MYPLATE').toUpperCase();
+  const label =
+    p === 'GOOGLE' ? 'GOOGLE' :
+    p === 'NAVER' ? 'NAVER' :
+    (p === 'KAKAO' || p === 'KAKAOTALK' || p === 'KAKAO_TALK') ? 'KAKAOTALK' :
+    'MYPLATE';
+
+  // CRA(dev/prod)와 톰캣(/MyPlate) 모두 커버
+  const BASE =
+    (typeof import.meta !== 'undefined' && import.meta.env && import.meta.env.BASE_URL) || // Vite 대응
+    process.env.PUBLIC_URL || // CRA 대응
+    '';
+
+  const ICON_SRC = {
+    GOOGLE: `${BASE}/images/icon/sns/google.png`,
+    NAVER: `${BASE}/images/icon/sns/naver.png`,
+    KAKAOTALK: `${BASE}/images/icon/sns/kakao.png`,
+  };
+  const src = ICON_SRC[label] || null;
+
+  return (
+    <span className="lp-provider">
+      {src ? (
+        <img className="lp-provider-logo" src={src} alt={`${label} 로고`} width={18} height={18} />
+      ) : (
+        <span className="lp-provider-logo default" aria-hidden>🍽️</span>
+      )}
+      <span className="lp-provider-name">{label}</span>
+    </span>
+  );
+}
+
 export default function MyPage() {
   const [me, setMe] = useState(null);
   const [msg, setMsg] = useState('');
@@ -62,6 +95,11 @@ export default function MyPage() {
   // 즐겨찾기 미리보기(3)
   const [bm3, setBm3] = useState([]);
   const [bmLoading, setBmLoading] = useState(true);
+
+  // ===== 월간 통계(신규) =====
+  const [mRows, setMRows] = useState([]);
+  const [mLoading, setMLoading] = useState(true);
+  const [mError, setMError] = useState('');
 
   const navigate = useNavigate();
 
@@ -204,6 +242,36 @@ export default function MyPage() {
     return () => { mounted = false; };
   }, []);
 
+  // 월간 통계 로드 (분리된 useEffect)
+  useEffect(() => {
+    let live = true;
+    (async () => {
+      try {
+        setMLoading(true);
+        const res = await api.get('/me/stats/monthly', { params: { months: 12 } });
+        if (!live) return;
+        setMRows(Array.isArray(res?.data) ? res.data : []);
+      } catch (e) {
+        if (!live) return;
+        setMError(e?.response?.data?.message || e.message || '불러오기 실패');
+      } finally {
+        if (live) setMLoading(false);
+      }
+    })();
+    return () => { live = false; };
+  }, []);
+
+  // 차트용 가공 데이터
+  const monthlyData = useMemo(
+    () => (mRows || []).map((d) => ({
+      label: d?.ym && d.ym.length >= 7 ? `${parseInt(d.ym.slice(5), 10)}월` : '',
+      reviews: d?.reviewCount || 0,
+      bookmarks: d?.bookmarkCount || 0,
+      rating: d?.avgRating == null ? null : Number(d.avgRating),
+    })),
+    [mRows]
+  );
+
   // 이벤트
   const onLogout = () => {
     localStorage.removeItem('access');
@@ -284,7 +352,10 @@ export default function MyPage() {
 
             {/* provider / logout */}
             <div className="lp-myp-subbar">
-              <div className="lp-myp-provider">{providerName}</div>
+              <div className="lp-myp-provider">
+                {/* 로고+라벨 */}
+                <ProviderBadge provider={me?.provider} />
+              </div>
               <button className="lp-logout-top" onClick={onLogout}>로그아웃</button>
             </div>
 
@@ -339,6 +410,23 @@ export default function MyPage() {
                   <div className="num">{Number(stats.averageRating || 0).toFixed(1)}</div>
                   <div className="label">평균 평점</div>
                 </div>
+              </div>
+
+              {/* 월간 통계 (신규) */}
+              <div className="lp-myp-section">
+                <div className="lp-myp-sec-head">
+                  <div className="lp-myp-sec-title">월간 통계</div>
+                </div>
+
+                {mLoading ? (
+                  <div className="lp-myp-loading sm">불러오는 중…</div>
+                ) : mError ? (
+                  <div className="lp-myp-error sm">불러오기 실패: {String(mError)}</div>
+                ) : monthlyData.length === 0 ? (
+                  <div className="lp-myp-empty">표시할 데이터가 없습니다.</div>
+                ) : (
+                  <MonthlyStatsInlineChart data={monthlyData} height={320} />
+                )}
               </div>
 
               {/* 즐겨찾기(3) */}
@@ -423,5 +511,110 @@ export default function MyPage() {
         </div>
       </main>
     </div>
+  );
+}
+
+// =============================
+// Inline SVG Chart (no deps)
+// =============================
+function MonthlyStatsInlineChart({ data, height = 320 }) {
+  const VB_W = 1000, VB_H = 300;
+  const P_LEFT = 64, P_RIGHT = 64, P_TOP = 24, P_BOTTOM = 48;
+  const plotW = VB_W - P_LEFT - P_RIGHT;
+  const plotH = VB_H - P_TOP - P_BOTTOM;
+
+  const n = data.length;
+  const step = plotW / n;
+  const xCenter = (i) => P_LEFT + step * i + step / 2;
+
+  const countMax = Math.max(1, ...data.map(d => Math.max(d.reviews, d.bookmarks)));
+  const yCount  = (v) => P_TOP + (1 - v / countMax) * plotH;
+
+  const ratingMin = 0, ratingMax = 5;
+  const yRating = (r) => r == null ? null : P_TOP + (1 - (r - ratingMin) / (ratingMax - ratingMin)) * plotH;
+
+  const groupW = step * 0.6;
+  const barW   = groupW / 2;
+
+  // rating 라인 path (null 구간은 끊김)
+  const ratingPath = (() => {
+    let started = false, path = '';
+    data.forEach((d, i) => {
+      const y = yRating(d.rating);
+      if (y == null) { started = false; return; }
+      const x = xCenter(i);
+      if (!started) { path += `M ${x} ${y}`; started = true; }
+      else { path += ` L ${x} ${y}`; }
+    });
+    return path;
+  })();
+
+  const ticks = 4;
+  const tickVals = Array.from({ length: ticks + 1 }, (_, k) => Math.round((countMax / ticks) * k));
+
+  return (
+    <svg viewBox={`0 0 ${VB_W} ${VB_H}`} width="100%" height={height} preserveAspectRatio="none">
+      {/* 그리드 & 좌측 축 눈금 */}
+      {tickVals.map((v, i) => {
+        const y = yCount(v);
+        return (
+          <g key={i}>
+            <line x1={P_LEFT} x2={VB_W - P_RIGHT} y1={y} y2={y} stroke="#e9ecef" strokeDasharray="3 3" />
+            <text x={P_LEFT - 8} y={y + 4} textAnchor="end" fontSize="12" fill="#6b7280">{v}</text>
+          </g>
+        );
+      })}
+
+      {/* 우측 평점 축 0~5 */}
+      {[0,1,2,3,4,5].map((r) => {
+        const y = yRating(r);
+        return <text key={r} x={VB_W - P_RIGHT + 8} y={y + 4} fontSize="12" fill="#6b7280">{r}</text>;
+      })}
+
+      {/* 막대: 리뷰/즐겨찾기 */}
+      {data.map((d, i) => {
+        const xc = xCenter(i);
+        const x1 = xc - groupW / 2, x2 = x1 + barW;
+
+        const hRev = plotH - (yCount(d.reviews)   - P_TOP);
+        const hBm  = plotH - (yCount(d.bookmarks) - P_TOP);
+        return (
+          <g key={i}>
+            <rect x={x1} y={yCount(d.reviews)}   width={barW - 2} height={hRev} fill="#60a5fa" />
+            <rect x={x2} y={yCount(d.bookmarks)} width={barW - 2} height={hBm}  fill="#34d399" />
+          </g>
+        );
+      })}
+
+      {/* 평점 라인 + 점 */}
+      <path d={ratingPath} fill="none" stroke="#f59e0b" strokeWidth="2" />
+      {data.map((d, i) => {
+        const y = yRating(d.rating);
+        if (y == null) return null;
+        return <circle key={i} cx={xCenter(i)} cy={y} r="3" fill="#f59e0b" />;
+      })}
+
+      {/* X축 라벨 */}
+      {data.map((d, i) => (
+        <text key={i} x={xCenter(i)} y={VB_H - P_BOTTOM + 28} textAnchor="middle" fontSize="12" fill="#6b7280">
+          {d.label}
+        </text>
+      ))}
+
+      {/* 축선 */}
+      <line x1={P_LEFT} x2={VB_W - P_RIGHT} y1={P_TOP + plotH} y2={P_TOP + plotH} stroke="#cbd5e1" />
+      <line x1={P_LEFT} x2={P_LEFT} y1={P_TOP} y2={P_TOP + plotH} stroke="#cbd5e1" />
+      <line x1={VB_W - P_RIGHT} x2={VB_W - P_RIGHT} y1={P_TOP} y2={P_TOP + plotH} stroke="#cbd5e1" />
+
+      {/* 범례 */}
+      <g>
+        <rect x={P_LEFT} y={8} width="10" height="10" fill="#60a5fa" />
+        <text x={P_LEFT + 16} y={18} fontSize="12">리뷰 수</text>
+        <rect x={P_LEFT + 70} y={8} width="10" height="10" fill="#34d399" />
+        <text x={P_LEFT + 86} y={18} fontSize="12">즐겨찾기 수</text>
+        <circle cx={P_LEFT + 170} cy={13} r="5" fill="#f59e0b" />
+        <text x={P_LEFT + 184} y={18} fontSize="12">평균 평점</text>
+      </g>
+    </svg>
   );
 }

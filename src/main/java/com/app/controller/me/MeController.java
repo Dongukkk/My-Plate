@@ -1,5 +1,6 @@
 package com.app.controller.me;
 
+import com.app.dto.stats.MonthlyStatDTO;
 import com.app.dto.user.ReviewBrief;
 import com.app.dto.user.UserStats;
 import com.app.service.UserService;
@@ -51,5 +52,13 @@ public class MeController {
             @RequestHeader(name = "Authorization", required = false) String authorization,
             @RequestParam(name = "limit", defaultValue = "3") int limit) {
         return ResponseEntity.ok(userService.getMyRecentReviews(authorization, limit));
+    }
+    
+    @GetMapping("/me/stats/monthly")
+    public ResponseEntity<List<MonthlyStatDTO>> monthlyStats(
+            @RequestHeader(name = "Authorization", required = false) String authorization,
+            @RequestParam(name = "months", defaultValue = "12") int months
+    ) {
+        return ResponseEntity.ok(userService.getMyMonthlyStats(authorization, months));
     }
 }

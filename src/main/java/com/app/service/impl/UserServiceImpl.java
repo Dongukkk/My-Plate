@@ -3,6 +3,7 @@ package com.app.service.impl;
 import com.app.dto.UserDTO;
 import com.app.dto.auth.LoginRequest;
 import com.app.dto.auth.LoginResponse;
+import com.app.dto.stats.MonthlyStatDTO;
 import com.app.dto.user.BookmarkItemDTO;
 import com.app.dto.user.ReviewBrief;
 import com.app.dto.user.UserRegisterRequest;
@@ -233,6 +234,33 @@ public class UserServiceImpl implements UserService {
 		
 		return userMapper.findBookmarksByEmail(email);
 	}
+
+	@Override
+	@Transactional
+	public List<MonthlyStatDTO> getMonthlyStatsByUserId(Long userId, int months) {
+		
+		if(userId == null) throw new IllegalArgumentException("userId is null");
+		if(months < 1) months =1;
+		if(months > 24) months = 24;
+		
+		return userMapper.findMonthlyStatsByUserId(userId, months);
+	}
+
+	@Override
+	@Transactional(readOnly = true)
+	public List<MonthlyStatDTO> getMyMonthlyStats(String authorization, int months) {
+		
+		String email = emailFromAuthorization(authorization);
+		Long userId = getUserIdByEmail(email);
+		
+		if(months <1) months = 1;
+		if(months > 24) months = 24;
+		
+		return userMapper.findMonthlyStatsByUserId(userId, months);
+	}
+	
+	
+	
 }
 
 

@@ -1,29 +1,233 @@
-.lp-register-title { margin: 6px 0 2px; font-size: 24px; font-weight: 700; }
-.lp-register-sub   { margin: 0 0 16px; color: #666; font-size: 13.5px; }
+:root {
+  --reg-max: 1000px;
+}
 
-.lp-register-form  { display: flex; flex-direction: column; gap: 12px; }
-.lp-register-field { display: flex; flex-direction: column; gap: 6px; }
-.lp-register-label { font-size: 13px; color: #444; }
+@media (min-width: 1536px) {
+  :root {
+    --reg-max: 1120px;
+  }
+}
+
+/* 하나의 폭 컨테이너 */
+.lp-register-wrap {
+  max-width: var(--reg-max);
+  margin: 0 auto;
+}
+
+/* 헤더 */
+.lp-register-title {
+  margin: 8px 0 4px;
+  font-size: 26px;
+  font-weight: 700;
+}
+
+.lp-register-sub {
+  margin: 0 0 18px;
+  color: #666;
+  font-size: 14px;
+}
+
+/* 폼 */
+.lp-register-form {
+  display: grid;
+  gap: 14px;
+}
+
+.lp-register-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.lp-register-label {
+  font-size: 13.5px;
+  color: #444;
+}
 
 .lp-register-field input {
-  padding: 12px 14px; border: 1px solid #e5e7eb; border-radius: 10px; outline: none; font-size: 15px;
+  padding: 14px 16px;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  outline: none;
+  font-size: 16px;
 }
+
 .lp-register-field input:focus {
-  border-color: #ef5350; box-shadow: 0 0 0 3px rgba(239,83,80,.15);
+  border-color: #ef5350;
+  box-shadow: 0 0 0 3px rgba(239, 83, 80, .15);
 }
 
-.lp-register-help { margin-top: 4px; color: #e53935; font-size: 12.5px; }
+.lp-register-help {
+  margin-top: 4px;
+  color: #e53935;
+  font-size: 12.5px;
+}
 
-.lp-register-checks { display: flex; flex-direction: column; gap: 8px; margin-top: 4px; }
-.lp-register-check  { display: flex; align-items: center; gap: 8px; color: #555; font-size: 13px; }
+/* 동의 블록 */
+.lp-consent {
+  display: grid;
+  gap: 12px;
+  margin: 12px 0 4px;
+}
 
+.lp-consent-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 14px;
+  border: 1px solid #eee;
+  border-radius: 12px;
+  background: #fff;
+}
+
+.lp-consent-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: #333;
+  font-size: 14px;
+}
+
+.lp-consent-link {
+  border: 1px solid #e5e7eb;
+  background: #fff;
+  padding: 8px 12px;
+  border-radius: 10px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.lp-consent-link:hover {
+  background: #fafafa;
+}
+
+/* 버튼 & 안내 */
 .lp-register-btnPrimary {
-  margin-top: 6px; background: #ef5350; color: #fff; border: none;
-  padding: 12px 14px; border-radius: 10px; font-weight: 700; cursor: pointer;
+  display: block;
+  margin: 12px auto 0;
+  width: clamp(320px, 38%, 420px);
+  background: #ef5350;
+  color: #fff;
+  border: none;
+  padding: 12px 16px;
+  border-radius: 12px;
+  font-weight: 700;
+  cursor: pointer;
 }
-.lp-register-btnPrimary:disabled { opacity: .6; cursor: default; }
 
-.lp-register-hint { margin-top: 10px; color: #e53935; font-size: 13px; }
+.lp-register-btnPrimary:disabled {
+  opacity: .6;
+  cursor: default;
+}
 
-.lp-register-foot { margin-top: 12px; font-size: 13px; color: #555; }
-.lp-register-link { color: #e53935; font-weight: 700; margin-left: 6px; text-decoration: underline; }
+.lp-register-hint {
+  margin-top: 10px;
+  color: #e53935;
+  font-size: 13px;
+}
+
+.lp-register-foot {
+  margin-top: 14px;
+  text-align: center;
+  color: #6b7280;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.lp-register-link {
+  margin-left: 6px;
+  color: #ff5a3c;
+  font-weight: 700;
+  text-decoration: underline;
+}
+
+.lp-register-link:hover {
+  text-decoration: none;
+  opacity: .9;
+}
+
+/* 모달 */
+.lp-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, .35);
+  display: grid;
+  place-items: center;
+  z-index: 1000;
+}
+
+.lp-modal {
+  width: min(1200px, calc(100vw - 64px));
+  background: #fff;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, .25);
+}
+
+.lp-modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 18px;
+  border-bottom: 1px solid #eee;
+}
+
+.lp-modal-close {
+  border: 0;
+  background: transparent;
+  font-size: 18px;
+  cursor: pointer;
+  color: #888;
+}
+
+.lp-modal-close:hover {
+  color: #444;
+}
+
+.lp-modal-body {
+  max-height: 70vh;
+  overflow: auto;
+  padding: 18px;
+}
+
+.lp-modal-pre {
+  margin: 0;
+  white-space: pre-wrap;
+  line-height: 1.7;
+  font-family: inherit;
+  font-size: 15px;
+}
+
+.lp-modal-footer {
+  padding: 12px 16px;
+  border-top: 1px solid #eee;
+  background: #fafafa;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 12px;
+}
+
+/* 모달 내 버튼은 내용폭만 */
+.lp-modal-footer .lp-register-btnPrimary {
+  margin: 0;
+  width: auto;
+  min-width: 0;
+  padding: 12px 16px;
+}
+
+/* 모바일 */
+@media (max-width: 520px) {
+  .lp-register-btnPrimary {
+    width: 100%;
+  }
+
+  .lp-modal {
+    width: calc(100vw - 24px);
+  }
+
+  .lp-modal-body {
+    max-height: 64vh;
+  }
+}
