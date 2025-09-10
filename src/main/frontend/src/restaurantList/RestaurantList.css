@@ -174,7 +174,7 @@ body {
 }
 
 .rc-details-button:hover {
-    background-color: #c75a00;
+    background-color: #e28379;
 }
 
 @media (max-width: 768px) {
@@ -190,6 +190,7 @@ body {
     }
     .sort-select-container {
         display: flex;
+        width: 100%;
         padding-left: 50px;
     }
 }

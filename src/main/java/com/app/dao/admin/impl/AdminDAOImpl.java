@@ -46,10 +46,10 @@ public class AdminDAOImpl implements AdminDAO {
 	}
     
 	@Override
-	public int DeleteAdminRestaurant(long id) {
+	public int deleteAdminRestaurant(long id) {
 		AdminRestaurantDTO p = new AdminRestaurantDTO();
         p.setId((long) id);
-        return sqlSessionTemplate.update(AM + "DeleteAdminRestaurant", p);
+        return sqlSessionTemplate.update(AM + "deleteAdminRestaurant", p);
 	}
 
 	
@@ -180,6 +180,16 @@ public class AdminDAOImpl implements AdminDAO {
     public AdminUserDTO findAdminForLoginByEmail(String email) {
         return sqlSessionTemplate.selectOne(AM + "findAdminForLoginByEmail", email);
     }
-	
+    
+    
+    
+    @Override
+    public int insertIPCReport(AdminReportDTO dto) {
+        return sqlSessionTemplate.insert(AM + "insertIPCReport", dto);
+    }
+    @Override
+    public int insertRERReport(AdminReportDTO dto) {
+        return sqlSessionTemplate.insert(AM + "insertRERReport", dto);
+    }
 
 }

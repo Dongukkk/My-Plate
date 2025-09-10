@@ -18,7 +18,7 @@ export default function Footer() {
                     <div className="footer-col">
                         <h4 className="footer-head">이용안내</h4>
                         <ul className="footer-links">
-                            <li><a className="footer-link">FAQ</a></li>
+                            <li><a href="/faq" className="footer-link">FAQ</a></li>
                             <li><a href="/cardIntro" className="footer-link">복지카드</a></li>
                         </ul>
                     </div>
@@ -34,7 +34,7 @@ export default function Footer() {
                     <div className="footer-col">
                         <h4 className="footer-head">고객지원</h4>
                         <p className="footer-hours">평일 9:30 - 17:00 (12:00 - 14:00 제외)</p>
-                        <a href="/contact" className="footer-btn">My Plate에 문의</a>
+                        <a href="/chat" className="footer-btn">My Plate에 문의</a>
                     </div>
                 </div>
                 <hr className="footer-sep" />

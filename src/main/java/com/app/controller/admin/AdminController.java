@@ -55,7 +55,7 @@ public class AdminController {
     /* 식당 소프트 삭제 */
 	@DeleteMapping("/api/adminRestaurant/{id}")
 	public int registerDeleteRestaurant(@PathVariable long id) {
-		return adminService.DeleteAdminRestaurant(id);
+		return adminService.deleteAdminRestaurant(id);
 	}
 	
 	

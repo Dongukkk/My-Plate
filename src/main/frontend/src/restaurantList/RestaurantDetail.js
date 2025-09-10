@@ -3,6 +3,10 @@ import { useEffect, useState, useRef } from "react";
 import axios from "axios";
 import SideBarMenu from "../components/SideBarMenu";
 import "../restaurantList/RestaurantDetail.css";
+
+import ReviewReportModal from "../report/review-report";
+import StoreEditReportModal from "../report/store-report";
+
 import KakaoMap from "../components/KakaoMap";
 import { DEFAULT_IMAGE_URL } from "./RestaurantCard"
 
@@ -45,6 +49,16 @@ function RestaurantDetail() {
   const menuRef = useRef(null);
 
   const [ sortOrder, setSortOrder ] = useState('recommendation');
+    //여기 내 거...
+  const [rerOpen, setRerOpen] = useState(false);
+  const [reportOpen, setReportOpen] = useState(false);
+  const [reportTarget, setReportTarget] = useState({ id: null, text: "" });
+  const openReport = (review) => {
+    setReportTarget({ id: review.id, text: review.reviewComment || "" });
+    setReportOpen(true);
+    setSelectedReviewId(null);
+  };
+
 
   const fetchRestaurantData = async () => {
       try {
@@ -262,7 +276,6 @@ function RestaurantDetail() {
   };
   const groupedTimes = groupOperationTimesByDay(operationTimes);
 
-
   return (
     <>
       <div className="restaurantDetail-page">
@@ -409,6 +422,7 @@ function RestaurantDetail() {
                                       <div className="review-menu-item"
                                         onClick={(e) => {
                                           e.stopPropagation();
+                                          openReport(review);
                                         }}
                                       >
                                         신고
@@ -488,7 +502,7 @@ function RestaurantDetail() {
               <h3>전화번호</h3>
               <p>{restaurant.restrntInqrTel}</p>
               <button style={{ width: "100%" }}>전화하기</button>
-              <button style={{ width: "49%", marginRight: "3px" }}>제보하기</button>
+              <button style={{ width: "49%", marginRight: "3px" }} onClick={() => setRerOpen(true)}>제보하기</button>
               <button style={{ width: "49%" }} onClick={handleReviewClick}>리뷰 작성하기</button>
             </aside>
           </div>
@@ -517,7 +531,33 @@ function RestaurantDetail() {
           fetchReviews={fetchReviews}
         />
       )}
+
+      <ReviewReportModal
+        open={reportOpen}
+        reviewId={reportTarget.id}
+        reviewText={reportTarget.text}
+        onClose={() => setReportOpen(false)}
+        onReported={() => fetchReviews()}
+      />
+
+      <StoreEditReportModal
+        open={rerOpen}
+        onClose={() => setRerOpen(false)}
+        restaurantId={Number(id)}
+        currentInfo={{
+          name: restaurant.restrntNm || "",
+          phone: restaurant.restrntInqrTel || "",
+          address: restaurant.restrntAddr || "",
+          hours: (todayOperationTimes && todayOperationTimes.length > 0)
+            ? todayOperationTimes.map(t => `${t.openTime?.slice(11, 16)}~${t.closeTime?.slice(11, 16)}`).join(", ")
+            : "",
+          website: restaurant.website || "",
+          category: restaurant.category || "",
+        }}
+        onReported={() => fetchRestaurantData()}
+      />
     </>
+    
   );
 }
 

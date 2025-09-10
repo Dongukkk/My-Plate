@@ -14,7 +14,7 @@ public interface AdminDAO {
 	AdminRestaurantDTO findRestaurantById(long id);
 	int modifyAdminRestaurant(AdminRestaurantDTO dto);
 	int saveAdminRestaurant(AdminRestaurantDTO dto);
-	int DeleteAdminRestaurant(long id);
+	int deleteAdminRestaurant(long id);
 	
 	//사용자관리
 	List <AdminUserDTO> findUserList();
@@ -52,5 +52,9 @@ public interface AdminDAO {
     
     //로그인
     AdminUserDTO findAdminForLoginByEmail(String email);
+    
+    // 신고 생성
+    int insertIPCReport(AdminReportDTO dto);
+    int insertRERReport(AdminReportDTO dto);
     
 }

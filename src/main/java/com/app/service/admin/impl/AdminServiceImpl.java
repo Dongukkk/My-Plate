@@ -46,8 +46,8 @@ public class AdminServiceImpl implements AdminService {
 	}
 
 	@Override
-	public int DeleteAdminRestaurant(long id) {
-		return adminDAO.DeleteAdminRestaurant(id);
+	public int deleteAdminRestaurant(long id) {
+		return adminDAO.deleteAdminRestaurant(id);
 	}
 
 	// 사용자 관리
@@ -202,6 +202,40 @@ public class AdminServiceImpl implements AdminService {
     public AdminUserDTO findAdminForLoginByEmail(String email) {
         if (email == null || email.isBlank()) return null;
         return adminDAO.findAdminForLoginByEmail(email);
+    }
+    
+    
+    
+    
+    /* 리뷰 부적절 콘텐츠 신고 생성(IPC) */
+    @Override
+    public int createIPCReport(AdminReportDTO dto) {
+        if (dto == null) return 0;
+
+        // 필수값 검증
+        if (dto.getReporterId() <= 0) {
+            throw new IllegalArgumentException("reporterId가 필요합니다.");
+        }
+        if (dto.getReportedItemId() <= 0) {
+            throw new IllegalArgumentException("reportedItemId(리뷰ID)가 필요합니다.");
+        }
+        // 기본값 보정
+        if (dto.getStatus() == null || dto.getStatus().isBlank()) dto.setStatus("PENDING");
+        if (dto.getReason() == null || dto.getReason().isBlank()) dto.setReason("기타");
+        if (dto.getExcerpt() == null) dto.setExcerpt("");
+        // INSERT (MyBatis selectKey로 dto.id 세팅됨)
+        return adminDAO.insertIPCReport(dto);
+    }
+    
+    @Override
+    public int createRERReport(AdminReportDTO dto) {
+        if (dto == null) return 0;
+        if (dto.getReporterId() <= 0) throw new IllegalArgumentException("reporterId 필요");
+        if (dto.getReportedItemId() <= 0) throw new IllegalArgumentException("reportedItemId(restaurantId) 필요");
+        if (dto.getStatus() == null || dto.getStatus().isBlank()) dto.setStatus("PENDING");
+        if (dto.getReason() == null || dto.getReason().isBlank()) dto.setReason("정보 수정 요청");
+        if (dto.getExcerpt() == null) dto.setExcerpt("");
+        return adminDAO.insertRERReport(dto);
     }
 	
 

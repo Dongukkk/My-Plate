@@ -5,93 +5,98 @@
 
 <mapper namespace="admin_mapper">
 
-	<!-- 식당 관리 -->
-	<select id="findRestaurantList" resultType="AdminRestaurant">
-		SELECT
-		R.ID AS id,
-		R.NAME AS name,
-		R.CATEGORY AS category,
-		R.ADDRESS AS address,
-		NVL(R.SOLO_INDEX, 0) AS solo_index,
-		NVL(R.AVG_RATING, 0) AS avgRating,
-		NVL(R.RATING_COUNT, 0) AS rating_count,
-		R.STATUS AS status,
-		TO_CHAR(R.created_at, 'YYYY-MM-DD"T"HH24:MI:SS') AS createdAt,
-		TO_CHAR(R.updated_at, 'YYYY-MM-DD"T"HH24:MI:SS') AS updatedAt
-		FROM
-		MP_RESTAURANT R
-		WHERE R.DELETED_AT IS NULL
-		ORDER BY R.ID
-	</select>
-
-	<select id="findRestaurantById" parameterType="long"
+	<!-- 식당 리스트 -->
+	<select id="findRestaurantList" parameterType="map"
 		resultType="AdminRestaurant">
 		SELECT
-		ID AS id,
-		NAME AS name,
-		DESCRIPTION AS description,
-		CATEGORY AS category,
-		AVG_RATING AS avgRating,
-		RATING_COUNT AS
-		rating_count,
-		SOLO_INDEX AS solo_index,
-		PHOTO_URL AS photo_url,
-		ADDRESS
-		AS address,
-		PHONE AS phone,
-		STATUS AS status,
-		TO_CHAR(created_at,
-		'YYYY-MM-DD"T"HH24:MI:SS') AS createdAt,
-		TO_CHAR(updated_at,
-		'YYYY-MM-DD"T"HH24:MI:SS') AS updatedAt
-		FROM MP_RESTAURANT
-		WHERE ID =
-		#{id} AND DELETED_AT IS NULL
+		r.id, r.name, r.description, r.category,
+		r.avg_rating
+		AS avgRating,
+		r.rating_count AS ratingCount,
+		r.solo_index AS soloIndex,
+		r.photo_url AS photoUrl,
+		r.address, r.phone, r.status,
+		CASE WHEN EXISTS
+		(
+		SELECT 1
+		FROM MP_RESTAURANT_TAG rt
+		WHERE rt.restaurant_id = r.id
+		AND
+		rt.tag_code = 50
+		) THEN 1 ELSE 0 END AS welfare,
+		TO_CHAR(r.created_at,'YYYY-MM-DD"T"HH24:MI:SS') AS createdAt,
+		TO_CHAR(r.updated_at,'YYYY-MM-DD"T"HH24:MI:SS') AS updatedAt
+		FROM
+		MP_RESTAURANT r
+		WHERE r.deleted_at IS NULL
+		ORDER BY r.id DESC
 	</select>
 
-	<update id="modifyAdminRestaurant"
-		parameterType="AdminRestaurant">
+	<!-- 식당 상세 -->
+	<select id="findRestaurantById" parameterType="long" resultType="AdminRestaurant">
+		SELECT
+		r.id, r.name, r.description, r.category,
+		r.avg_rating
+		AS avgRating,
+		r.rating_count AS ratingCount,
+		r.solo_index AS soloIndex,
+		r.photo_url AS photoUrl,
+		r.address, r.phone, r.status,
+		CASE WHEN EXISTS
+		(
+		SELECT 1
+		FROM MP_RESTAURANT_TAG rt
+		WHERE rt.restaurant_id = r.id
+		AND
+		rt.tag_code = 50
+		) THEN 1 ELSE 0 END AS welfare,
+		TO_CHAR(r.created_at,'YYYY-MM-DD"T"HH24:MI:SS') AS createdAt,
+		TO_CHAR(r.updated_at,'YYYY-MM-DD"T"HH24:MI:SS') AS updatedAt
+		FROM
+		MP_RESTAURANT r
+		WHERE r.id = #{id}
+		AND r.deleted_at IS NULL
+	</select>
+
+	<!-- 수정 -->
+	<update id="modifyAdminRestaurant" parameterType="AdminRestaurant">
 		UPDATE MP_RESTAURANT
-		SET NAME = #{name},
-		DESCRIPTION =
-		#{description},
-		CATEGORY = #{category},
-		PHOTO_URL = #{photo_url},
-		ADDRESS = #{address},
-		PHONE = #{phone},
-		STATUS = #{status},
-		UPDATED_AT =
-		SYSTIMESTAMP
-		WHERE ID = #{id}
+		SET
+		name = #{name},
+		description = #{description},
+		category = #{category},
+		photo_url = #{photoUrl},
+		address = #{address},
+		phone = #{phone},
+		status = #{status},
+		updated_at = SYSTIMESTAMP
+		WHERE id = #{id}
 	</update>
 
+	<!-- 저장 -->
 	<insert id="saveAdminRestaurant" parameterType="AdminRestaurant">
-		<selectKey keyProperty="id" resultType="long" order="BEFORE">SELECT
-			MP_RESTAURANT_SEQ.NEXTVAL FROM DUAL
+		<selectKey keyProperty="id" resultType="long" order="BEFORE">
+			SELECT MP_RESTAURANT_SEQ.NEXTVAL FROM DUAL
 		</selectKey>
-		INSERT INTO MP_RESTAURANT (ID, NAME, DESCRIPTION, CATEGORY, PHOTO_URL,
-		ADDRESS, PHONE, STATUS, CREATED_AT, UPDATED_AT) VALUES (
-		MP_RESTAURANT_SEQ.NEXTVAL,
-		#{name},
-		#{description},
-		#{category},
-		#{photo_url},
-		#{address},
-		#{phone},
-		#{status},
-		SYSTIMESTAMP,
-		SYSTIMESTAMP
-		)
+	
+		INSERT INTO MP_RESTAURANT
+		(ID, NAME, DESCRIPTION, CATEGORY, PHOTO_URL, ADDRESS, PHONE, STATUS,
+		CREATED_AT, UPDATED_AT)
+		VALUES
+		(#{id}, #{name}, #{description}, #{category}, #{photoUrl}, #{address},
+		#{phone}, #{status},
+		SYSTIMESTAMP, SYSTIMESTAMP)
 	</insert>
 
-	<update id="DeleteAdminRestaurant"
-		parameterType="AdminRestaurant">
-		UPDATE MP_RESTAURANT
-		SET STATUS = 'DELETED',
-		DELETED_AT =
-		SYSTIMESTAMP
-		WHERE ID = #{id}
+	<!-- 삭제(소프트) -->
+	<update id="deleteAdminRestaurant" parameterType="long">
+		UPDATE
+		MP_RESTAURANT
+		SET status = 'DELETED',
+		deleted_at = SYSTIMESTAMP
+		WHERE id = #{id}
 	</update>
+
 
 
 	<!-- 사용자 관리 -->
@@ -134,10 +139,13 @@
 		U.PHONE_NUMBER AS phoneNumber,
 		U.ROLE AS role,
 		U.STATUS AS status,
-		TO_CHAR(U.CREATED_AT, 'YYYY-MM-DD"T"HH24:MI:SS') AS createdAt,
-		TO_CHAR(U.UPDATED_AT, 'YYYY-MM-DD"T"HH24:MI:SS') AS updatedAt
+		TO_CHAR(U.CREATED_AT, 'YYYY-MM-DD"T"HH24:MI:SS') AS
+		createdAt,
+		TO_CHAR(U.UPDATED_AT, 'YYYY-MM-DD"T"HH24:MI:SS') AS
+		updatedAt
 		FROM MP_USER U
-		WHERE U.ID = #{id} AND U.LEAVE_DATE IS NULL AND U.ROLE != 'ADM'
+		WHERE U.ID = #{id} AND U.LEAVE_DATE IS NULL AND
+		U.ROLE != 'ADM'
 	</select>
 
 	<update id="modifyAdminUser" parameterType="AdminUser">
@@ -163,12 +171,16 @@
 		r.reason AS reason,
 		r.status AS status,
 		r.decision AS decision,
-		r.memo AS memo,
+		r.memo AS
+		memo,
 		r.excerpt AS excerpt,
-		TO_CHAR(r.created_at, 'YYYY-MM-DD"T"HH24:MI:SS') AS createdAt,
-		TO_CHAR(r.updated_at, 'YYYY-MM-DD"T"HH24:MI:SS') AS updatedAt
+		TO_CHAR(r.created_at,
+		'YYYY-MM-DD"T"HH24:MI:SS') AS createdAt,
+		TO_CHAR(r.updated_at,
+		'YYYY-MM-DD"T"HH24:MI:SS') AS updatedAt
 		FROM MP_REPORT r
-		WHERE r.reported_item_type = 'UR'
+		WHERE
+		r.reported_item_type = 'UR'
 		ORDER BY r.created_at DESC
 	</select>
 
@@ -180,12 +192,16 @@
 		r.reason AS reason,
 		r.status AS status,
 		r.decision AS decision,
-		r.memo AS memo,
+		r.memo AS
+		memo,
 		r.excerpt AS excerpt,
-		TO_CHAR(r.created_at, 'YYYY-MM-DD"T"HH24:MI:SS') AS createdAt,
-		TO_CHAR(r.updated_at, 'YYYY-MM-DD"T"HH24:MI:SS') AS updatedAt
+		TO_CHAR(r.created_at,
+		'YYYY-MM-DD"T"HH24:MI:SS') AS createdAt,
+		TO_CHAR(r.updated_at,
+		'YYYY-MM-DD"T"HH24:MI:SS') AS updatedAt
 		FROM MP_REPORT r
-		WHERE r.reported_item_type = 'OTH'
+		WHERE
+		r.reported_item_type = 'OTH'
 		ORDER BY r.created_at DESC
 	</select>
 
@@ -197,12 +213,16 @@
 		r.reason AS reason,
 		r.status AS status,
 		r.decision AS decision,
-		r.memo AS memo,
+		r.memo AS
+		memo,
 		r.excerpt AS excerpt,
-		TO_CHAR(r.created_at, 'YYYY-MM-DD"T"HH24:MI:SS') AS createdAt,
-		TO_CHAR(r.updated_at, 'YYYY-MM-DD"T"HH24:MI:SS') AS updatedAt
+		TO_CHAR(r.created_at,
+		'YYYY-MM-DD"T"HH24:MI:SS') AS createdAt,
+		TO_CHAR(r.updated_at,
+		'YYYY-MM-DD"T"HH24:MI:SS') AS updatedAt
 		FROM MP_REPORT r
-		WHERE r.reported_item_type = 'RER'
+		WHERE
+		r.reported_item_type = 'RER'
 		ORDER BY r.created_at DESC
 	</select>
 
@@ -214,12 +234,16 @@
 		r.reason AS reason,
 		r.status AS status,
 		r.decision AS decision,
-		r.memo AS memo,
+		r.memo AS
+		memo,
 		r.excerpt AS excerpt,
-		TO_CHAR(r.created_at, 'YYYY-MM-DD"T"HH24:MI:SS') AS createdAt,
-		TO_CHAR(r.updated_at, 'YYYY-MM-DD"T"HH24:MI:SS') AS updatedAt
+		TO_CHAR(r.created_at,
+		'YYYY-MM-DD"T"HH24:MI:SS') AS createdAt,
+		TO_CHAR(r.updated_at,
+		'YYYY-MM-DD"T"HH24:MI:SS') AS updatedAt
 		FROM MP_REPORT r
-		WHERE r.reported_item_type = 'IPC'
+		WHERE
+		r.reported_item_type = 'IPC'
 		ORDER BY r.created_at DESC
 	</select>
 
@@ -231,13 +255,15 @@
 		r.reporter_id AS reporterId,
 		r.reported_item_type AS reportedItemType,
 		r.reason AS reason,
-		r.status AS status,
+		r.status
+		AS status,
 		r.decision AS decision,
 		r.memo AS memo,
 		r.excerpt AS excerpt,
 		TO_CHAR(r.created_at, 'YYYY-MM-DD"T"HH24:MI:SS') AS createdAt,
 		TO_CHAR(r.updated_at, 'YYYY-MM-DD"T"HH24:MI:SS') AS updatedAt
-		FROM MP_REPORT r
+		FROM
+		MP_REPORT r
 		WHERE r.reported_item_type = 'UR' AND r.id = #{id}
 	</select>
 
@@ -248,13 +274,15 @@
 		r.reporter_id AS reporterId,
 		r.reported_item_type AS reportedItemType,
 		r.reason AS reason,
-		r.status AS status,
+		r.status
+		AS status,
 		r.decision AS decision,
 		r.memo AS memo,
 		r.excerpt AS excerpt,
 		TO_CHAR(r.created_at, 'YYYY-MM-DD"T"HH24:MI:SS') AS createdAt,
 		TO_CHAR(r.updated_at, 'YYYY-MM-DD"T"HH24:MI:SS') AS updatedAt
-		FROM MP_REPORT r
+		FROM
+		MP_REPORT r
 		WHERE r.reported_item_type = 'OTH' AND r.id = #{id}
 	</select>
 
@@ -265,29 +293,34 @@
 		r.reporter_id AS reporterId,
 		r.reported_item_type AS reportedItemType,
 		r.reason AS reason,
-		r.status AS status,
+		r.status
+		AS status,
 		r.decision AS decision,
 		r.memo AS memo,
 		r.excerpt AS excerpt,
 		TO_CHAR(r.created_at, 'YYYY-MM-DD"T"HH24:MI:SS') AS createdAt,
 		TO_CHAR(r.updated_at, 'YYYY-MM-DD"T"HH24:MI:SS') AS updatedAt
-		FROM MP_REPORT r
+		FROM
+		MP_REPORT r
 		WHERE r.reported_item_type = 'RER' AND r.id = #{id}
 	</select>
 
-	<select id="searchIPCReportsById" parameterType="long"	resultType="AdminReport">
+	<select id="searchIPCReportsById" parameterType="long"
+		resultType="AdminReport">
 		SELECT
 		r.id AS id,
 		r.reporter_id AS reporterId,
 		r.reported_item_type AS reportedItemType,
 		r.reason AS reason,
-		r.status AS status,
+		r.status
+		AS status,
 		r.decision AS decision,
 		r.memo AS memo,
 		r.excerpt AS excerpt,
 		TO_CHAR(r.created_at, 'YYYY-MM-DD"T"HH24:MI:SS') AS createdAt,
 		TO_CHAR(r.updated_at, 'YYYY-MM-DD"T"HH24:MI:SS') AS updatedAt
-		FROM MP_REPORT r
+		FROM
+		MP_REPORT r
 		WHERE r.reported_item_type = 'IPC' AND r.id = #{id}
 	</select>
 
@@ -296,44 +329,56 @@
 		UPDATE MP_REPORT
 		SET
 		status = #{status, jdbcType=VARCHAR},
-		decision = #{decision, jdbcType=VARCHAR},
+		decision = #{decision,
+		jdbcType=VARCHAR},
 		memo = #{memo, jdbcType=VARCHAR},
-		excerpt = #{excerpt, jdbcType=VARCHAR},
+		excerpt =
+		#{excerpt, jdbcType=VARCHAR},
 		updated_at = SYSTIMESTAMP
-		WHERE id = #{id} AND reported_item_type = 'UR'
+		WHERE id = #{id}
+		AND reported_item_type = 'UR'
 	</update>
 
 	<update id="updateOTHReport" parameterType="map">
 		UPDATE MP_REPORT
 		SET
 		status = #{status, jdbcType=VARCHAR},
-		decision = #{decision, jdbcType=VARCHAR},
+		decision = #{decision,
+		jdbcType=VARCHAR},
 		memo = #{memo, jdbcType=VARCHAR},
-		excerpt = #{excerpt, jdbcType=VARCHAR},
+		excerpt =
+		#{excerpt, jdbcType=VARCHAR},
 		updated_at = SYSTIMESTAMP
-		WHERE id = #{id} AND reported_item_type = 'OTH'
+		WHERE id = #{id}
+		AND reported_item_type = 'OTH'
 	</update>
 
 	<update id="updateRERReport" parameterType="map">
 		UPDATE MP_REPORT
 		SET
 		status = #{status, jdbcType=VARCHAR},
-		decision = #{decision, jdbcType=VARCHAR},
+		decision = #{decision,
+		jdbcType=VARCHAR},
 		memo = #{memo, jdbcType=VARCHAR},
-		excerpt = #{excerpt, jdbcType=VARCHAR},
+		excerpt =
+		#{excerpt, jdbcType=VARCHAR},
 		updated_at = SYSTIMESTAMP
-		WHERE id = #{id} AND reported_item_type = 'RER'
+		WHERE id = #{id}
+		AND reported_item_type = 'RER'
 	</update>
 
 	<update id="updateIPCReport" parameterType="map">
 		UPDATE MP_REPORT
 		SET
 		status = #{status, jdbcType=VARCHAR},
-		decision = #{decision, jdbcType=VARCHAR},
+		decision = #{decision,
+		jdbcType=VARCHAR},
 		memo = #{memo, jdbcType=VARCHAR},
-		excerpt = #{excerpt, jdbcType=VARCHAR},
+		excerpt =
+		#{excerpt, jdbcType=VARCHAR},
 		updated_at = SYSTIMESTAMP
-		WHERE id = #{id} AND reported_item_type = 'IPC'
+		WHERE id = #{id}
+		AND reported_item_type = 'IPC'
 	</update>
 
 
@@ -341,124 +386,146 @@
 	<!-- ================= 최근 처리 이력 ================= -->
 	<!-- 사용자 신고 (UR) -->
 	<select id="findRecentActionsUR" resultType="AdminAction">
-	    SELECT
-	        a.id,
-	        a.report_id     AS reportId,
-	        a.item_type     AS itemType,
-	        a.reporter_id   AS reporterId,
-	        a.action        AS action,
-	        a.status_after  AS statusAfter,
-	        a.memo,
-	        a.excerpt,
-	        TO_CHAR(a.created_at, 'YYYY-MM-DD"T"HH24:MI:SS') AS createdAt
-	    FROM MP_REPORT_ACTION a
-	    WHERE a.item_type = 'UR'
-	    ORDER BY a.created_at DESC
+		SELECT
+		a.id,
+		a.report_id AS reportId,
+		a.item_type AS itemType,
+		a.reporter_id AS reporterId,
+		a.action AS action,
+		a.status_after AS statusAfter,
+		a.memo,
+		a.excerpt,
+		TO_CHAR(a.created_at, 'YYYY-MM-DD"T"HH24:MI:SS') AS createdAt
+		FROM MP_REPORT_ACTION a
+		WHERE a.item_type = 'UR'
+		ORDER BY a.created_at DESC
 	</select>
-	
+
 	<!-- 기타 문의 (OTH) -->
 	<select id="findRecentActionsOTH" resultType="AdminAction">
-	    SELECT
-	        a.id,
-	        a.report_id     AS reportId,
-	        a.item_type     AS itemType,
-	        a.reporter_id   AS reporterId,
-	        a.action        AS action,
-	        a.status_after  AS statusAfter,
-	        a.memo,
-	        a.excerpt,
-	        TO_CHAR(a.created_at, 'YYYY-MM-DD"T"HH24:MI:SS') AS createdAt,
-	        r.reason        AS reason
-	    FROM MP_REPORT_ACTION a
-	    LEFT JOIN MP_REPORT r ON r.id = a.report_id
-	    WHERE a.item_type = 'OTH'
-	    ORDER BY a.created_at DESC
+		SELECT
+		a.id,
+		a.report_id AS reportId,
+		a.item_type AS itemType,
+		a.reporter_id AS reporterId,
+		a.action AS action,
+		a.status_after AS statusAfter,
+		a.memo,
+		a.excerpt,
+		TO_CHAR(a.created_at, 'YYYY-MM-DD"T"HH24:MI:SS') AS createdAt,
+		r.reason AS reason
+		FROM MP_REPORT_ACTION a
+		LEFT JOIN MP_REPORT r ON r.id = a.report_id
+		WHERE a.item_type = 'OTH'
+		ORDER BY a.created_at DESC
 	</select>
-	
+
 	<!-- 가게 정보 수정 요청 (RER) -->
 	<select id="findRecentActionsRER" resultType="AdminAction">
-	    SELECT
-	        a.id,
-	        a.report_id     AS reportId,
-	        a.item_type     AS itemType,
-	        a.reporter_id   AS reporterId,
-	        a.action        AS action,
-	        a.status_after  AS statusAfter,
-	        a.memo,
-	        a.excerpt,
-	        TO_CHAR(a.created_at, 'YYYY-MM-DD"T"HH24:MI:SS') AS createdAt,
-	        r.reason        AS reason
-	    FROM MP_REPORT_ACTION a
-	    LEFT JOIN MP_REPORT r ON r.id = a.report_id
-	    WHERE a.item_type = 'RER'
-	    ORDER BY a.created_at DESC
+		SELECT
+		a.id,
+		a.report_id AS reportId,
+		a.item_type AS itemType,
+		a.reporter_id AS reporterId,
+		a.action AS action,
+		a.status_after AS statusAfter,
+		a.memo,
+		a.excerpt,
+		TO_CHAR(a.created_at, 'YYYY-MM-DD"T"HH24:MI:SS') AS createdAt,
+		r.reason AS reason
+		FROM MP_REPORT_ACTION a
+		LEFT JOIN MP_REPORT r ON r.id = a.report_id
+		WHERE a.item_type = 'RER'
+		ORDER BY a.created_at DESC
 	</select>
-	
+
 	<!-- 부적절 콘텐츠 (IPC) -->
 	<select id="findRecentActionsIPC" resultType="AdminAction">
-	    SELECT
-	        a.id,
-	        a.report_id     AS reportId,
-	        a.item_type     AS itemType,
-	        a.reporter_id   AS reporterId,
-	        a.action        AS action,
-	        a.status_after  AS statusAfter,
-	        a.memo,
-	        a.excerpt,
-	        TO_CHAR(a.created_at, 'YYYY-MM-DD"T"HH24:MI:SS') AS createdAt,
-	        r.reason        AS reason
-	    FROM MP_REPORT_ACTION a
-	    LEFT JOIN MP_REPORT r ON r.id = a.report_id
-	    WHERE a.item_type = 'IPC'
-	    ORDER BY a.created_at DESC
+		SELECT
+		a.id,
+		a.report_id AS reportId,
+		a.item_type AS itemType,
+		a.reporter_id AS reporterId,
+		a.action AS action,
+		a.status_after AS statusAfter,
+		a.memo,
+		a.excerpt,
+		TO_CHAR(a.created_at, 'YYYY-MM-DD"T"HH24:MI:SS') AS createdAt,
+		r.reason AS reason
+		FROM MP_REPORT_ACTION a
+		LEFT JOIN MP_REPORT r ON r.id = a.report_id
+		WHERE a.item_type = 'IPC'
+		ORDER BY a.created_at DESC
 	</select>
-	
+
 	<update id="updateReport" parameterType="AdminReportDTO">
-	    UPDATE MP_REPORT
-	    SET
-	        status = #{status, jdbcType=VARCHAR},
-	        decision = #{decision, jdbcType=VARCHAR},
-	        memo = #{memo, jdbcType=VARCHAR},
-	        excerpt = #{excerpt, jdbcType=VARCHAR},
-	        updated_at = SYSTIMESTAMP
-	    WHERE id = #{id}
-	      AND reported_item_type = #{reportedItemType}
+		UPDATE MP_REPORT
+		SET
+		status = #{status, jdbcType=VARCHAR},
+		decision = #{decision, jdbcType=VARCHAR},
+		memo = #{memo, jdbcType=VARCHAR},
+		excerpt = #{excerpt, jdbcType=VARCHAR},
+		updated_at = SYSTIMESTAMP
+		WHERE id = #{id}
+		AND reported_item_type = #{reportedItemType}
 	</update>
-	
+
 	<insert id="insertReportAction" parameterType="AdminReportDTO">
-	    INSERT INTO MP_REPORT_ACTION (
-	        id, report_id, item_type, reporter_id,
-	        action, status_after, memo, excerpt, created_at
-	    ) VALUES (
-	        MP_REPORT_ACTION_SEQ.NEXTVAL,
-	        #{id},
-	        #{reportedItemType, jdbcType=VARCHAR}, 
-	        #{reporterId, jdbcType=NUMERIC},
-	        NVL(TRIM(#{decision, jdbcType=VARCHAR}), 'NONE'),
-    		NVL(TRIM(#{status, jdbcType=VARCHAR}),   'PENDING'),
-	        #{memo, jdbcType=VARCHAR},
-	        #{excerpt, jdbcType=VARCHAR},
-	        SYSTIMESTAMP
-	    )
+		INSERT INTO MP_REPORT_ACTION (
+		id, report_id, item_type, reporter_id,
+		action, status_after, memo, excerpt, created_at
+		) VALUES (
+		MP_REPORT_ACTION_SEQ.NEXTVAL,
+		#{id},
+		#{reportedItemType, jdbcType=VARCHAR},
+		#{reporterId, jdbcType=NUMERIC},
+		NVL(TRIM(#{decision, jdbcType=VARCHAR}), 'NONE'),
+		NVL(TRIM(#{status, jdbcType=VARCHAR}), 'PENDING'),
+		#{memo, jdbcType=VARCHAR},
+		#{excerpt, jdbcType=VARCHAR},
+		SYSTIMESTAMP
+		)
 	</insert>
 
-  <!-- 로그인 -->
-  <select id="findAdminForLoginByEmail" parameterType="string" resultType="AdminUser">
-    SELECT
-      U.ID        AS id,
-      U.EMAIL     AS email,
-      U.PASSWORD  AS password,
-      U.USERNAME  AS username,
-      U.ROLE      AS role,
-      U.STATUS    AS status
-    FROM MP_USER U
-    WHERE U.EMAIL = #{email}
-      AND U.ROLE = 'ADM'
-      AND U.STATUS = 'ACTIVE'
-  </select>
+	<!-- 로그인 -->
+	<select id="findAdminForLoginByEmail" parameterType="string"
+		resultType="AdminUser">
+		SELECT
+		U.ID AS id,
+		U.EMAIL AS email,
+		U.PASSWORD AS password,
+		U.USERNAME AS username,
+		U.ROLE AS role,
+		U.STATUS AS status
+		FROM MP_USER U
+		WHERE U.EMAIL = #{email}
+		AND U.ROLE = 'ADM'
+		AND U.STATUS = 'ACTIVE'
+	</select>
 
+	<insert id="insertIPCReport" parameterType="AdminReport">
+		<selectKey keyProperty="id" resultType="long" order="BEFORE"> SELECT
+			MP_REPORT_SEQ.NEXTVAL FROM DUAL </selectKey>
+		INSERT INTO MP_REPORT (
+		ID, REPORTER_ID, REPORTED_ITEM_TYPE, REPORTED_ITEM_ID, REASON, MEMO,
+		EXCERPT, STATUS, CREATED_AT, UPDATED_AT)
+		VALUES ( #{id}, #{reporterId}, 'IPC', #{reportedItemId}, #{reason}, #{memo},
+		NVL(#{excerpt}, ''), NVL(#{status}, 'PENDING'), SYSTIMESTAMP,
+		SYSTIMESTAMP)
+	</insert>
 
-
+	<insert id="insertRERReport" parameterType="AdminReport">
+		<selectKey keyProperty="id" resultType="long" order="BEFORE">SELECT
+			MP_REPORT_SEQ.NEXTVAL FROM DUAL</selectKey>
+		INSERT INTO MP_REPORT (
+		ID, REPORTER_ID, REPORTED_ITEM_TYPE, REPORTED_ITEM_ID,
+		REASON, MEMO, EXCERPT, STATUS, CREATED_AT, UPDATED_AT
+		) VALUES (
+		#{id}, #{reporterId}, 'RER', #{reportedItemId},
+		#{reason}, #{memo}, NVL(#{excerpt}, ''), NVL(#{status}, 'PENDING'),
+		SYSTIMESTAMP, SYSTIMESTAMP
+		)
+	</insert>
 
 
 </mapper>

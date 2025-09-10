@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useAlert } from "../ui/alert-center"; // 전역 알림 훅
 import "./admin-request.css";
 
 /* 드롭다운 유형 */
@@ -10,13 +11,9 @@ const ADMIN_TYPES = [
 
 export default function AdminAuthRequest() {
     const nav = useNavigate();
-    const [adminType, setAdminType] = useState("ADMIN");
-    const [toast, setToast] = useState(null);
+    const { alert } = useAlert(); // PrettyAlert 전역 사용
 
-    const showToast = (kind, msg) => {
-        setToast({ kind, msg });
-        setTimeout(() => setToast(null), 2400);
-    };
+    const [adminType, setAdminType] = useState("ADMIN");
 
     /* 관리자 계정 요청 */
     const adminDraftKey = "admin_auth_req_admin_draft";
@@ -38,7 +35,9 @@ export default function AdminAuthRequest() {
     }, []);
     useEffect(() => {
         const t = setTimeout(() => {
-            try { localStorage.setItem(adminDraftKey, JSON.stringify(adminForm)); } catch { }
+            try {
+                localStorage.setItem(adminDraftKey, JSON.stringify(adminForm));
+            } catch { }
         }, 250);
         return () => clearTimeout(t);
     }, [adminForm]);
@@ -49,19 +48,28 @@ export default function AdminAuthRequest() {
     };
     const adminOnFiles = (e) => {
         const list = Array.from(e.target.files || []);
+        if (list.length > 5) {
+            alert("첨부는 최대 5개까지 가능합니다.");
+        }
         setAdminFiles(list.slice(0, 5));
     };
-    const adminReady = useMemo(() =>
-        adminForm.name.trim() &&
-        /.+@.+\..+/.test(adminForm.email) &&
-        adminForm.reason.trim().length >= 10 &&
-        adminForm.agree
-        , [adminForm]);
+    const adminReady = useMemo(
+        () =>
+            adminForm.name.trim() &&
+            /.+@.+\..+/.test(adminForm.email) &&
+            adminForm.reason.trim().length >= 10 &&
+            adminForm.agree,
+        [adminForm]
+    );
 
     const adminSubmit = (e) => {
         e.preventDefault();
-        if (!adminReady) return;
-        showToast("success", "관리자 계정 요청이 접수되었습니다.");
+        if (!adminReady) {
+            alert("입력값을 확인해주세요.\n- 이름/이메일/사유(10자 이상) 필수\n- 개인정보 수집·이용 동의 필요");
+            return;
+        }
+        // TODO: 서버 제출 연동 시 here
+        alert("관리자 계정 요청이 접수되었습니다.");
         setAdminForm({ name: "", email: "", org: "", role: "", reason: "", agree: false });
         setAdminFiles([]);
         localStorage.removeItem(adminDraftKey);
@@ -84,7 +92,9 @@ export default function AdminAuthRequest() {
     }, []);
     useEffect(() => {
         const t = setTimeout(() => {
-            try { localStorage.setItem(resetDraftKey, JSON.stringify(resetForm)); } catch { }
+            try {
+                localStorage.setItem(resetDraftKey, JSON.stringify(resetForm));
+            } catch { }
         }, 250);
         return () => clearTimeout(t);
     }, [resetForm]);
@@ -93,14 +103,16 @@ export default function AdminAuthRequest() {
         const { name, value, type, checked } = e.target;
         setResetForm((p) => ({ ...p, [name]: type === "checkbox" ? checked : value }));
     };
-    const resetReady = useMemo(() =>
-        /.+@.+\..+/.test(resetForm.email) && resetForm.agree
-        , [resetForm]);
+    const resetReady = useMemo(() => /.+@.+\..+/.test(resetForm.email) && resetForm.agree, [resetForm]);
 
     const resetSubmit = (e) => {
         e.preventDefault();
-        if (!resetReady) return;
-        showToast("success", "비밀번호 재설정 요청이 접수되었습니다. 메일을 확인해주세요.");
+        if (!resetReady) {
+            alert("이메일 형식과 개인정보 수집·이용 동의를 확인해주세요.");
+            return;
+        }
+        // TODO: 서버 제출 연동 시 here
+        alert("비밀번호 재설정 요청이 접수되었습니다. 메일을 확인해주세요.");
         setResetForm({ email: "", name: "", note: "", agree: false });
         localStorage.removeItem(resetDraftKey);
     };
@@ -121,8 +133,8 @@ export default function AdminAuthRequest() {
                     <div className="admin-auth-field">
                         <label className="admin-auth-label" htmlFor="admin-auth-type">요청 유형</label>
                         <div className="admin-auth-select-wrap">
-                            <select id="admin-auth-type" className="admin-auth-select" value={adminType} onChange={(e) => setAdminType(e.target.value)}
-                                >{ADMIN_TYPES.map((t) => (<option key={t.key} value={t.key}>{t.label}</option>))}</select>
+                            <select id="admin-auth-type" className="admin-auth-select" value={adminType} onChange={(e) => setAdminType(e.target.value)}>
+                                {ADMIN_TYPES.map((t) => (<option key={t.key} value={t.key}>{t.label}</option>))}</select>
                         </div>
                         <p className="admin-auth-help">관리자 계정 요청 또는 비밀번호 재설정을 선택하세요.</p>
                     </div>
@@ -133,22 +145,26 @@ export default function AdminAuthRequest() {
                             <div className="admin-auth-grid-2">
                                 <div className="admin-auth-field">
                                     <label className="admin-auth-label" htmlFor="admin-auth-name">이름</label>
-                                    <input id="admin-auth-name" className="admin-auth-input" type="text" name="name" placeholder="예) 홍길동" value={adminForm.name} onChange={adminOnChange} required />
+                                    <input id="admin-auth-name" className="admin-auth-input" type="text" name="name" placeholder="예) 홍길동"  
+                                        value={adminForm.name} onChange={adminOnChange} required/>
                                 </div>
                                 <div className="admin-auth-field">
                                     <label className="admin-auth-label" htmlFor="admin-auth-email">이메일</label>
-                                    <input id="admin-auth-email" className="admin-auth-input" type="email" name="email" placeholder="example@domain.com" value={adminForm.email} onChange={adminOnChange} required />
+                                    <input id="admin-auth-email" className="admin-auth-input" type="email" name="email" placeholder="example@domain.com" value={adminForm.email}
+                                        onChange={adminOnChange} required/>
                                 </div>
                             </div>
 
                             <div className="admin-auth-grid-2">
                                 <div className="admin-auth-field">
                                     <label className="admin-auth-label" htmlFor="admin-auth-org">소속(선택)</label>
-                                    <input id="admin-auth-org" className="admin-auth-input" type="text" name="org" placeholder="예) 마이플레이트 운영팀" value={adminForm.org} onChange={adminOnChange} />
+                                    <input id="admin-auth-org" className="admin-auth-input" type="text"  name="org"
+                                        placeholder="예) 마이플레이트 운영팀" value={adminForm.org} onChange={adminOnChange}/>
                                 </div>
                                 <div className="admin-auth-field">
                                     <label className="admin-auth-label" htmlFor="admin-auth-role">직책/역할(선택)</label>
-                                    <input id="admin-auth-role" className="admin-auth-input" type="text" name="role" placeholder="예) 매니저" value={adminForm.role} onChange={adminOnChange} />
+                                    <input id="admin-auth-role" className="admin-auth-input" type="text" name="role"
+                                        placeholder="예) 매니저" value={adminForm.role} onChange={adminOnChange}/>
                                 </div>
                             </div>
 
@@ -156,7 +172,7 @@ export default function AdminAuthRequest() {
                                 <label className="admin-auth-label" htmlFor="admin-auth-reason">요청 사유</label>
                                 <textarea id="admin-auth-reason" className="admin-auth-textarea" name="reason" rows={7}
                                     placeholder={"필요 권한/기능과 사유를 구체적으로 적어주세요.\n(예: 신고 처리/식당 관리 기능 접근 필요)"}
-                                    value={adminForm.reason} onChange={adminOnChange} required />
+                                    value={adminForm.reason} onChange={adminOnChange} required/>
                             </div>
 
                             <div className="admin-auth-field">
@@ -167,22 +183,31 @@ export default function AdminAuthRequest() {
                                     <span className="admin-auth-file-hint">최대 5개, 이미지/PDF/텍스트</span>
                                 </label>
                                 {!!adminFiles.length && (
-                                    <ul className="admin-auth-filelist">{adminFiles.map((f, i) => (<li key={i} title={f.name}>{f.name} <em>({Math.ceil(f.size / 1024)} KB)</em></li>))}</ul>
+                                    <ul className="admin-auth-filelist">
+                                        {adminFiles.map((f, i) => (
+                                            <li key={i} title={f.name}>{f.name} <em>({Math.ceil(f.size / 1024)} KB)</em></li>
+                                        ))}
+                                    </ul>
                                 )}
                             </div>
 
                             <div className="admin-auth-field admin-auth-agree">
                                 <label>
-                                    <input type="checkbox" name="agree" checked={adminForm.agree} onChange={adminOnChange} />
+                                    <input type="checkbox" name="agree" checked={adminForm.agree} onChange={adminOnChange}/>
                                     <span>요청 처리 및 회신을 위한 개인정보 수집·이용에 동의합니다.</span>
                                 </label>
                             </div>
 
                             <div className="admin-auth-actions">
-                                <button type="submit" className="admin-auth-btn admin-auth-btn-primary" disabled={!adminReady}> 관리자 계정 요청</button>
+                                <button type="submit" className="admin-auth-btn admin-auth-btn-primary" disabled={!adminReady}>관리자 계정 요청</button>
                                 <button type="button" className="admin-auth-btn admin-auth-btn-secondary" onClick={onCancel}>취소</button>
-                                <button type="button" className="admin-auth-btn admin-auth-btn-ghost" 
-                                        onClick={() => { setAdminForm({ name: "", email: "", org: "", role: "", reason: "", agree: false }); setAdminFiles([]); localStorage.removeItem(adminDraftKey); }}>초기화</button>
+                                <button type="button" className="admin-auth-btn admin-auth-btn-ghost"
+                                    onClick={() => {
+                                        setAdminForm({ name: "", email: "", org: "", role: "", reason: "", agree: false });
+                                        setAdminFiles([]);
+                                        localStorage.removeItem(adminDraftKey);
+                                        alert("입력 내용을 초기화했습니다.");
+                                    }}>초기화</button>
                             </div>
                         </form>
                     ) : (
@@ -190,23 +215,25 @@ export default function AdminAuthRequest() {
                             <div className="admin-auth-grid-2">
                                 <div className="admin-auth-field">
                                     <label className="admin-auth-label" htmlFor="admin-auth-reset-email">이메일</label>
-                                    <input id="admin-auth-reset-email" className="admin-auth-input" type="email" name="email" placeholder="example@domain.com" value={resetForm.email} onChange={resetOnChange} required />
+                                    <input id="admin-auth-reset-email" className="admin-auth-input" type="email" name="email"
+                                        placeholder="example@domain.com" value={resetForm.email} onChange={resetOnChange} required/>
                                 </div>
                                 <div className="admin-auth-field">
                                     <label className="admin-auth-label" htmlFor="admin-auth-reset-name">이름(선택)</label>
-                                    <input id="admin-auth-reset-name" className="admin-auth-input" type="text" name="name" placeholder="홍길동" value={resetForm.name} onChange={resetOnChange} />
+                                    <input id="admin-auth-reset-name" className="admin-auth-input" type="text" name="name"
+                                        placeholder="홍길동" value={resetForm.name} onChange={resetOnChange}/>
                                 </div>
                             </div>
 
                             <div className="admin-auth-field">
                                 <label className="admin-auth-label" htmlFor="admin-auth-reset-note">추가 메모(선택)</label>
-                                <textarea id="admin-auth-reset-note" className="admin-auth-textarea" name="note" rows={6} placeholder={"본인 확인에 도움이 될 정보나 요청 배경을 적어주세요."}
-                                    value={resetForm.note} onChange={resetOnChange} />
+                                <textarea id="admin-auth-reset-note" className="admin-auth-textarea" name="note"
+                                    rows={6} placeholder={"본인 확인에 도움이 될 정보나 요청 배경을 적어주세요."} value={resetForm.note} onChange={resetOnChange}/>
                             </div>
 
                             <div className="admin-auth-field admin-auth-agree">
                                 <label>
-                                    <input type="checkbox" name="agree" checked={resetForm.agree} onChange={resetOnChange} />
+                                    <input type="checkbox" name="agree" checked={resetForm.agree} onChange={resetOnChange}/>
                                     <span>요청 처리 및 회신을 위한 개인정보 수집·이용에 동의합니다.</span>
                                 </label>
                             </div>
@@ -215,14 +242,16 @@ export default function AdminAuthRequest() {
                                 <button type="submit" className="admin-auth-btn admin-auth-btn-primary" disabled={!resetReady}>비밀번호 재설정 요청</button>
                                 <button type="button" className="admin-auth-btn admin-auth-btn-secondary" onClick={onCancel}>취소</button>
                                 <button type="button" className="admin-auth-btn admin-auth-btn-ghost"
-                                    onClick={() => { setResetForm({ email: "", name: "", note: "", agree: false }); localStorage.removeItem(resetDraftKey); }}>초기화</button>
+                                    onClick={() => {
+                                        setResetForm({ email: "", name: "", note: "", agree: false });
+                                        localStorage.removeItem(resetDraftKey);
+                                        alert("입력 내용을 초기화했습니다.");
+                                    }}>초기화</button>
                             </div>
                         </form>
                     )}
                 </section>
             </main>
-
-            {toast && (<div className={`admin-auth-toast ${toast.kind === "success" ? "is-success" : "is-error"}`}>{toast.msg}</div>)}
         </div>
     );
 }

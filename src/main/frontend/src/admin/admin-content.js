@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
+import { useAlert, useConfirm } from "../ui/alert-center"; // ✅ 전역 알림 + 확인 모달
 import "./admin-content.css";
 
 // axios.defaults.baseURL = "http://localhost:8080";
@@ -42,8 +43,15 @@ const Pager = ({ page, total, onPage }) => {
         <div className="admin-pager">
             <button className="admin-pagebtn" disabled={page <= 1} onClick={() => onPage(page - 1)}>이전</button>
             {items.map((it, idx) =>
-                it === "..." ? (<span key={`e-${idx}`} className="admin-ellipsis-btn">…</span>) : ( <button key={it} className={`admin-pagebtn ${page === it ? "on" : ""}`} onClick={() => onPage(it)}>{it}</button> )
-            )} <button className="admin-pagebtn" disabled={page >= total} onClick={() => onPage(page + 1)}>다음</button>
+                it === "..." ? (
+                    <span key={`e-${idx}`} className="admin-ellipsis-btn">…</span>
+                ) : (
+                    <button key={it} className={`admin-pagebtn ${page === it ? "on" : ""}`} onClick={() => onPage(it)}>
+                        {it}
+                    </button>
+                )
+            )}
+            <button className="admin-pagebtn" disabled={page >= total} onClick={() => onPage(page + 1)}>다음</button>
         </div>
     );
 };
@@ -60,12 +68,16 @@ const compact = (obj = {}) => {
 };
 const updateReport = async (type, id, payload) => {
     const k = String(type).toLowerCase();
-    const t = (k === "oht" ? "oth" : k);
-    return axios.post( `/api/reports/${t}/${id}`, compact(payload), { headers: { "Content-Type": "application/json" } } );
+    const t = k === "oht" ? "oth" : k;
+    return axios.post(`/api/reports/${t}/${id}`, compact(payload), {
+        headers: { "Content-Type": "application/json" },
+    });
 };
 
 export default function AdminContent() {
     const navigate = useNavigate();
+    const { alert } = useAlert();       // 알림
+    const { confirm } = useConfirm();   // 확인 모달
 
     const [pending, setPending] = useState([]);
     const [ipc, setIpc] = useState([]);
@@ -184,31 +196,59 @@ export default function AdminContent() {
         return [];
     }, [actionTab, actionsRer, actionsIpc, actionsOht]);
 
+    // 승인/거절 확인 모달 추가
     const approvePending = async (row) => {
+        const ok = await confirm({
+            title: "승인 확인",
+            message: `이 수정 요청을 승인하시겠습니까?\n식당: ${row.place}\n리포터: ${row.reporterId ?? "-"}`,
+            okText: "승인",
+            cancelText: "취소",
+        });
+        if (!ok) return;
+
         const prev = pending;
         setPending((list) => list.filter((p) => p.id !== row.id));
         try {
             await updateReport("rer", row.id, { status: "RESOLVED", decision: "APPROVE" });
             await reloadActions();
+            alert("승인 처리되었습니다.", { autoCloseMs: 1500 });
         } catch {
             alert("승인 저장 실패. 되돌립니다.");
             setPending(prev);
         }
     };
     const rejectPending = async (row) => {
+        const ok = await confirm({
+            title: "거절 확인",
+            message: `이 수정 요청을 거절하시겠습니까?\n식당: ${row.place}\n리포터: ${row.reporterId ?? "-"}\n\n거절 후 되돌릴 수 없습니다.`,
+            okText: "거절",
+            cancelText: "취소",
+        });
+        if (!ok) return;
+
         const prev = pending;
         setPending((list) => list.filter((p) => p.id !== row.id));
         try {
             await updateReport("rer", row.id, { status: "REJECTED", decision: "REJECT" });
             await reloadActions();
+            alert("거절 처리되었습니다.", { autoCloseMs: 1500 });
         } catch {
             alert("거절 저장 실패. 되돌립니다.");
             setPending(prev);
         }
     };
 
+    // IPC 저장 확인 모달 추가
     const saveIpcAction = async () => {
         if (!ipcModal) return;
+        const ok = await confirm({
+            title: "저장 확인",
+            message: "이 신고 처리 내용을 저장할까요?",
+            okText: "저장",
+            cancelText: "취소",
+        });
+        if (!ok) return;
+
         const payload = {
             decision: toServerDecision(ipcDecision),
             status: toServerStatus(ipcState),
@@ -220,6 +260,7 @@ export default function AdminContent() {
             await updateReport("ipc", ipcModal.id, payload);
             await reloadActions();
             setIpcModal(null);
+            alert("저장되었습니다.", { autoCloseMs: 1500 });
         } catch {
             alert("저장 실패. 되돌립니다.");
             setIpc(prev);
@@ -245,8 +286,17 @@ export default function AdminContent() {
         }
     };
 
+    // ✅ OTH 저장/완료 확인 모달 추가
     const saveOhtAnswer = async () => {
         if (!ohtDetail) return;
+        const ok = await confirm({
+            title: "완료 확인",
+            message: "답변을 저장하고 문의를 완료로 처리할까요?",
+            okText: "저장 후 완료",
+            cancelText: "취소",
+        });
+        if (!ok) return;
+
         const id = ohtDetail.id;
         const prev = oht;
         setOht((rows) => rows.map((r) => (r.id === id ? { ...r, status: "완료", memo: ohtReply } : r)));
@@ -255,6 +305,7 @@ export default function AdminContent() {
             await reloadActions();
             setOhtDetail(null);
             setOhtReply("");
+            alert("저장되었습니다.", { autoCloseMs: 1500 });
             return;
         } catch { }
         try {
@@ -266,6 +317,7 @@ export default function AdminContent() {
             await reloadActions();
             setOhtDetail(null);
             setOhtReply("");
+            alert("저장되었습니다.", { autoCloseMs: 1500 });
             return;
         } catch { }
         try {
@@ -278,6 +330,7 @@ export default function AdminContent() {
             await reloadActions();
             setOhtDetail(null);
             setOhtReply("");
+            alert("저장되었습니다.", { autoCloseMs: 1500 });
             return;
         } catch {
             alert("저장 실패. 되돌립니다.");
@@ -285,20 +338,30 @@ export default function AdminContent() {
         }
     };
 
-    const PENDING_SIZE = 5, IPC_SIZE = 5;
+    const PENDING_SIZE = 5,
+        IPC_SIZE = 5;
     const [pendingPage, setPendingPage] = useState(1);
     const [ipcPage, setIpcPage] = useState(1);
     const pendingPages = Math.max(1, Math.ceil(pending.length / PENDING_SIZE));
     const ipcPages = Math.max(1, Math.ceil(ipc.length / IPC_SIZE));
-    useEffect(() => { if (pendingPage > pendingPages) setPendingPage(pendingPages); }, [pending.length, pendingPages, pendingPage]);
-    useEffect(() => { if (ipcPage > ipcPages) setIpcPage(ipcPages); }, [ipc.length, ipcPages, ipcPage]);
-    const pendingView = useMemo(() => pending.slice((pendingPage - 1) * PENDING_SIZE, pendingPage * PENDING_SIZE), [pending, pendingPage]);
+    useEffect(() => {
+        if (pendingPage > pendingPages) setPendingPage(pendingPages);
+    }, [pending.length, pendingPages, pendingPage]);
+    useEffect(() => {
+        if (ipcPage > ipcPages) setIpcPage(ipcPages);
+    }, [ipc.length, ipcPages, ipcPage]);
+    const pendingView = useMemo(
+        () => pending.slice((pendingPage - 1) * PENDING_SIZE, pendingPage * PENDING_SIZE),
+        [pending, pendingPage]
+    );
     const ipcView = useMemo(() => ipc.slice((ipcPage - 1) * IPC_SIZE, ipcPage * IPC_SIZE), [ipc, ipcPage]);
 
     return (
         <div className="admin-container">
             <aside className="admin-sidebar">
-                <h2 className="admin-logo" onClick={() => navigate(`/adminMain`)}><img src="https://i.imgur.com/tiY7WKl.png" alt="My Plate Logo" className="admin-logo-img" /></h2>
+                <h2 className="admin-logo" onClick={() => navigate(`/adminMain`)}>
+                    <img src="https://i.imgur.com/tiY7WKl.png" alt="My Plate Logo" className="admin-logo-img" />
+                </h2>
                 <nav>
                     <ul>
                         <li onClick={() => navigate("/adminMain")}>홈</li>
@@ -312,11 +375,15 @@ export default function AdminContent() {
 
             <div className="admin-content-page">
                 <div className="admin-content-header">
-                    <div><h2 className="admin-content-title">콘텐츠 관리</h2></div>
+                    <div>
+                        <h2 className="admin-content-title">콘텐츠 관리</h2>
+                    </div>
                 </div>
 
                 <section className="admin-section admin-pending">
-                    <div className="admin-section-header"><h3 className="admin-section-title">수정 요청 대기 중인 콘텐츠</h3></div>
+                    <div className="admin-section-header">
+                        <h3 className="admin-section-title">수정 요청 대기 중인 콘텐츠</h3>
+                    </div>
                     <div className="admin-desk-wrap">
                         <table className="admin-desk admin-pending-desk">
                             <colgroup>
@@ -338,20 +405,30 @@ export default function AdminContent() {
                                 </tr>
                             </thead>
                             <tbody>
-                                {loadingPending && (<tr><td colSpan={6} className="admin-empty">불러오는 중…</td></tr>)}
-                                {!loadingPending && pendingView.length === 0 && (<tr><td colSpan={6} className="admin-empty">대기 중인 콘텐츠가 없습니다.</td></tr>)}
-                                {!loadingPending && pendingView.map((row) => (
-                                    <tr key={row.id}>
-                                        <td><span className="admin-chip admin-chip--review">{row.type}</span></td>
-                                        <td className="admin-ellipsis">{row.text}</td>
-                                        <td className="ta-center">{row.reporterId ?? "-"}</td>
-                                        <td className="ta-center"><StatusTag status={row.status3} /></td>
-                                        <td className="ta-center">{row.date || "-"}</td>
-                                        <td className="ta-center">
-                                            <div className="admin-actions"><button className="admin-bttn admin-bttn--xs admin-bttn--primary" onClick={() => setPendingModal(row)}>확인</button></div>
-                                        </td>
-                                    </tr>
-                                ))}
+                                {loadingPending && <tr><td colSpan={6} className="admin-empty">불러오는 중…</td></tr>}
+                                {!loadingPending && pendingView.length === 0 && (
+                                    <tr><td colSpan={6} className="admin-empty">대기 중인 콘텐츠가 없습니다.</td></tr>
+                                )}
+                                {!loadingPending &&
+                                    pendingView.map((row) => (
+                                        <tr key={row.id}>
+                                            <td><span className="admin-chip admin-chip--review">{row.type}</span></td>
+                                            <td className="admin-ellipsis">{row.text}</td>
+                                            <td className="ta-center">{row.reporterId ?? "-"}</td>
+                                            <td className="ta-center"><StatusTag status={row.status3} /></td>
+                                            <td className="ta-center">{row.date || "-"}</td>
+                                            <td className="ta-center">
+                                                <div className="admin-actions">
+                                                    <button
+                                                        className="admin-bttn admin-bttn--xs admin-bttn--primary"
+                                                        onClick={() => setPendingModal(row)}
+                                                    >
+                                                        확인
+                                                    </button>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    ))}
                             </tbody>
                         </table>
                     </div>
@@ -360,18 +437,29 @@ export default function AdminContent() {
 
                 <div className="admin-page-grid">
                     <section className="admin-section admin-reports">
-                        <div className="admin-section-header"><h3 className="admin-section-title">부적절한 콘텐츠</h3></div>
+                        <div className="admin-section-header">
+                            <h3 className="admin-section-title">부적절한 콘텐츠</h3>
+                        </div>
                         {loadingIpc && <div className="admin-empty">불러오는 중…</div>}
                         {!loadingIpc && ipcView.length === 0 && <div className="admin-empty">신고된 항목이 없습니다.</div>}
                         <div className="admin-report-list">
                             {ipcView.map((r) => (
                                 <article key={r.id} className="admin-report-card">
                                     <div className="admin-report-top">
-                                        <div className="admin-report-title"><span className="admin-flag" />{r.title}</div>
-                                        <div className="admin-report-meta"><button className="admin-bttn admin-bttn--sm admin-bttn--danger" onClick={() => setIpcModal(r)}>내용</button></div>
+                                        <div className="admin-report-title">
+                                            <span className="admin-flag" />
+                                            {r.title}
+                                        </div>
+                                        <div className="admin-report-meta">
+                                            <button className="admin-bttn admin-bttn--sm admin-bttn--danger" onClick={() => setIpcModal(r)}>
+                                                내용
+                                            </button>
+                                        </div>
                                     </div>
                                     <p className="admin-report-reason">{r.reason}</p>
-                                    <div className="admin-report-target"><b>리포터 ID</b>: {r.reporterId ?? "-"}</div>
+                                    <div className="admin-report-target">
+                                        <b>리포터 ID</b>: {r.reporterId ?? "-"}
+                                    </div>
                                     {r.excerpt && <div className="admin-report-excerpt">{r.excerpt}</div>}
                                 </article>
                             ))}
@@ -425,18 +513,39 @@ export default function AdminContent() {
             </div>
 
             {pendingModal && (
-                <div className="admin-modal-overlay" onClick={(e) => { if (e.target.classList.contains("admin-modal-overlay")) setPendingModal(null); }} role="dialog" aria-modal="true">
+                <div
+                    className="admin-modal-overlay"
+                    onClick={(e) => {
+                        if (e.target.classList.contains("admin-modal-overlay")) setPendingModal(null);
+                    }}
+                    role="dialog"
+                    aria-modal="true"
+                >
                     <div className="admin-modal admin-modal-pending">
                         <div className="admin-modal-header">
                             <h3>수정 요청 상세</h3>
-                            <button className="admin-modal-close" onClick={() => setPendingModal(null)} aria-label="닫기">×</button>
+                            <button className="admin-modal-close" onClick={() => setPendingModal(null)} aria-label="닫기">
+                                ×
+                            </button>
                         </div>
                         <div className="admin-modal-body">
                             <div className="admin-form-grid">
-                                <div className="admin-field"><div className="admin-label">유형</div><div className="admin-inputlike">가게정보</div></div>
-                                <div className="admin-field"><div className="admin-label">제출/변경일</div><div className="admin-inputlike">{pendingModal.date || "-"}</div></div>
-                                <div className="admin-field"><div className="admin-label">리포터 ID</div><div className="admin-inputlike">{pendingModal.reporterId ?? "-"}</div></div>
-                                <div className="admin-field"><div className="admin-label">식당</div><div className="admin-inputlike">{pendingModal.place}</div></div>
+                                <div className="admin-field">
+                                    <div className="admin-label">유형</div>
+                                    <div className="admin-inputlike">가게정보</div>
+                                </div>
+                                <div className="admin-field">
+                                    <div className="admin-label">제출/변경일</div>
+                                    <div className="admin-inputlike">{pendingModal.date || "-"}</div>
+                                </div>
+                                <div className="admin-field">
+                                    <div className="admin-label">리포터 ID</div>
+                                    <div className="admin-inputlike">{pendingModal.reporterId ?? "-"}</div>
+                                </div>
+                                <div className="admin-field">
+                                    <div className="admin-label">식당</div>
+                                    <div className="admin-inputlike">{pendingModal.place}</div>
+                                </div>
                             </div>
                             <div className="admin-field" style={{ marginTop: 8 }}>
                                 <div className="admin-label">요청 내용</div>
@@ -444,24 +553,55 @@ export default function AdminContent() {
                             </div>
                         </div>
                         <div className="admin-modal-footer">
-                            <button className="admin-bttn admin-bttn--primary admin-bttn--sm" onClick={() => { approvePending(pendingModal); setPendingModal(null); }}>승인</button>
-                            <button className="admin-bttn admin-bttn--ghost admin-bttn--sm" onClick={() => { rejectPending(pendingModal); setPendingModal(null); }}>거절</button>
+                            <button
+                                className="admin-bttn admin-bttn--primary admin-bttn--sm"
+                                onClick={() => {
+                                    approvePending(pendingModal);
+                                    setPendingModal(null);
+                                }}
+                            >
+                                승인
+                            </button>
+                            <button
+                                className="admin-bttn admin-bttn--ghost admin-bttn--sm"
+                                onClick={() => {
+                                    rejectPending(pendingModal);
+                                    setPendingModal(null);
+                                }}
+                            >
+                                거절
+                            </button>
                         </div>
                     </div>
                 </div>
             )}
 
             {ipcModal && (
-                <div className="admin-modal-overlay" onClick={(e) => { if (e.target.classList.contains("admin-modal-overlay")) setIpcModal(null); }} role="dialog" aria-modal="true">
+                <div
+                    className="admin-modal-overlay"
+                    onClick={(e) => {
+                        if (e.target.classList.contains("admin-modal-overlay")) setIpcModal(null);
+                    }}
+                    role="dialog"
+                    aria-modal="true"
+                >
                     <div className="admin-modal admin-modal-report">
                         <div className="admin-modal-header">
                             <h3>신고 상세 / 처리</h3>
-                            <button className="admin-modal-close" onClick={() => setIpcModal(null)} aria-label="닫기">×</button>
+                            <button className="admin-modal-close" onClick={() => setIpcModal(null)} aria-label="닫기">
+                                ×
+                            </button>
                         </div>
                         <div className="admin-modal-body">
                             <div className="admin-form-grid">
-                                <div className="admin-field"><div className="admin-label">일자</div><div className="admin-inputlike">{ipcModal.date}</div></div>
-                                <div className="admin-field"><div className="admin-label">리포터 ID</div><div className="admin-inputlike">{ipcModal.reporterId ?? "-"}</div></div>
+                                <div className="admin-field">
+                                    <div className="admin-label">일자</div>
+                                    <div className="admin-inputlike">{ipcModal.date}</div>
+                                </div>
+                                <div className="admin-field">
+                                    <div className="admin-label">리포터 ID</div>
+                                    <div className="admin-inputlike">{ipcModal.reporterId ?? "-"}</div>
+                                </div>
                             </div>
                             <div className="admin-field" style={{ marginTop: 8 }}>
                                 <div className="admin-label">사유</div>
@@ -494,13 +634,23 @@ export default function AdminContent() {
                                 </label>
                             </div>
                             <label className="admin-field" style={{ marginTop: 6 }}>
-                                <div className="admin-label">메모(관리자용)</div>
-                                <textarea className="admin-textarea" rows={3} value={ipcMemo} onChange={(e) => setIpcMemo(e.target.value)} placeholder="처리 사유/증빙 등을 기록하세요." />
+                                <div className="admin-label">메모</div>
+                                <textarea
+                                    className="admin-textarea"
+                                    rows={3}
+                                    value={ipcMemo}
+                                    onChange={(e) => setIpcMemo(e.target.value)}
+                                    placeholder="처리 사유/증빙 등을 기록하세요."
+                                />
                             </label>
                         </div>
                         <div className="admin-modal-footer">
-                            <button className="admin-bttn admin-bttn--ghost admin-bttn--sm" onClick={() => setIpcModal(null)}>닫기</button>
-                            <button className="admin-bttn admin-bttn--primary admin-bttn--sm" onClick={saveIpcAction}>저장</button>
+                            <button className="admin-bttn admin-bttn--ghost admin-bttn--sm" onClick={() => setIpcModal(null)}>
+                                닫기
+                            </button>
+                            <button className="admin-bttn admin-bttn--primary admin-bttn--sm" onClick={saveIpcAction}>
+                                저장
+                            </button>
                         </div>
                     </div>
                 </div>
@@ -532,17 +682,45 @@ export default function AdminContent() {
             )}
 
             {ohtDetail && (
-                <div className="admin-modal-overlay" onClick={(e) => { if (e.target.classList.contains("admin-modal-overlay")) { setOhtDetail(null); setOhtReply(""); } }} role="dialog" aria-modal="true">
+                <div
+                    className="admin-modal-overlay"
+                    onClick={(e) => {
+                        if (e.target.classList.contains("admin-modal-overlay")) {
+                            setOhtDetail(null);
+                            setOhtReply("");
+                        }
+                    }}
+                    role="dialog"
+                    aria-modal="true"
+                >
                     <div className="admin-modal admin-modal-report" onClick={(e) => e.stopPropagation()}>
                         <div className="admin-modal-header">
                             <h3>기타 문의 상세 / 답변</h3>
-                            <button className="admin-modal-close" onClick={() => { setOhtDetail(null); setOhtReply(""); }} aria-label="닫기">×</button>
+                            <button
+                                className="admin-modal-close"
+                                onClick={() => {
+                                    setOhtDetail(null);
+                                    setOhtReply("");
+                                }}
+                                aria-label="닫기"
+                            >
+                                ×
+                            </button>
                         </div>
                         <div className="admin-modal-body">
                             <div className="admin-form-grid">
-                                <div className="admin-field"><div className="admin-label">일자</div><div className="admin-inputlike">{ohtDetail.date || "-"}</div></div>
-                                <div className="admin-field"><div className="admin-label">리포터 ID</div><div className="admin-inputlike">{ohtDetail.reporterId ?? "-"}</div></div>
-                                <div className="admin-field"><div className="admin-label">상태</div><div className="admin-inputlike">{ohtDetail.status || "대기"}</div></div>
+                                <div className="admin-field">
+                                    <div className="admin-label">일자</div>
+                                    <div className="admin-inputlike">{ohtDetail.date || "-"}</div>
+                                </div>
+                                <div className="admin-field">
+                                    <div className="admin-label">리포터 ID</div>
+                                    <div className="admin-inputlike">{ohtDetail.reporterId ?? "-"}</div>
+                                </div>
+                                <div className="admin-field">
+                                    <div className="admin-label">상태</div>
+                                    <div className="admin-inputlike">{ohtDetail.status || "대기"}</div>
+                                </div>
                             </div>
                             <div className="admin-field" style={{ marginTop: 8 }}>
                                 <div className="admin-label">문의 내용</div>
@@ -550,12 +728,28 @@ export default function AdminContent() {
                             </div>
                             <label className="admin-field" style={{ marginTop: 8 }}>
                                 <div className="admin-label">답변</div>
-                                <textarea className="admin-textarea" rows={4} value={ohtReply} onChange={(e) => setOhtReply(e.target.value)} placeholder="문의에 대한 답변을 입력하세요." />
+                                <textarea
+                                    className="admin-textarea"
+                                    rows={4}
+                                    value={ohtReply}
+                                    onChange={(e) => setOhtReply(e.target.value)}
+                                    placeholder="문의에 대한 답변을 입력하세요."
+                                />
                             </label>
                         </div>
                         <div className="admin-modal-footer">
-                            <button className="admin-bttn admin-bttn--ghost admin-bttn--sm" onClick={() => { setOhtDetail(null); setOhtReply(""); }}>닫기</button>
-                            <button className="admin-bttn admin-bttn--primary admin-bttn--sm" onClick={saveOhtAnswer}>저장 후 완료</button>
+                            <button
+                                className="admin-bttn admin-bttn--ghost admin-bttn--sm"
+                                onClick={() => {
+                                    setOhtDetail(null);
+                                    setOhtReply("");
+                                }}
+                            >
+                                닫기
+                            </button>
+                            <button className="admin-bttn admin-bttn--primary admin-bttn--sm" onClick={saveOhtAnswer}>
+                                저장 후 완료
+                            </button>
                         </div>
                     </div>
                 </div>
@@ -566,14 +760,31 @@ export default function AdminContent() {
                     <div className="admin-modal large" onClick={(e) => e.stopPropagation()}>
                         <div className="admin-modal-header">
                             <h3>처리 이력</h3>
-                            <button className="admin-modal-close" onClick={() => setActionModalOpen(false)} aria-label="닫기">×</button>
+                            <button className="admin-modal-close" onClick={() => setActionModalOpen(false)} aria-label="닫기">
+                                ×
+                            </button>
                         </div>
                         <div className="admin-modal-body">
-                            <div className="admin-tabs">{["RER", "IPC", "OHT"].map((t) => (<button key={t} className={`admin-tab ${actionTab === t ? "on" : ""}`} 
-                                            onClick={() => setActionTab(t)}>{t === "RER" ? "수정요청" : t === "IPC" ? "부적절 신고" : "기타 문의"}</button>))}</div>
+                            <div className="admin-tabs">
+                                {["RER", "IPC", "OHT"].map((t) => (
+                                    <button
+                                        key={t}
+                                        className={`admin-tab ${actionTab === t ? "on" : ""}`}
+                                        onClick={() => setActionTab(t)}
+                                    >
+                                        {t === "RER" ? "수정요청" : t === "IPC" ? "부적절 신고" : "기타 문의"}
+                                    </button>
+                                ))}
+                            </div>
                             <table className="admin-table">
                                 <thead>
-                                    <tr><th>날짜</th><th>리포터ID</th><th>조치</th><th>상태</th><th>리포트</th></tr>
+                                    <tr>
+                                        <th>날짜</th>
+                                        <th>리포터ID</th>
+                                        <th>조치</th>
+                                        <th>상태</th>
+                                        <th>리포트</th>
+                                    </tr>
                                 </thead>
                                 <tbody>
                                     {actionFiltered.map((a) => (
@@ -585,11 +796,21 @@ export default function AdminContent() {
                                             <td>#{a.reportId}</td>
                                         </tr>
                                     ))}
-                                    {actionFiltered.length === 0 && ( <tr><td colSpan={5} className="admin-empty">표시할 이력이 없습니다.</td></tr> )}
+                                    {actionFiltered.length === 0 && (
+                                        <tr>
+                                            <td colSpan={5} className="admin-empty">
+                                                표시할 이력이 없습니다.
+                                            </td>
+                                        </tr>
+                                    )}
                                 </tbody>
                             </table>
                         </div>
-                        <div className="admin-modal-footer"><button className="admin-bttn admin-bttn--primary" onClick={() => setActionModalOpen(false)}>닫기</button></div>
+                        <div className="admin-modal-footer">
+                            <button className="admin-bttn admin-bttn--primary" onClick={() => setActionModalOpen(false)}>
+                                닫기
+                            </button>
+                        </div>
                     </div>
                 </div>
             )}

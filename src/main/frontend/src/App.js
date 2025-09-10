@@ -17,6 +17,9 @@ import AdminRequest from "./admin/admin-request";
 import TermsPage from "./admin/terms-page";
 import SiteIntro from './introduce/site-intro';
 import CardIntro from './introduce/card-intro';
+import Chating from './introduce/chating-support';
+import FAQ from './introduce/faq-page';
+import { AlertProvider } from "./ui/alert-center";
 
 import MainPage from './mainpage/MainPage';
 import RestaurantList from './restaurantList/RestaurantList';
@@ -33,6 +36,7 @@ import Reset from './account/Reset';
 import OAuthCallback from './account/OAuthCallback';
 import Register from './account/Register';
 import BookmarkList from './restaurantList/BookmarkList';
+import PasswordChange from './account/PasswordChange';
 
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
@@ -80,6 +84,8 @@ const MainLayout = () => {
         <Route path="/cardIntro" element={<CardIntro />} />
         <Route path="/siteIntro" element={<SiteIntro />} />
         <Route path="/termsOfUse" element={<TermsPage />} />
+        <Route path="/chat" element={<Chating />} />
+        <Route path="/faq" element={<FAQ />} />
 
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
@@ -93,6 +99,10 @@ const MainLayout = () => {
         <Route path="/oauth/:provider/callback" element={<OAuthCallback />} />
 
         <Route path="*" element={<ErrorPage />} />
+
+        <Route path="/account/password" element={<PasswordChange />} />
+
+
       </Routes>
       <MobileNavbar />
       {showHeaderFooter && <Footer />}
@@ -127,13 +137,15 @@ const App = () => {
 
   return (
     <>
+    <AlertProvider>
       <BrowserRouter>
       <ScrollToTop />
         <LoadingProvider>
           <MainLayout />
         </LoadingProvider>
       </BrowserRouter>
-      <ToastContainer toastClassName="custom-toast"/>
+      {/* <ToastContainer toastClassName="custom-toast"/> */}
+      </AlertProvider>
     </>
     
   );

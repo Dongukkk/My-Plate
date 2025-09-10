@@ -668,3 +668,11 @@
         opacity: 1;
     }
 }
+
+/* 전체 혼밥지수 분포 meters */
+.admin-meters { padding: 8px 10px; margin-top: 20px; }
+.admin-meter-row { display:flex; align-items:center; gap:10px; margin:8px 0; }
+.admin-meter-label { width:70px; color:#555; }
+.admin-meter-track { flex:1; height:10px; border-radius:999px; background:rgba(255,99,71,.15); position:relative; overflow:hidden; }
+.admin-meter-fill { position:absolute; left:0; top:0; bottom:0; border-radius:999px; background:linear-gradient(90deg, #ef4444, rgba(255,99,71,.35)); }
+.admin-meter-value { width:120px; text-align:right; color:#666; font-variant-numeric: tabular-nums; }
