@@ -16,15 +16,15 @@ const mapStatusFromServer = (s = "") =>
     ACTIVE: "활성",
     SUSPENDED: "정지",
     DELETED: "비활성",
-    PENDING: "수정 필요",
-}[s.toUpperCase()] ?? "수정 필요");
+    PENDING: "처리대기",
+}[s.toUpperCase()] ?? "처리대기");
 
 const mapStatusToServer = (label = "") =>
 ({
     "활성": "ACTIVE",
     "정지": "SUSPENDED",
     "비활성": "DELETED",
-    "수정 필요": "PENDING",
+    "처리대기": "PENDING",
 }[label] ?? "PENDING");
 
 const mapReportStatusFromServer = (s = "") =>
@@ -86,11 +86,13 @@ const toViewAction = (a) => ({
     memo: a.memo || "",
 });
 
-const reportStatusToPill = (st) => (st === "완료" ? "활성" : st === "반려" ? "비활성" : "수정 필요");
+const reportTone = (st = "대기") =>
+    ({ "대기": "warn", "처리중": "warn", "완료": "ok", "반려": "off" }[st] || "warn");
 
 /* 표시용 컴포넌트 */
-const StatusPill = ({ status = "비활성" }) => {
-    const cls = { "활성": "ok", "수정 필요": "warn", "비활성": "off", "정지": "ban" }[status] || "off";
+const StatusPill = ({ status = "비활성", tone }) => {
+    const byLabel = { "활성": "ok", "처리대기": "warn", "비활성": "off", "정지": "ban" };
+    const cls = tone || byLabel[status] || "off";
     return <span className={`admin-status ${cls}`}>{status}</span>;
 };
 
@@ -202,6 +204,22 @@ const readLocalActions = () => {
     }
 };
 
+/* === ID → 이름 조회 (간단 캐시, 훅 아님) ===================== */
+const __nameCache = {};
+async function fetchUserName(id) {
+    if (id == null) return "-";
+    if (__nameCache[id]) return __nameCache[id];
+    try {
+        const { data } = await axios.get(`/api/adminUser/${id}`);
+        const nm = data?.username || data?.name || data?.email || `ID:${id}`;
+        __nameCache[id] = nm;
+        return nm;
+    } catch {
+        __nameCache[id] = `ID:${id}`;
+        return __nameCache[id];
+    }
+}
+
 /* 메인 컴포넌트 */
 export default function AdminUser() {
     const navigate = useNavigate();
@@ -233,7 +251,7 @@ export default function AdminUser() {
     /* 신고 모달 열기 */
     const openReport = (r = {}) => {
         setReportData({
-            ...r,
+            ...r, // reporterName 포함
             action: r.decision || r.action || "NONE",
             memo: r.memo || "",
         });
@@ -266,15 +284,33 @@ export default function AdminUser() {
     const loadReports = async () => {
         const { data } = await axios.get("/api/adminUser/reports");
         const items = Array.isArray(data) ? data : data?.items || [];
-        setReports(items.map(toViewReport));
+        const base = items.map(toViewReport);
+
+        // reporterId -> reporterName 주입
+        const ids = [...new Set(base.map((r) => r.reporterId).filter(Boolean))];
+        await Promise.all(ids.map(fetchUserName));
+        const withNames = base.map((r) => ({
+            ...r,
+            reporterName: r.reporterId != null ? (__nameCache[r.reporterId] || `ID:${r.reporterId}`) : "-",
+        }));
+        setReports(withNames);
     };
 
     const loadActionsFromServer = async () => {
         const { data } = await axios.get("/api/adminActions/UR");
         const items = Array.isArray(data) ? data : data?.items || [];
         const view = items.map(toViewAction).sort((a, b) => String(b.date).localeCompare(String(a.date)));
-        setAllActions(view);
-        setRecentActions(view.slice(0, 3));
+
+        // userId -> userName 주입
+        const ids = [...new Set(view.map((a) => a.userId).filter(Boolean))];
+        await Promise.all(ids.map(fetchUserName));
+        const withNames = view.map((a) => ({
+            ...a,
+            userName: a.userId != null ? (__nameCache[a.userId] || `ID:${a.userId}`) : "-",
+        }));
+
+        setAllActions(withNames);
+        setRecentActions(withNames.slice(0, 3));
     };
 
     const loadActionsFallbackLocal = async () => {
@@ -282,8 +318,17 @@ export default function AdminUser() {
             String(b.createdAt || b.date).localeCompare(String(a.createdAt || a.date))
         );
         const view = items.map(toViewAction);
-        setAllActions(view);
-        setRecentActions(view.slice(0, 3));
+
+        // userId -> userName 주입
+        const ids = [...new Set(view.map((a) => a.userId).filter(Boolean))];
+        await Promise.all(ids.map(fetchUserName));
+        const withNames = view.map((a) => ({
+            ...a,
+            userName: a.userId != null ? (__nameCache[a.userId] || `ID:${a.userId}`) : "-",
+        }));
+
+        setAllActions(withNames);
+        setRecentActions(withNames.slice(0, 3));
     };
 
     useEffect(() => {
@@ -500,7 +545,7 @@ export default function AdminUser() {
                                 >
                                     <option>전체</option>
                                     <option>활성</option>
-                                    <option>수정 필요</option>
+                                    <option>처리대기</option>
                                     <option>비활성</option>
                                     <option>정지</option>
                                 </select>
@@ -600,7 +645,7 @@ export default function AdminUser() {
                             <thead>
                                 <tr>
                                     <th>신고 ID</th>
-                                    <th>신고자(ID)</th>
+                                    <th>신고자</th>{/* ← ID 대신 이름 표기 */}
                                     <th>사유</th>
                                     <th>상태</th>
                                     <th>작업</th>
@@ -610,9 +655,9 @@ export default function AdminUser() {
                                 {reportView.map((r) => (
                                     <tr key={r.id}>
                                         <td>{r.id}</td>
-                                        <td>{r.reporterId ?? "-"}</td>
+                                        <td>{r.reporterName ?? (r.reporterId ?? "-")}</td>
                                         <td>{stripSanction(r.reason)}</td>
-                                        <td><StatusPill status={reportStatusToPill(r.status)} /></td>
+                                        <td><StatusPill status={r.status} tone={reportTone(r.status)} /></td>
                                         <td className="admin-ops">
                                             <button type="button" className="admin-link" onClick={() => openReport(r)}>
                                                 내용
@@ -657,10 +702,12 @@ export default function AdminUser() {
                                     recentActions.map((a) => (
                                         <li key={a.id}>
                                             <div>
-                                                <div className="admin-feed-head"><strong>신고자 ID:{a.userId}</strong></div>
+                                                <div className="admin-feed-head">
+                                                    <strong>신고자: {a.userName ?? (a.userId != null ? `ID:${a.userId}` : "-")}</strong>
+                                                </div>
                                                 <p>
                                                     신고 #{a.reportId} · <ActionBadge action={a.action} />{" "}
-                                                    <StatusPill status={reportStatusToPill(a.status)} /> {a.memo ? <> · {a.memo}</> : null}
+                                                    <StatusPill status={a.status} tone={reportTone(a.status)} /> {a.memo ? <> · {a.memo}</> : null}
                                                 </p>
                                             </div>
                                         </li>
@@ -725,11 +772,11 @@ export default function AdminUser() {
                                     <label>
                                         상태
                                         <select
-                                            value={String(editData.status ?? "수정 필요")}
+                                            value={String(editData.status ?? "처리대기")}
                                             onChange={(e) => setEditData((d) => ({ ...d, status: e.target.value }))}
                                         >
                                             <option>활성</option>
-                                            <option>수정 필요</option>
+                                            <option>처리대기</option>
                                             <option>비활성</option>
                                             <option>정지</option>
                                         </select>
@@ -773,8 +820,8 @@ export default function AdminUser() {
                                         <input value={String(reportData.id ?? "")} disabled />
                                     </label>
                                     <label>
-                                        신고자(ID)
-                                        <input value={String(reportData.reporterId ?? "-")} disabled />
+                                        신고자
+                                        <input value={String(reportData.reporterName ?? (reportData.reporterId ?? "-"))} disabled />
                                     </label>
                                     <label>
                                         접수일
@@ -868,19 +915,19 @@ export default function AdminUser() {
                                 <thead>
                                     <tr>
                                         <th>날짜</th>
-                                        <th>사용자(ID)</th>
+                                        <th>사용자</th>
                                         <th>처분</th>
                                         <th>상태</th>
-                                        <th>리포트</th>
+                                        <th>신고ID</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     {actionFiltered.map((a) => (
                                         <tr key={a.id}>
                                             <td>{a.date}</td>
-                                            <td>{a.userId != null ? `ID:${a.userId}` : "-"}</td>
+                                            <td>{a.userName ?? (a.userId != null ? `ID:${a.userId}` : "-")}</td>
                                             <td><ActionBadge action={a.action} /></td>
-                                            <td><StatusPill status={reportStatusToPill(a.status)} /></td>
+                                            <td><StatusPill status={a.status} tone={reportTone(a.status)} /></td>
                                             <td>#{a.reportId}</td>
                                         </tr>
                                     ))}

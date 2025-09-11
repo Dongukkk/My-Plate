@@ -502,7 +502,9 @@
 		AND U.ROLE = 'ADM'
 		AND U.STATUS = 'ACTIVE'
 	</select>
-
+	
+	
+	<!-- 제보 받기 -->
 	<insert id="insertIPCReport" parameterType="AdminReport">
 		<selectKey keyProperty="id" resultType="long" order="BEFORE"> SELECT
 			MP_REPORT_SEQ.NEXTVAL FROM DUAL </selectKey>

@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const api = axios.create({ baseURL: '/api' });
+export const api = axios.create({ baseURL: '/api' });
 
 // ===== 공통: Access 헤더 자동 첨부 =====
 api.interceptors.request.use((cfg) => {

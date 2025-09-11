@@ -6,6 +6,7 @@ import { LoadingProvider, useLoading } from './admin/loading-context';
 import { useEffect,useLayoutEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { setUser } from './store/store';
+import { api } from "./api/api";
 
 import AdminMain from './admin/admin-main';
 import AdminUser from "./admin/admin-user";
@@ -140,7 +141,9 @@ const App = () => {
     <AlertProvider>
       <BrowserRouter>
       <ScrollToTop />
-        <LoadingProvider>
+        <LoadingProvider
+          client={api}
+          shouldTrack={(cfg) => !/\/health$/.test(cfg.url || "")}>
           <MainLayout />
         </LoadingProvider>
       </BrowserRouter>
