@@ -3,6 +3,7 @@ import { useEffect, useState, useRef } from "react";
 import axios from "axios";
 import SideBarMenu from "../components/SideBarMenu";
 import "../restaurantList/RestaurantDetail.css";
+import {useAlert} from '../ui/alert-center';
 
 import ReviewReportModal from "../report/review-report";
 import StoreEditReportModal from "../report/store-report";
@@ -20,8 +21,8 @@ const daysOfWeek = [ 'SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT' ];
 const today = new Date().getDay();
 
 function RestaurantDetail() {
-  const navigate = useNavigate();
 
+  const {alert} = useAlert();
   const user = useSelector(state => state.user);
 
   const { id } = useParams();
@@ -250,6 +251,14 @@ function RestaurantDetail() {
     setIsWriteReviewModalOpen(true);
   };
 
+  const handleReportOpen = () => {
+    if (!user || !user.id) {
+      alert("로그인 후 이용 가능합니다.");
+      return;
+    }
+    setRerOpen(true)
+  }
+
   if (!restaurant) {
     return <div>로딩 중...</div>;
   }
@@ -278,6 +287,7 @@ function RestaurantDetail() {
 
   return (
     <>
+      <div className="mainpage-mobile-gap"></div>
       <div className="restaurantDetail-page">
         <SideBarMenu />
         <div className="rd-container">
@@ -287,6 +297,9 @@ function RestaurantDetail() {
                 <div style={{display:'flex'}}>
                   <h2 style={{marginRight:'20px'}}>{restaurant.restrntNm}</h2>
                   <p>⭐ {restaurant.avgRating} ({restaurant.ratingCount} 리뷰)</p>
+                  <span className={`operation-status for-mobile ${operationStatus === '영업 중' ? 'open' : 'closed'}`}>
+                  {operationStatus}
+                </span>
                 </div>
                 <p>{restaurant.tags && restaurant.tags.length > 0
                   ? restaurant.tags.join(' · ')
@@ -299,7 +312,22 @@ function RestaurantDetail() {
 
               </div>
             </div>
-            <div className="rd-repr-image" style={{ backgroundImage: `url(${sampleImageUrl})` }}></div>
+            <div className="rd-repr-image">
+              <img
+                src={`${process.env.PUBLIC_URL}${sampleImageUrl}`}
+                alt="Restaurant"
+                onError={(e) => {
+                  e.currentTarget.onerror = null;
+                  e.currentTarget.src = `${process.env.PUBLIC_URL}${DEFAULT_IMAGE_URL}`; 
+                }}
+                style={{
+                  width: '100%',
+                  height: '100%',
+                  objectFit: 'cover',
+                  borderRadius: '8px'
+                }}
+              />
+            </div>
 
           </div>
           <div className="rd-info">
@@ -376,7 +404,7 @@ function RestaurantDetail() {
                         <div className="review-header">
                           <div className="review-author" style={{ display: 'flex', padding: '10px 0', justifyContent: 'space-between' }}>
                             <div style={{ display: 'flex' }}>
-                              <div style={{ fontSize: '20px' }}>{review.username}
+                              <div className="review-username">{review.username}
                                 {(user && user.id && user.id === review.userId) && <span style={{fontSize:'14px', color:'gray'}}>(나)</span>}
                               </div>
                               <div style={{ display: 'flex', alignItems: 'end' }}>
@@ -386,7 +414,7 @@ function RestaurantDetail() {
                             </div>
                             
                             <div style={{ cursor: 'pointer', position: 'relative', alignContent: 'center' }}>
-                              <p style={{ writingMode: 'vertical-rl', letterSpacing: '1px', margin: 'auto' }}
+                              {user && user.id && (<p style={{ writingMode: 'vertical-rl', letterSpacing: '1px', margin: 'auto' }}
                                 onClick={(e) => {
                                   e.stopPropagation();
                                   handleMenuClick(review.id);
@@ -394,11 +422,12 @@ function RestaurantDetail() {
                               >
                                 •••
                               </p>
+                              )}
 
                               
                                 {selectedReviewId === review.id && (
                                   <div className="review-menu-dropdown" ref={menuRef} >
-                                    {(user && user.id && user.id === review.userId) &&
+                                    {(user.id === review.userId) &&
                                       <div className="review-menu-item"
                                         onClick={(e) => {
                                           e.stopPropagation();
@@ -502,7 +531,7 @@ function RestaurantDetail() {
               <h3>전화번호</h3>
               <p>{restaurant.restrntInqrTel}</p>
               <button style={{ width: "100%" }}>전화하기</button>
-              <button style={{ width: "49%", marginRight: "3px" }} onClick={() => setRerOpen(true)}>제보하기</button>
+              <button style={{ width: "49%", marginRight: "3px" }} onClick={() => handleReportOpen()}>제보하기</button>
               <button style={{ width: "49%" }} onClick={handleReviewClick}>리뷰 작성하기</button>
             </aside>
           </div>

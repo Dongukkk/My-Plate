@@ -6,7 +6,7 @@ import { setUser } from '../store/store';
 export default function OAuthCallback() {
   const [msg, setMsg] = useState('로그인 처리중…');
   const { provider } = useParams();            // google | naver
-  const { hash, search } = useLocation();      // #access=..&refresh=.. (기본), 혹시 ? 로 넘어와도 대응
+  const { hash, search, state } = useLocation();      // #access=..&refresh=.. (기본), 혹시 ? 로 넘어와도 대응
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
@@ -19,6 +19,7 @@ export default function OAuthCallback() {
     const error   = p.get('error');
     const access  = p.get('access');
     const refresh = p.get('refresh');
+    const from = p.get('from') || '/';
 
     if (error) {
       setMsg(`${(provider || '').toUpperCase()} 로그인 실패: ${error}`);
@@ -40,7 +41,7 @@ export default function OAuthCallback() {
         dispatch(setUser(userData));
         setMsg('로그인 완료! 잠시 후 이동합니다…');
 
-        navigate('/', { replace: true });
+        navigate(from, { replace: true });
       })
       .catch(err => {
         console.error(err);

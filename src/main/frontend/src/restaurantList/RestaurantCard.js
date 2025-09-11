@@ -3,12 +3,14 @@ import { useNavigate } from "react-router-dom";
 import { toggleBookmark } from "../api/api";
 import { useSelector } from 'react-redux';
 import { calculateSoloLevel } from "../utils/calculate";
+import {useAlert} from '../ui/alert-center';
 
 export const DEFAULT_IMAGE_URL = "/images/restaurant/BASIC_RESTAURANT_IMAGE.jpg";
 
 const RestaurantCard = ({ restaurant, selectedTags, onTagClick, initialBookmarkStatus, onBookmarkToggle }) => {
   const navigate = useNavigate();
 
+  const {alert} = useAlert();
   const user = useSelector(state => state.user);
 
   const [bookmarked, setBookmarked] = useState(initialBookmarkStatus);
@@ -56,13 +58,22 @@ const soloLevel = calculateSoloLevel(restaurant.soloIndex);
   return (
     <div className="restaurant-card" onClick={() => navigate(`/restaurants/detail/${restaurant.id}`)}>
       <div className="rc-card-image" 
-        style={{
-            position: 'relative',
-            backgroundImage: `url(${sampleImageUrl})`,
-            backgroundSize: 'cover',
-            backgroundPosition: 'center',
-          }}
+        style={{position: 'relative'}}
         >
+        <img
+          src={`${process.env.PUBLIC_URL}${sampleImageUrl}`}
+          alt="Restaurant"
+          onError={(e) => {
+            e.currentTarget.onerror = null;
+            e.currentTarget.src = `${process.env.PUBLIC_URL}${DEFAULT_IMAGE_URL}`; 
+          }}
+          style={{
+            width: '100%',
+            height: '100%',
+            objectFit: 'cover',
+            borderRadius: '8px'
+          }}
+        />
         <div className="rc-badge" style={{
           position: 'absolute',
           top: '5px',
@@ -80,7 +91,7 @@ const soloLevel = calculateSoloLevel(restaurant.soloIndex);
           zIndex:'10',
         }}>
           <img
-            src={levelBadge[soloLevel]}
+            src={`${process.env.PUBLIC_URL}${levelBadge[soloLevel]}`}
             alt={`Solo Badge Level ${soloLevel}`}
             style={{ width: '100%', height: '100%', borderRadius: '50%' }}
           />

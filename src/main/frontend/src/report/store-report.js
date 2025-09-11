@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useSelector } from "react-redux";
 import axios from "axios";
 import "./review-report.css"; // 동일 스타일 재사용
+import {useAlert} from '../ui/alert-center';
 
 export default function StoreEditReportModal({
     open = false,
@@ -10,6 +11,7 @@ export default function StoreEditReportModal({
     onClose,
     onReported,
 }) {
+    const {alert} = useAlert();
     const user = useSelector((s) => s.user);
     const [fields, setFields] = useState({
         name: currentInfo.name || "",

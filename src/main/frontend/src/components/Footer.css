@@ -203,26 +203,8 @@
     fill: #111827;
 }
 
-/* 반응형 */
-@media (max-width: 1024px) {
-    .footer-grid {
-        grid-template-columns: repeat(3, 1fr);
-    }
-}
-
-@media (max-width: 640px) {
-    .footer-grid {
-        grid-template-columns: repeat(2, 1fr);
-        gap: 16px;
-    }
-
-    .footer-container {
-        padding: 24px 14px 18px;
-    }
-}
-
-@media (max-width: 420px) {
-    .footer-grid {
-        grid-template-columns: 1fr;
+@media (max-width: 768px) {
+    .footer-wrap {
+        display: none;
     }
 }

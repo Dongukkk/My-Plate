@@ -44,6 +44,7 @@ import 'react-toastify/dist/ReactToastify.css';
 import ReviewPage from './restaurantList/ReviewPage';
 import MobileHeader from './mobile/MobileHeader';
 import MobileNavbar from './mobile/MobileNavbar';
+import MobileFooter from './mobile/MobileFooter';
 
 function ScrollToTop() {
   const { pathname } = useLocation();
@@ -105,6 +106,7 @@ const MainLayout = () => {
 
 
       </Routes>
+      <MobileFooter/>
       <MobileNavbar />
       {showHeaderFooter && <Footer />}
     </div>

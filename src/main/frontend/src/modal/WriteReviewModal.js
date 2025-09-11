@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import "./WriteReviewModal.css";
 import axios from "axios";
 import { useSelector } from 'react-redux';
+import {useAlert} from '../ui/alert-center';
 
 function WriteReviewModal({ restaurant, initialReviewData, onClose, onReviewSubmitted, fetchReviews}) {
   const user = useSelector(state => state.user);
@@ -10,6 +11,7 @@ function WriteReviewModal({ restaurant, initialReviewData, onClose, onReviewSubm
   const [seatScore, setSeatScore] = useState(initialReviewData ? initialReviewData.seatScore : 1);
   const [reviewComment, setReviewComment] = useState(initialReviewData ? initialReviewData.reviewComment : "");
 
+  const {alert} = useAlert();
 
     useEffect(() => {
         if (initialReviewData) {

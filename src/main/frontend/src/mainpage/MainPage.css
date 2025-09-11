@@ -10,6 +10,11 @@ body {
     color: #333;
     background: #fff;
 }
+
+button {
+    cursor: pointer;
+}
+
 .mainpage-mobile-gap {
     display: none;
 }

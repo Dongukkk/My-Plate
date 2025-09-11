@@ -38,4 +38,11 @@ public interface UserService {
     /* Authorization 헤더 기반으로 최근 N개월 통계 반환 */
     List<MonthlyStatDTO> getMyMonthlyStats(String authorization, int months);
     
+    /* 회원 탈퇴 (소프트 삭제) */
+    void withdraw(Long userId, @org.springframework.lang.Nullable String reason);
+    
+    /* 내 계정 탈퇴 (토큰에서 본인 식별 + 현재 비밀번호 검증후 탈퇴처리) */
+    void withdrawMe(String authorization, String password,
+            @org.springframework.lang.Nullable String reason);
+    
 }
