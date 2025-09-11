@@ -89,7 +89,7 @@ function ReviewPage() {
                                 alt="리뷰 없음" 
                                 style={{ width: '60%', margin: '0 auto', display: 'block' }}
                             />
-                             <p>작성된 리뷰가 없습니다.</p>
+                             {/* <p>작성된 리뷰가 없습니다.</p> */}
                         </div>
                     </div>
                 </div>

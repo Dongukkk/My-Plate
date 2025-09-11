@@ -476,7 +476,14 @@ export default function AdminUser() {
     };
 
     const handleDelete = async (user) => {
-        if (!window.confirm(`${user.name || user.email} 사용자를 삭제할까요?`)) return;
+        const ok = await confirm({
+            title: "삭제 확인",
+            message: `${user.name || user.email} 사용자를 삭제할까요?`,
+            okText: "삭제",
+            cancelText: "취소",
+        });
+        if (!ok) return;
+
         setDeletingId(user.id);
         const prev = users;
         setUsers(prev.filter((u) => u.id !== user.id));

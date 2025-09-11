@@ -115,7 +115,7 @@ export default function AdminLogin() {
                         <button
                             type="button"
                             className="admin-link-btn"
-                            onClick={() => nav("/admin/forgot-password")}
+                            onClick={() => nav("/adminRequest")}
                         >
                             비밀번호를 잊으셨나요?
                         </button>
