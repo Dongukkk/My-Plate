@@ -252,6 +252,14 @@ function RestaurantDetail() {
     setIsWriteReviewModalOpen(true);
   };
 
+  const handleReportOpen = () => {
+    if (!user || !user.id) {
+      alert("로그인 후 이용 가능합니다.");
+      return;
+    }
+    setRerOpen(true)
+  }
+
   if (!restaurant) {
     return <div>로딩 중...</div>;
   }
@@ -388,7 +396,7 @@ function RestaurantDetail() {
                             </div>
                             
                             <div style={{ cursor: 'pointer', position: 'relative', alignContent: 'center' }}>
-                              <p style={{ writingMode: 'vertical-rl', letterSpacing: '1px', margin: 'auto' }}
+                              {user && user.id && (<p style={{ writingMode: 'vertical-rl', letterSpacing: '1px', margin: 'auto' }}
                                 onClick={(e) => {
                                   e.stopPropagation();
                                   handleMenuClick(review.id);
@@ -396,11 +404,12 @@ function RestaurantDetail() {
                               >
                                 •••
                               </p>
+                              )}
 
                               
                                 {selectedReviewId === review.id && (
                                   <div className="review-menu-dropdown" ref={menuRef} >
-                                    {(user && user.id && user.id === review.userId) &&
+                                    {(user.id === review.userId) &&
                                       <div className="review-menu-item"
                                         onClick={(e) => {
                                           e.stopPropagation();
@@ -504,7 +513,7 @@ function RestaurantDetail() {
               <h3>전화번호</h3>
               <p>{restaurant.restrntInqrTel}</p>
               <button style={{ width: "100%" }}>전화하기</button>
-              <button style={{ width: "49%", marginRight: "3px" }} onClick={() => setRerOpen(true)}>제보하기</button>
+              <button style={{ width: "49%", marginRight: "3px" }} onClick={() => handleReportOpen()}>제보하기</button>
               <button style={{ width: "49%" }} onClick={handleReviewClick}>리뷰 작성하기</button>
             </aside>
           </div>

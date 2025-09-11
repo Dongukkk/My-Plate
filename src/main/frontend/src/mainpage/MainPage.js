@@ -60,6 +60,7 @@ function MainPage() {
         <div 
             className="mainpage-restaurant"
             onClick={() => navigate(`/restaurants/detail/${restaurant.id}`)}
+            style={{cursor:'pointer'}}
         >
             <div 
                 className="restaurant-image" 
