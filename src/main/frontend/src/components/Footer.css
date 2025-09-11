@@ -182,8 +182,9 @@
 /* 맨 위로 버튼 */
 .footer-top {
     position: fixed;
+    z-index: 10;
     right: 20px;
-    bottom: 20px;
+    bottom: 100px;
     width: 44px;
     height: 44px;
     border-radius: 999px;

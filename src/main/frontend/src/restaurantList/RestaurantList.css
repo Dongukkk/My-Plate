@@ -193,11 +193,18 @@ body {
         width: 100%;
         padding-left: 50px;
     }
+
+    .mobile-view-summ {
+        display: none;
+    }
 }
 
 @media (max-width: 480px) {
     .restaurant-grid {
         grid-template-columns: 1fr;
+    }
+    .mobile-view-summ {
+        display: none;
     }
 }
 

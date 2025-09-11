@@ -207,7 +207,12 @@ function MainPage() {
                     </div>
                 </div>
             </section>
-
+            <df-messenger
+                intent="WELCOME"
+                chat-title="to-eat-bot"
+                agent-id="e9884dee-fe8b-44b2-a6b2-db6ae9cc5551"
+                language-code="ko"
+                ></df-messenger>
         </>
     );
 }
