@@ -16,6 +16,13 @@ function Header(){
 
     const [isDropdownVisible, setIsDropdownVisible] = useState(false);
     const [isConfirmModalVisible, setIsConfirmModalVisible] = useState(false);
+    const [alertOpen, setAlertOpen] = useState(false);
+
+    const alerts = [
+    { id: 1, text: "새로운 리뷰가 등록되었습니다.", time: "2분 전" },
+    { id: 2, text: "북마크한 식당에 이벤트가 있어요.", time: "10분 전" },
+    { id: 3, text: "오늘 예약한 식당을 잊지 마세요.", time: "1시간 전" },
+  ];
 
     const handleLogoutClick = () => {
         setIsConfirmModalVisible(true);
@@ -45,12 +52,36 @@ function Header(){
                 
                 <div style={{display:"inline-flex", alignItems:"center", marginLeft:"10px"}}>
                     { user && user.name ? (
-                        <span
-                            style={{ fontSize: "16px", fontWeight: "bold", color: "white", cursor: "pointer" }}
-                            onClick={toggleDropdown}
+                        <div style={{display:"flex"}}>
+                            <div
+                                className="main-header-alert"
+                                onClick={() => setAlertOpen(!alertOpen)}
                             >
-                            {user.name}님
+                                🔔
+                            </div>
+
+                            {alertOpen && (
+                                <div className="alert-dropdown">
+                                {alerts.length > 0 ? (
+                                    alerts.map((a) => (
+                                    <div key={a.id} className="alert-item">
+                                        <p>{a.text}</p>
+                                        <span className="alert-time">{a.time}</span>
+                                    </div>
+                                    ))
+                                ) : (
+                                    <div className="alert-empty">알림이 없습니다.</div>
+                                )}
+                                </div>
+                            )}
+                            <span
+                                style={{ fontSize: "16px", fontWeight: "bold", color: "white", cursor: "pointer", alignContent:'center' }}
+                                onClick={toggleDropdown}
+                                >
+                                {user.name}님
                             </span>
+                        </div>
+                        
 
                     ) : (<span onClick={() => navigate(`/login`, { state: { from: window.location.pathname } })} style={{ fontSize: "16px", fontWeight: "bold", color: "white", cursor: "pointer" }}>로그인</span>
                     )}
