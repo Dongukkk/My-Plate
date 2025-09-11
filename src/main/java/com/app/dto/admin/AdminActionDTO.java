@@ -19,4 +19,6 @@ public class AdminActionDTO {
 	private String memo;
 	private String createdAt;
 	
+	private Long restaurantId;
+	
 }

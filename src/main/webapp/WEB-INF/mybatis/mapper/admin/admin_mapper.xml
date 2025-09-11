@@ -171,16 +171,12 @@
 		r.reason AS reason,
 		r.status AS status,
 		r.decision AS decision,
-		r.memo AS
-		memo,
+		r.memo AS memo,
 		r.excerpt AS excerpt,
-		TO_CHAR(r.created_at,
-		'YYYY-MM-DD"T"HH24:MI:SS') AS createdAt,
-		TO_CHAR(r.updated_at,
-		'YYYY-MM-DD"T"HH24:MI:SS') AS updatedAt
+		TO_CHAR(r.created_at, 'YYYY-MM-DD"T"HH24:MI:SS') AS createdAt,
+		TO_CHAR(r.updated_at, 'YYYY-MM-DD"T"HH24:MI:SS') AS updatedAt
 		FROM MP_REPORT r
-		WHERE
-		r.reported_item_type = 'UR'
+		WHERE r.reported_item_type = 'UR'
 		ORDER BY r.created_at DESC
 	</select>
 
@@ -192,16 +188,12 @@
 		r.reason AS reason,
 		r.status AS status,
 		r.decision AS decision,
-		r.memo AS
-		memo,
+		r.memo AS memo,
 		r.excerpt AS excerpt,
-		TO_CHAR(r.created_at,
-		'YYYY-MM-DD"T"HH24:MI:SS') AS createdAt,
-		TO_CHAR(r.updated_at,
-		'YYYY-MM-DD"T"HH24:MI:SS') AS updatedAt
+		TO_CHAR(r.created_at, 'YYYY-MM-DD"T"HH24:MI:SS') AS createdAt,
+		TO_CHAR(r.updated_at, 'YYYY-MM-DD"T"HH24:MI:SS') AS updatedAt
 		FROM MP_REPORT r
-		WHERE
-		r.reported_item_type = 'OTH'
+		WHERE r.reported_item_type = 'OTH'
 		ORDER BY r.created_at DESC
 	</select>
 
@@ -210,19 +202,21 @@
 		r.id AS id,
 		r.reporter_id AS reporterId,
 		r.reported_item_type AS reportedItemType,
+		r.reported_item_id AS reportedItemId,
+		rr.name AS placeName,
 		r.reason AS reason,
 		r.status AS status,
 		r.decision AS decision,
-		r.memo AS
-		memo,
+		r.memo AS memo,
 		r.excerpt AS excerpt,
 		TO_CHAR(r.created_at,
 		'YYYY-MM-DD"T"HH24:MI:SS') AS createdAt,
 		TO_CHAR(r.updated_at,
 		'YYYY-MM-DD"T"HH24:MI:SS') AS updatedAt
 		FROM MP_REPORT r
-		WHERE
-		r.reported_item_type = 'RER'
+			LEFT JOIN MP_RESTAURANT rr
+         	ON rr.id = r.reported_item_id
+		WHERE r.reported_item_type = 'RER'
 		ORDER BY r.created_at DESC
 	</select>
 
@@ -231,6 +225,7 @@
 		r.id AS id,
 		r.reporter_id AS reporterId,
 		r.reported_item_type AS reportedItemType,
+		r.reported_item_id AS reportedItemId,
 		r.reason AS reason,
 		r.status AS status,
 		r.decision AS decision,
@@ -248,8 +243,7 @@
 	</select>
 
 	<!-- 상세 (id 조건 포함) -->
-	<select id="searchURReportsById" parameterType="long"
-		resultType="AdminReport">
+	<select id="searchURReportsById" parameterType="long" resultType="AdminReport">
 		SELECT
 		r.id AS id,
 		r.reporter_id AS reporterId,
@@ -267,8 +261,7 @@
 		WHERE r.reported_item_type = 'UR' AND r.id = #{id}
 	</select>
 
-	<select id="searchOTHReportsById" parameterType="long"
-		resultType="AdminReport">
+	<select id="searchOTHReportsById" parameterType="long" resultType="AdminReport">
 		SELECT
 		r.id AS id,
 		r.reporter_id AS reporterId,
@@ -286,22 +279,23 @@
 		WHERE r.reported_item_type = 'OTH' AND r.id = #{id}
 	</select>
 
-	<select id="searchRERReportsById" parameterType="long"
-		resultType="AdminReport">
+	<select id="searchRERReportsById" parameterType="long" resultType="AdminReport">
 		SELECT
 		r.id AS id,
 		r.reporter_id AS reporterId,
 		r.reported_item_type AS reportedItemType,
+		r.reported_item_id AS reportedItemId,
+		rr.name AS placeName,
 		r.reason AS reason,
-		r.status
-		AS status,
+		r.status AS status,
 		r.decision AS decision,
 		r.memo AS memo,
 		r.excerpt AS excerpt,
 		TO_CHAR(r.created_at, 'YYYY-MM-DD"T"HH24:MI:SS') AS createdAt,
 		TO_CHAR(r.updated_at, 'YYYY-MM-DD"T"HH24:MI:SS') AS updatedAt
-		FROM
-		MP_REPORT r
+		FROM MP_REPORT r
+			LEFT JOIN MP_RESTAURANT rr
+	         ON rr.id = r.reported_item_id
 		WHERE r.reported_item_type = 'RER' AND r.id = #{id}
 	</select>
 
@@ -311,6 +305,7 @@
 		r.id AS id,
 		r.reporter_id AS reporterId,
 		r.reported_item_type AS reportedItemType,
+		r.reported_item_id AS reportedItemId,
 		r.reason AS reason,
 		r.status
 		AS status,
@@ -432,7 +427,8 @@
 		a.memo,
 		a.excerpt,
 		TO_CHAR(a.created_at, 'YYYY-MM-DD"T"HH24:MI:SS') AS createdAt,
-		r.reason AS reason
+		r.reason AS reason,
+		r.reported_item_id AS restaurantId
 		FROM MP_REPORT_ACTION a
 		LEFT JOIN MP_REPORT r ON r.id = a.report_id
 		WHERE a.item_type = 'RER'
@@ -451,7 +447,8 @@
 		a.memo,
 		a.excerpt,
 		TO_CHAR(a.created_at, 'YYYY-MM-DD"T"HH24:MI:SS') AS createdAt,
-		r.reason AS reason
+		r.reason AS reason,
+		r.reported_item_id AS restaurantId 
 		FROM MP_REPORT_ACTION a
 		LEFT JOIN MP_REPORT r ON r.id = a.report_id
 		WHERE a.item_type = 'IPC'

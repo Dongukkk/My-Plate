@@ -286,7 +286,7 @@ export default function AdminRestaurant() {
     /* 목록 */
     const [rows, setRows] = useState([]);
     const categories = useMemo(() =>
-        ["ALL", "한식", "일식, 라멘", "카페, 브런치", "양식", "중식", "분식", "퓨전, 현대식"], []);
+        ["ALL", "한식", "일식", "양식", "중식"], []);
 
     useEffect(() => {
         (async () => {
@@ -345,8 +345,7 @@ export default function AdminRestaurant() {
         });
         const palette = {
             "한식": "#e74c3c", "카페, 브런치": "#f39c12", "카페/브런치": "#f39c12",
-            "일식": "#2ecc71", "일식, 라멘": "#2ecc71", "양식": "#3498db",
-            "중식": "#9b59b6", "분식": "#16a085", "퓨전, 현대식": "#8e44ad", "기타": "#95a5a6",
+            "일식": "#2ecc71", "양식": "#3498db", "중식": "#9b59b6", "기타": "#95a5a6",
         };
         const others = ["#34495e", "#27ae60", "#d35400", "#7f8c8d"];
         let oi = 0;

@@ -23,4 +23,5 @@ public class AdminReportDTO {
     private String createdAt;
     private String updatedAt;
     
+    private String placeName;
 }

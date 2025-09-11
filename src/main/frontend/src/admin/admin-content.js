@@ -166,13 +166,20 @@ export default function AdminContent() {
                     text: x.reason ?? "-",
                     memo: x.memo ?? x.reporterMemo ?? x.note ?? "",
                     reporterId: x.reporterId ?? null,
-                    place: x.placeName ?? "-",
+                    restaurantId: x.reportedItemId ?? x.restaurantId ?? null,
+                    place: x.placeName || "-",
                     date: fmtDate(pickDate(x)),
                     type: "가게정보",
                 }));
-                const ids = [...new Set(base.map((b) => b.reporterId).filter(Boolean))];
-                await Promise.all(ids.map(fetchUserName));
-                const withNames = base.map((b) => ({ ...b, reporterName: b.reporterId != null ? nameOf(b.reporterId) : "-" }));
+
+                const userIds = [...new Set(base.map((b) => b.reporterId).filter(Boolean))];
+                await Promise.all(userIds.map(fetchUserName));
+
+                const withNames = base.map((b) => ({
+                    ...b,
+                    reporterName: b.reporterId != null ? nameOf(b.reporterId) : "-",
+                }));
+
                 setPending(withNames);
             } finally {
                 setLoadingPending(false);
@@ -321,6 +328,29 @@ export default function AdminContent() {
         }
     };
 
+    const openRerDetail = async (row) => {
+        try {
+            const { data } = await axios.get(`/api/reports/rer/${row.id}`);
+
+            const rid = data?.reportedItemId ?? data?.restaurantId ?? row.restaurantId ?? null;
+            const place =
+                data?.placeName || row.place || "-";
+
+            const reporterName =
+                row.reporterName ??
+                (row.reporterId != null ? await fetchUserName(row.reporterId) : "-");
+
+            setPendingModal({
+                ...row,
+                restaurantId: rid,
+                place,
+                reporterName,
+            });
+        } catch {
+            setPendingModal(row);
+        }
+    };
+
     // OTH 저장/완료
     const saveOhtAnswer = async () => {
         if (!ohtDetail) return;
@@ -456,7 +486,7 @@ export default function AdminContent() {
                                                 <div className="admin-actions">
                                                     <button
                                                         className="admin-bttn admin-bttn--xs admin-bttn--primary"
-                                                        onClick={() => setPendingModal(row)}
+                                                        onClick={() => openRerDetail(row)}
                                                     >
                                                         확인
                                                     </button>
@@ -579,14 +609,23 @@ export default function AdminContent() {
                                 </div>
                                 <div className="admin-field">
                                     <div className="admin-label">식당</div>
-                                    <div className="admin-inputlike">{pendingModal.place}</div>
+                                    <div className="admin-inputlike">{pendingModal.place || "-"}</div>
                                 </div>
                             </div>
                             <div className="admin-field" style={{ marginTop: 8 }}>
                                 <div className="admin-label">요청 내용</div>
-                                <div className="admin-textlike">{pendingModal.text}</div>
-                                <div className="admin-textlike" style={{ whiteSpace: "pre-wrap" }}>{pendingModal.text}</div>
+                                <div className="admin-textlike" style={{ whiteSpace: "pre-wrap" }}>
+                                    {pendingModal?.text ?? "-"}
+                                </div>
                             </div>
+                            {(pendingModal?.memo ?? "").trim() !== "" && (
+                                <div className="admin-field" style={{ marginTop: 8 }}>
+                                    <div className="admin-label">신고자 메모</div>
+                                    <div className="admin-textlike" style={{ whiteSpace: "pre-wrap" }}>
+                                        {pendingModal.memo}
+                                    </div>
+                                </div>
+                            )}
                         </div>
                         <div className="admin-modal-footer">
                             <button
@@ -612,14 +651,7 @@ export default function AdminContent() {
                 </div>
             )}
 
-            {(pendingModal.memo ?? "").trim() !== "" && (
-                <div className="admin-field" style={{ marginTop: 8 }}>
-                    <div className="admin-label">신고자 메모</div>
-                    <div className="admin-textlike" style={{ whiteSpace: "pre-wrap" }}>
-                        {pendingModal.memo}
-                    </div>
-                </div>
-            )}
+            
 
             {ipcModal && (
                 <div
