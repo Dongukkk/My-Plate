@@ -21,7 +21,6 @@ const daysOfWeek = [ 'SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT' ];
 const today = new Date().getDay();
 
 function RestaurantDetail() {
-  const navigate = useNavigate();
 
   const {alert} = useAlert();
   const user = useSelector(state => state.user);
@@ -313,7 +312,22 @@ function RestaurantDetail() {
 
               </div>
             </div>
-            <div className="rd-repr-image" style={{ backgroundImage: `url(${sampleImageUrl})` }}></div>
+            <div className="rd-repr-image">
+              <img
+                src={`${process.env.PUBLIC_URL}${sampleImageUrl}`}
+                alt="Restaurant"
+                onError={(e) => {
+                  e.currentTarget.onerror = null;
+                  e.currentTarget.src = `${process.env.PUBLIC_URL}${DEFAULT_IMAGE_URL}`; 
+                }}
+                style={{
+                  width: '100%',
+                  height: '100%',
+                  objectFit: 'cover',
+                  borderRadius: '8px'
+                }}
+              />
+            </div>
 
           </div>
           <div className="rd-info">
