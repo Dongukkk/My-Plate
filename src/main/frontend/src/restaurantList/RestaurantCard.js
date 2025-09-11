@@ -123,7 +123,7 @@ const soloLevel = calculateSoloLevel(restaurant.soloIndex);
         <div className="rc-description">
             <span>주소 : {restaurant.restrntAddr}</span><br/>
             <span>전화번호 : {restaurant.restrntInqrTel}</span><br/><br/>
-            {restaurant.restrntSumm}
+            <span className="mobile-view-summ">{restaurant.restrntSumm}</span>
         </div>
         <div className="rc-info-badges">
           
