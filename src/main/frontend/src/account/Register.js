@@ -220,45 +220,43 @@ export default function Register() {
           </label>
 
           {/* 동의 섹션 */}
-          <div className="lp-consent">
-            <div className="lp-consent-row">
-              <label className="lp-consent-left">
-                <input
-                  type="checkbox"
-                  readOnly
-                  checked={agree1}
-                  onClick={(e) => { e.preventDefault(); setOpen(o => ({ ...o, tos: true })); }}
-                />
-                <span>서비스 이용약관에 동의합니다.<b className="lp-required"> (필수)</b></span>
-              </label>
-              <button
-                type="button"
-                className="lp-consent-link"
-                onClick={() => setOpen(o => ({ ...o, tos: true }))}
-              >
-                약관 보기
-              </button>
-            </div>
+<div className="lp-consent">
+  <div className="lp-consent-row">
+    <label className="lp-consent-left">
+      <input
+        type="checkbox"
+        checked={agree1}
+        onChange={(e) => setAgree1(e.target.checked)}   
+      />
+      <span>서비스 이용약관에 동의합니다.<b className="lp-required"> (필수)</b></span>
+    </label>
+    <button
+      type="button"
+      className="lp-consent-link"
+      onClick={() => setOpen(o => ({ ...o, tos: true }))}
+    >
+      약관 보기
+    </button>
+  </div>
 
-            <div className="lp-consent-row">
-              <label className="lp-consent-left">
-                <input
-                  type="checkbox"
-                  readOnly
-                  checked={agree2}
-                  onClick={(e) => { e.preventDefault(); setOpen(o => ({ ...o, privacy: true })); }}
-                />
-                <span>개인정보 처리방침에 동의합니다.(선택)</span>
-              </label>
-              <button
-                type="button"
-                className="lp-consent-link"
-                onClick={() => setOpen(o => ({ ...o, privacy: true }))}
-              >
-                처리방침 보기
-              </button>
-            </div>
-          </div>
+  <div className="lp-consent-row">
+    <label className="lp-consent-left">
+      <input
+        type="checkbox"
+        checked={agree2}
+        onChange={(e) => setAgree2(e.target.checked)}   
+      />
+      <span>개인정보 처리방침에 동의합니다.(선택)</span>
+    </label>
+    <button
+      type="button"
+      className="lp-consent-link"
+      onClick={() => setOpen(o => ({ ...o, privacy: true }))}
+    >
+      처리방침 보기
+    </button>
+  </div>
+</div>
 
           <button className="lp-register-btnPrimary" disabled={disabled}>
             {loading ? '가입 중…' : '회원가입'}

@@ -112,7 +112,7 @@ public class AuthController {
             @RequestParam(required = false) String code,
             @RequestParam(required = false) String error) {
 
-        final String feCallback = "http://localhost:3000/oauth/google/callback";
+        final String feCallback = "http://192.168.0.122:3000/oauth/google/callback";
 
         // 에러/누락 방어
         if (error != null || code == null || code.trim().isEmpty()) {
@@ -242,7 +242,7 @@ public class AuthController {
             @RequestParam(required = false) String error,
             HttpSession session) {
 
-        final String feCallback = "http://localhost:3000/oauth/naver/callback";
+        final String feCallback = "http://192.168.0.122:3000/oauth/naver/callback";
 
         // 에러/누락/위조 state 방어
         Object saved = session.getAttribute("NAVER_STATE");
@@ -415,7 +415,7 @@ public class AuthController {
             @RequestParam(required=false) String code,
             @RequestParam(required=false) String error) {
 
-        final String feCallback = "http://localhost:3000/oauth/kakao/callback";
+        final String feCallback = "http://192.168.0.122:3000/oauth/kakao/callback";
 
         if (error != null || code == null || code.isBlank()) {
             HttpHeaders h = new HttpHeaders();
