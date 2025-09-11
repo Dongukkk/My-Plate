@@ -63,6 +63,12 @@ export default function Footer() {
             <button type="button" className="footer-top" onClick={scrollTop} aria-label="맨 위로">
                 <svg viewBox="0 0 24 24"><path d="M12 7l6 6H6l6-6z" /></svg>
             </button>
+            <df-messenger
+            intent="WELCOME"
+            chat-title="EatBot"
+            agent-id="4f44519a-2adb-46f9-bc99-7fa3dba522d9"
+            language-code="ko"
+            ></df-messenger>
         </footer>
     );
 }

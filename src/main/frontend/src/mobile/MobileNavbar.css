@@ -27,9 +27,11 @@
     .mobile-nav-item {
         display: flex;
         flex-direction: column;
+        height: 100%;
         align-items: center;
         text-decoration: none;
-        color: #888;
+        justify-content: center;
+        color: var(--primary-color);
         transition: color 0.2s;
         font-size: 12px;
         flex: 1; /* 모든 아이템이 동일한 공간 차지 */
@@ -37,6 +39,6 @@
     }
 
     .mobile-nav-item.active {
-        color: var(--primary-color, #e74c3c);
+        background-color: rgb(226, 226, 226);
     }
 }
