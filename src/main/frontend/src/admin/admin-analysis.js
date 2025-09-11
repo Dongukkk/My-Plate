@@ -286,7 +286,7 @@ export default function AdminAnalysis() {
         }));
     }, [restaurants]);
 
-    // 혼잡지수 (데코용)
+    // 혼잡지수
     const congestion = useMemo(() => {
         const totalU = users.length;
         const totalR = restaurants.length;
@@ -552,7 +552,7 @@ export default function AdminAnalysis() {
                         {/* 혼잡지수 분포 */}
                         <section className="admin-slot">
                             <div className="admin-slot-head">
-                                <h3 className="admin-slot-title">혼잡지수 분포</h3>
+                                <h3 className="admin-slot-title">전체 비율</h3>
                             </div>
                             <div className="admin-congestion">
                                 <div className="admin-congestion-grid">{[...Array(4)].map((_, i) => <div key={i} className="admin-cong-row" />)}</div>
@@ -632,7 +632,7 @@ export default function AdminAnalysis() {
                         {/* 지역별 사용자 분포 */}
                         <section className="admin-slot">
                             <div className="admin-slot-head">
-                                <h3 className="admin-slot-title">지역별 사용자 분포</h3>
+                                <h3 className="admin-slot-title">지역별 등록 식당 분포</h3>
                             </div>
                             <div className="admin-barchart-list">
                                 {regionUsers.map((r) => (

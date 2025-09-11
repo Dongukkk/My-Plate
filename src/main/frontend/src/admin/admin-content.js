@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
-import { useAlert, useConfirm } from "../ui/alert-center"; // ✅ 전역 알림 + 확인 모달
+import { useAlert, useConfirm } from "../ui/alert-center"; // 전역 알림 + 확인 모달
 import "./admin-content.css";
 
 // axios.defaults.baseURL = "http://localhost:8080";
@@ -55,7 +55,11 @@ const Pager = ({ page, total, onPage }) => {
         </div>
     );
 };
-const StatusTag = ({ status = "대기" }) => <span className="admin-approved-tag">{status}</span>;
+
+const tagTone = (st = "대기") => (st === "완료" ? "ok" : st === "반려" ? "off" : "warn"); // 대기/처리중=warn
+const StatusTag = ({ status = "대기" }) => (
+    <span className={`admin-approved-tag ${tagTone(status)}`}>{status}</span>
+);
 
 const compact = (obj = {}) => {
     const out = {};
@@ -73,6 +77,23 @@ const updateReport = async (type, id, payload) => {
         headers: { "Content-Type": "application/json" },
     });
 };
+
+/* === ID → 이름 매핑 (간단 캐시) =========================== */
+const __nameCache = {};
+async function fetchUserName(id) {
+    if (id == null) return "-";
+    if (__nameCache[id]) return __nameCache[id];
+    try {
+        const { data } = await axios.get(`/api/adminUser/${id}`);
+        const nm = data?.username || data?.name || data?.email || `ID:${id}`;
+        __nameCache[id] = nm;
+        return nm;
+    } catch {
+        __nameCache[id] = `ID:${id}`;
+        return __nameCache[id];
+    }
+}
+const nameOf = (id) => (id != null ? (__nameCache[id] || `ID:${id}`) : "-");
 
 export default function AdminContent() {
     const navigate = useNavigate();
@@ -117,16 +138,21 @@ export default function AdminContent() {
             axios.get("/api/adminActions/IPC"),
             axios.get("/api/adminActions/OTH"),
         ]);
-        const all = [
-            ...arr(rerAct.data).map((a) => ({ ...a, type: "RER" })),
-            ...arr(ipcAct.data).map((a) => ({ ...a, type: "IPC" })),
-            ...arr(ohtAct.data).map((a) => ({ ...a, type: "OHT" })),
-        ].sort((a, b) => String(b.createdAt).localeCompare(String(a.createdAt)));
+        const rer = arr(rerAct.data);
+        const ipcL = arr(ipcAct.data);
+        const ohtL = arr(ohtAct.data);
+        const all = [...rer, ...ipcL, ...ohtL].sort((a, b) => String(b.createdAt).localeCompare(String(a.createdAt)));
 
-        setRecentActions(all.slice(0, 2));
-        setActionsRer(arr(rerAct.data));
-        setActionsIpc(arr(ipcAct.data));
-        setActionsOht(arr(ohtAct.data));
+        // reporterId -> 이름 캐시 채우기
+        const ids = [...new Set(all.map((a) => a?.reporterId).filter(Boolean))];
+        await Promise.all(ids.map(fetchUserName));
+        const enrich = (list) =>
+            list.map((a) => ({ ...a, reporterName: a?.reporterId != null ? nameOf(a.reporterId) : "-" }));
+
+        setRecentActions(enrich(all).slice(0, 2));
+        setActionsRer(enrich(rer));
+        setActionsIpc(enrich(ipcL));
+        setActionsOht(enrich(ohtL));
     };
 
     useEffect(() => {
@@ -134,17 +160,20 @@ export default function AdminContent() {
             try {
                 setLoadingPending(true);
                 const rerRes = await axios.get("/api/adminContent/RER");
-                setPending(
-                    arr(rerRes.data).map((x) => ({
-                        id: x.id,
-                        status3: mapRerStatus3(x.status),
-                        text: x.reason ?? "-",
-                        reporterId: x.reporterId ?? null,
-                        place: x.placeName ?? "-",
-                        date: fmtDate(pickDate(x)),
-                        type: "가게정보",
-                    }))
-                );
+                const base = arr(rerRes.data).map((x) => ({
+                    id: x.id,
+                    status3: mapRerStatus3(x.status),
+                    text: x.reason ?? "-",
+                    memo: x.memo ?? x.reporterMemo ?? x.note ?? "",
+                    reporterId: x.reporterId ?? null,
+                    place: x.placeName ?? "-",
+                    date: fmtDate(pickDate(x)),
+                    type: "가게정보",
+                }));
+                const ids = [...new Set(base.map((b) => b.reporterId).filter(Boolean))];
+                await Promise.all(ids.map(fetchUserName));
+                const withNames = base.map((b) => ({ ...b, reporterName: b.reporterId != null ? nameOf(b.reporterId) : "-" }));
+                setPending(withNames);
             } finally {
                 setLoadingPending(false);
             }
@@ -152,18 +181,20 @@ export default function AdminContent() {
             try {
                 setLoadingIpc(true);
                 const ipcRes = await axios.get("/api/adminContent/IPC");
-                setIpc(
-                    arr(ipcRes.data).map((x) => ({
-                        id: x.id,
-                        title: "부적절한 콘텐츠 신고",
-                        reason: x.reason ?? "-",
-                        reporterId: x.reporterId ?? null,
-                        date: fmtDate(pickDate(x)),
-                        excerpt: x.excerpt ?? "",
-                        memo: x.memo ?? "",
-                        status: mapStatus(x.status),
-                    }))
-                );
+                const base = arr(ipcRes.data).map((x) => ({
+                    id: x.id,
+                    title: "부적절한 콘텐츠 신고",
+                    reason: x.reason ?? "-",
+                    reporterId: x.reporterId ?? null,
+                    date: fmtDate(pickDate(x)),
+                    excerpt: x.excerpt ?? "",
+                    memo: x.memo ?? "",
+                    status: mapStatus(x.status),
+                }));
+                const ids = [...new Set(base.map((b) => b.reporterId).filter(Boolean))];
+                await Promise.all(ids.map(fetchUserName));
+                const withNames = base.map((b) => ({ ...b, reporterName: b.reporterId != null ? nameOf(b.reporterId) : "-" }));
+                setIpc(withNames);
             } finally {
                 setLoadingIpc(false);
             }
@@ -171,16 +202,18 @@ export default function AdminContent() {
             try {
                 setLoadingOht(true);
                 const ohtRes = await axios.get("/api/adminContent/OTH");
-                setOht(
-                    arr(ohtRes.data).map((x) => ({
-                        id: x.id,
-                        text: x.reason ?? x.text ?? "-",
-                        reporterId: x.reporterId ?? null,
-                        date: fmtDate(pickDate(x)),
-                        status: mapStatus(x.status),
-                        memo: x.memo ?? "",
-                    }))
-                );
+                const base = arr(ohtRes.data).map((x) => ({
+                    id: x.id,
+                    text: x.reason ?? x.text ?? "-",
+                    reporterId: x.reporterId ?? null,
+                    date: fmtDate(pickDate(x)),
+                    status: mapStatus(x.status),
+                    memo: x.memo ?? "",
+                }));
+                const ids = [...new Set(base.map((b) => b.reporterId).filter(Boolean))];
+                await Promise.all(ids.map(fetchUserName));
+                const withNames = base.map((b) => ({ ...b, reporterName: b.reporterId != null ? nameOf(b.reporterId) : "-" }));
+                setOht(withNames);
             } finally {
                 setLoadingOht(false);
             }
@@ -196,11 +229,11 @@ export default function AdminContent() {
         return [];
     }, [actionTab, actionsRer, actionsIpc, actionsOht]);
 
-    // 승인/거절 확인 모달 추가
+    // 승인/거절 확인 모달
     const approvePending = async (row) => {
         const ok = await confirm({
             title: "승인 확인",
-            message: `이 수정 요청을 승인하시겠습니까?\n식당: ${row.place}\n리포터: ${row.reporterId ?? "-"}`,
+            message: `이 수정 요청을 승인하시겠습니까?\n식당: ${row.place}\n신고자: ${row.reporterName ?? (row.reporterId ?? "-")}`,
             okText: "승인",
             cancelText: "취소",
         });
@@ -220,7 +253,7 @@ export default function AdminContent() {
     const rejectPending = async (row) => {
         const ok = await confirm({
             title: "거절 확인",
-            message: `이 수정 요청을 거절하시겠습니까?\n식당: ${row.place}\n리포터: ${row.reporterId ?? "-"}\n\n거절 후 되돌릴 수 없습니다.`,
+            message: `이 수정 요청을 거절하시겠습니까?\n식당: ${row.place}\n신고자: ${row.reporterName ?? (row.reporterId ?? "-")}`,
             okText: "거절",
             cancelText: "취소",
         });
@@ -238,7 +271,7 @@ export default function AdminContent() {
         }
     };
 
-    // IPC 저장 확인 모달 추가
+    // IPC 저장 확인 모달
     const saveIpcAction = async () => {
         if (!ipcModal) return;
         const ok = await confirm({
@@ -278,15 +311,17 @@ export default function AdminContent() {
                 memo: data?.memo ?? item.memo ?? "",
                 status: mapStatus(data?.status ?? item.status),
             };
-            setOhtDetail(full);
+            const nm = full.reporterId != null ? await fetchUserName(full.reporterId) : "-";
+            setOhtDetail({ ...full, reporterName: nm });
             setOhtReply(full.memo || "");
         } catch {
-            setOhtDetail(item);
+            const nm = item?.reporterId != null ? await fetchUserName(item.reporterId) : "-";
+            setOhtDetail({ ...item, reporterName: nm });
             setOhtReply(item.memo || "");
         }
     };
 
-    // ✅ OTH 저장/완료 확인 모달 추가
+    // OTH 저장/완료
     const saveOhtAnswer = async () => {
         if (!ohtDetail) return;
         const ok = await confirm({
@@ -398,7 +433,7 @@ export default function AdminContent() {
                                 <tr>
                                     <th className="t-type">유형</th>
                                     <th className="t-text">콘텐츠</th>
-                                    <th className="t-reporter">리포터 ID</th>
+                                    <th className="t-reporter">신고자</th>
                                     <th className="t-status">상태</th>
                                     <th className="t-date">제출/변경일</th>
                                     <th className="t-actions">작업</th>
@@ -414,7 +449,7 @@ export default function AdminContent() {
                                         <tr key={row.id}>
                                             <td><span className="admin-chip admin-chip--review">{row.type}</span></td>
                                             <td className="admin-ellipsis">{row.text}</td>
-                                            <td className="ta-center">{row.reporterId ?? "-"}</td>
+                                            <td className="ta-center">{row.reporterName ?? (row.reporterId ?? "-")}</td>
                                             <td className="ta-center"><StatusTag status={row.status3} /></td>
                                             <td className="ta-center">{row.date || "-"}</td>
                                             <td className="ta-center">
@@ -458,7 +493,7 @@ export default function AdminContent() {
                                     </div>
                                     <p className="admin-report-reason">{r.reason}</p>
                                     <div className="admin-report-target">
-                                        <b>리포터 ID</b>: {r.reporterId ?? "-"}
+                                        <b>신고자</b>: {r.reporterName ?? (r.reporterId ?? "-")}
                                     </div>
                                     {r.excerpt && <div className="admin-report-excerpt">{r.excerpt}</div>}
                                 </article>
@@ -479,7 +514,7 @@ export default function AdminContent() {
                                 {oht.slice(0, 5).map((q) => (
                                     <li key={q.id} onClick={() => openOhtDetail(q)} style={{ cursor: "pointer" }}>
                                         <div>
-                                            <div className="admin-feed-head"><strong>리포터 ID: {q.reporterId ?? "-"}</strong></div>
+                                            <div className="admin-feed-head"><strong>신고자: {q.reporterName ?? (q.reporterId ?? "-")}</strong></div>
                                             <p className="admin-ellipsis">{q.text}</p>
                                         </div>
                                     </li>
@@ -501,7 +536,7 @@ export default function AdminContent() {
                                         </div>
                                         <p className="admin-approved-text">{a.memo || "-"}</p>
                                         <div className="admin-approved-bottom">
-                                            <span className="admin-approved-tag">{mapStatus(a.statusAfter ?? a.status)}</span>
+                                            <StatusTag status={mapStatus(a.statusAfter ?? a.status)} />
                                         </div>
                                     </div>
                                 ))}
@@ -539,8 +574,8 @@ export default function AdminContent() {
                                     <div className="admin-inputlike">{pendingModal.date || "-"}</div>
                                 </div>
                                 <div className="admin-field">
-                                    <div className="admin-label">리포터 ID</div>
-                                    <div className="admin-inputlike">{pendingModal.reporterId ?? "-"}</div>
+                                    <div className="admin-label">신고자</div>
+                                    <div className="admin-inputlike">{pendingModal.reporterName ?? (pendingModal.reporterId ?? "-")}</div>
                                 </div>
                                 <div className="admin-field">
                                     <div className="admin-label">식당</div>
@@ -550,6 +585,7 @@ export default function AdminContent() {
                             <div className="admin-field" style={{ marginTop: 8 }}>
                                 <div className="admin-label">요청 내용</div>
                                 <div className="admin-textlike">{pendingModal.text}</div>
+                                <div className="admin-textlike" style={{ whiteSpace: "pre-wrap" }}>{pendingModal.text}</div>
                             </div>
                         </div>
                         <div className="admin-modal-footer">
@@ -572,6 +608,15 @@ export default function AdminContent() {
                                 거절
                             </button>
                         </div>
+                    </div>
+                </div>
+            )}
+
+            {(pendingModal.memo ?? "").trim() !== "" && (
+                <div className="admin-field" style={{ marginTop: 8 }}>
+                    <div className="admin-label">신고자 메모</div>
+                    <div className="admin-textlike" style={{ whiteSpace: "pre-wrap" }}>
+                        {pendingModal.memo}
                     </div>
                 </div>
             )}
@@ -599,8 +644,8 @@ export default function AdminContent() {
                                     <div className="admin-inputlike">{ipcModal.date}</div>
                                 </div>
                                 <div className="admin-field">
-                                    <div className="admin-label">리포터 ID</div>
-                                    <div className="admin-inputlike">{ipcModal.reporterId ?? "-"}</div>
+                                    <div className="admin-label">신고자</div>
+                                    <div className="admin-inputlike">{ipcModal.reporterName ?? (ipcModal.reporterId ?? "-")}</div>
                                 </div>
                             </div>
                             <div className="admin-field" style={{ marginTop: 8 }}>
@@ -668,7 +713,7 @@ export default function AdminContent() {
                                 {oht.map((q) => (
                                     <li key={q.id} onClick={() => openOhtDetail(q)} style={{ cursor: "pointer" }}>
                                         <div>
-                                            <div className="admin-feed-head"><strong>리포터 ID: {q.reporterId ?? "-"}</strong></div>
+                                            <div className="admin-feed-head"><strong>신고자: {q.reporterName ?? (q.reporterId ?? "-")}</strong></div>
                                             <p>{q.text}</p>
                                             {q.status === "완료" && <div className="admin-chip admin-chip--done">완료</div>}
                                         </div>
@@ -714,8 +759,8 @@ export default function AdminContent() {
                                     <div className="admin-inputlike">{ohtDetail.date || "-"}</div>
                                 </div>
                                 <div className="admin-field">
-                                    <div className="admin-label">리포터 ID</div>
-                                    <div className="admin-inputlike">{ohtDetail.reporterId ?? "-"}</div>
+                                    <div className="admin-label">신고자</div>
+                                    <div className="admin-inputlike">{ohtDetail.reporterName ?? (ohtDetail.reporterId ?? "-")}</div>
                                 </div>
                                 <div className="admin-field">
                                     <div className="admin-label">상태</div>
@@ -780,19 +825,19 @@ export default function AdminContent() {
                                 <thead>
                                     <tr>
                                         <th>날짜</th>
-                                        <th>리포터ID</th>
+                                        <th>신고자</th>
                                         <th>조치</th>
                                         <th>상태</th>
-                                        <th>리포트</th>
+                                        <th>신고ID</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     {actionFiltered.map((a) => (
                                         <tr key={a.id}>
                                             <td>{fmtDate(a.createdAt)}</td>
-                                            <td>{a.reporterId ?? "-"}</td>
+                                            <td>{a.reporterName ?? (a.reporterId ?? "-")}</td>
                                             <td>{a.action}</td>
-                                            <td>{mapStatus(a.statusAfter ?? a.status)}</td>
+                                            <td><StatusTag status={mapStatus(a.statusAfter ?? a.status)} /></td>
                                             <td>#{a.reportId}</td>
                                         </tr>
                                     ))}
