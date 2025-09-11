@@ -259,6 +259,15 @@
 	    LEFT JOIN bookmark_agg b ON b.YM = m.YM
 	    ORDER BY m.MONTH_START
   </select>
+  
+	  <update id="leaveById">
+  UPDATE MP_USER
+     SET STATUS     = 'LEAVE',
+         LEAVE_DATE = SYSTIMESTAMP,
+         PASSWORD   = #{password}
+   WHERE ID         = #{id}
+     AND (STATUS IS NULL OR STATUS &lt;&gt; 'LEAVE')
+</update>
 
 </mapper>
 

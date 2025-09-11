@@ -20,7 +20,8 @@ import org.springframework.web.server.ResponseStatusException;
 
 import static com.app.security.PasswordUtil.*;
 
-import java.util.List;   
+import java.util.List;
+import java.util.UUID;   
 
 @Service
 public class UserServiceImpl implements UserService {
@@ -259,6 +260,51 @@ public class UserServiceImpl implements UserService {
 		return userMapper.findMonthlyStatsByUserId(userId, months);
 	}
 	
+	//회원탈퇴 (소프트 삭제)
+	@Override
+	@Transactional
+	public void withdraw(Long userId, String reason) {
+		
+		if (userId == null) throw new IllegalArgumentException("userId is null");
+		
+		String scrambled = hash("__DELETED__" + java.util.UUID.randomUUID()); //비번 무력화
+		
+		int updated = userMapper.leaveById(userId, scrambled);
+		if (updated == 0) {
+			throw new ResponseStatusException(HttpStatus.NOT_FOUND, "사용자를 찾을 수 없습니다.");
+		}
+		
+	}
+
+	@Override
+	@Transactional
+	public void withdrawMe(String authorization, String password, String reason) {
+	    String email = emailFromAuthorization(authorization);
+	    UserDTO user = userMapper.findByEmail(email);
+	    if (user == null) {
+	        throw new ResponseStatusException(HttpStatus.NOT_FOUND, "USER_NOT_FOUND");
+	    }
+
+	    String provider = (user.getProvider() == null ? "MYPLATE" : user.getProvider()).toUpperCase();
+
+	    // 자체회원만 비밀번호 필수
+	    if ("MYPLATE".equals(provider)) {
+	        if (password == null || password.isBlank()) {
+	            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "PASSWORD_REQUIRED");
+	        }
+	        String saved = user.getPassword();
+	        boolean ok = isBCrypt(saved) ? matches(password, saved) : password.equals(saved); // 구해시/평문 대응
+	        if (!ok) throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "INVALID_PASSWORD");
+	    } else {
+	        // 소셜은 별도 비번 검증 없음(원하면 OAuth re-auth 로직 추가 가능)
+	    }
+
+	    String scrambled = hash("__DELETED__" + java.util.UUID.randomUUID());
+	    int updated = userMapper.leaveById(user.getId(), scrambled);
+	    if (updated == 0) {
+	        throw new ResponseStatusException(HttpStatus.CONFLICT, "ALREADY_LEFT_OR_NOT_FOUND");
+	    }
+	}
 	
 	
 }
