@@ -288,6 +288,7 @@ function RestaurantDetail() {
 
   return (
     <>
+      <div className="mainpage-mobile-gap"></div>
       <div className="restaurantDetail-page">
         <SideBarMenu />
         <div className="rd-container">
@@ -297,6 +298,9 @@ function RestaurantDetail() {
                 <div style={{display:'flex'}}>
                   <h2 style={{marginRight:'20px'}}>{restaurant.restrntNm}</h2>
                   <p>⭐ {restaurant.avgRating} ({restaurant.ratingCount} 리뷰)</p>
+                  <span className={`operation-status for-mobile ${operationStatus === '영업 중' ? 'open' : 'closed'}`}>
+                  {operationStatus}
+                </span>
                 </div>
                 <p>{restaurant.tags && restaurant.tags.length > 0
                   ? restaurant.tags.join(' · ')
@@ -386,7 +390,7 @@ function RestaurantDetail() {
                         <div className="review-header">
                           <div className="review-author" style={{ display: 'flex', padding: '10px 0', justifyContent: 'space-between' }}>
                             <div style={{ display: 'flex' }}>
-                              <div style={{ fontSize: '20px' }}>{review.username}
+                              <div className="review-username">{review.username}
                                 {(user && user.id && user.id === review.userId) && <span style={{fontSize:'14px', color:'gray'}}>(나)</span>}
                               </div>
                               <div style={{ display: 'flex', alignItems: 'end' }}>
