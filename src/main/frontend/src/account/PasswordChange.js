@@ -42,22 +42,31 @@ export default function PasswordChange() {
     };
 
     const onSubmit = async (e) => {
-        e.preventDefault();
-        setErr(''); setOk('');
-        const v = validate();
-        if (v) { setErr(v); return; }
-        try {
-            setSaving(true);
-            await changePassword(cur, pwd);
-            setOk('비밀번호가 변경되었습니다.');
-            setTimeout(() => navigate('/mypage', { replace: true }), 900);
-        } catch (e) {
-            const msg = e?.response?.data?.message || '변경 실패';
-            setErr(msg);
-        } finally {
-            setSaving(false);
-        }
-    };
+  e.preventDefault();
+  setErr(''); setOk('');
+  const v = validate();
+  if (v) { setErr(v); return; }
+
+  try {
+    setSaving(true);
+    await changePassword(cur, pwd);
+
+    // ✅ 성공 처리: 토큰 제거 후 알림 띄우고 로그인 화면으로 이동
+    localStorage.removeItem('access');
+    localStorage.removeItem('refresh');
+
+    alert('비밀번호가 변경되었습니다.\n보안을 위해 다시 로그인해 주세요.');
+    navigate('/login', {
+      replace: true,
+      state: { msg: 'passwordChanged' } // (선택) 로그인 페이지에서 받아서 안내 띄우기 용
+    });
+  } catch (e) {
+    const msg = e?.response?.data?.message || '변경 실패';
+    setErr(msg);
+  } finally {
+    setSaving(false);
+  }
+};
 
     return (
         <div className="lp-pw-wrap">

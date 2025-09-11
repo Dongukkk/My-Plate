@@ -58,6 +58,20 @@ public interface UserMapper {
             @Param("userId") Long userId,
             @Param("months") int months
             );
-    	
+    
+    UserDTO findByEmail1(String email);
+    
+    //회원탈퇴
+    int leaveById(@Param("id") Long id, @Param("password") String password);
+    
+    
     
 }
+
+
+
+
+
+
+
+
