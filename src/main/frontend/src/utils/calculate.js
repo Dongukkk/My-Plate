@@ -5,11 +5,11 @@ export function calculateSoloIndex(ratings) {
 }
 
 export function calculateSoloLevel(value) {
-  if (value >= 0 && value < 0.5) {
+  if (value >= 0 && value < 1.0) {
     return 1;
-  } else if (value >= 0.5 && value < 1.5) {
+  } else if (value >= 1.0 && value < 1.2) {
     return 2;
-  } else if (value >= 1.5 && value < 2.0) {
+  } else if (value >= 1.2 && value < 2.0) {
     return 3;
   } else {
     return null;
