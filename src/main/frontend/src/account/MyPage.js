@@ -12,14 +12,15 @@ import './MyPage.css';
 import SideBarMenu from '../components/SideBarMenu';
 
 const NICK_RULE = /^[가-힣a-zA-Z0-9_-]{2,20}$/;
-const MONTH_IDX = { Jan:0, Feb:1, Mar:2, Apr:3, May:4, Jun:5, Jul:6, Aug:7, Sep:8, Oct:9, Nov:10, Dec:11 };
+
+const MONTH_IDX = { Jan: 0, Feb: 1, Mar: 2, Apr: 3, May: 4, Jun: 5, Jul: 6, Aug: 7, Sep: 8, Oct: 9, Nov: 10, Dec: 11 };
 
 function parseLegacyBookmarkDate(str) {
   if (!str || typeof str !== 'string') return null;
   const m = str.match(/^[A-Za-z]{3}\s+(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)\s+(\d{1,2})\s+(\d{2}):(\d{2}):(\d{2})\s+[A-Z]{2,5}\s+(\d{4})$/);
   if (!m) return null;
-  const [, mon, d, hh, mm, ss, yyyy] = m;
-  return new Date(Number(yyyy), MONTH_IDX[mon], Number(d), Number(hh), Number(mm), Number(ss));
+  const [ , mon, d, hh, mm, ss, yyyy ] = m;
+  return new Date(Number(yyyy), MONTH_IDX[ mon ], Number(d), Number(hh), Number(mm), Number(ss));
 }
 function coerceDate(v) {
   if (!v) return null;
@@ -38,9 +39,9 @@ function ProviderBadge({ provider }) {
   const p = String(provider || 'MYPLATE').toUpperCase();
   const label =
     p === 'GOOGLE' ? 'GOOGLE' :
-    p === 'NAVER' ? 'NAVER' :
-    (p === 'KAKAO' || p === 'KAKAOTALK' || p === 'KAKAO_TALK') ? 'KAKAOTALK' :
-    'MYPLATE';
+      p === 'NAVER' ? 'NAVER' :
+        (p === 'KAKAO' || p === 'KAKAOTALK' || p === 'KAKAO_TALK') ? 'KAKAOTALK' :
+          'MYPLATE';
 
   const BASE =
     (typeof import.meta !== 'undefined' && import.meta.env && import.meta.env.BASE_URL) ||
@@ -52,7 +53,7 @@ function ProviderBadge({ provider }) {
     NAVER: `${BASE}/images/icon/sns/naver.png`,
     KAKAOTALK: `${BASE}/images/icon/sns/kakao.png`,
   };
-  const src = ICON_SRC[label] || null;
+  const src = ICON_SRC[ label ] || null;
 
   return (
     <span className="lp-provider">
@@ -67,35 +68,40 @@ function ProviderBadge({ provider }) {
 }
 
 export default function MyPage() {
-  const [me, setMe] = useState(null);
-  const [msg, setMsg] = useState('');
+  const [ me, setMe ] = useState(null);
+  const [ msg, setMsg ] = useState('');
 
   // 닉네임 편집
-  const [editing, setEditing] = useState(false);
-  const [nickname, setNickname] = useState('');
-  const [error, setError] = useState('');
-  const [saving, setSaving] = useState(false);
+  const [ editing, setEditing ] = useState(false);
+  const [ nickname, setNickname ] = useState('');
+  const [ error, setError ] = useState('');
+  const [ saving, setSaving ] = useState(false);
 
   // KPI
-  const [stats, setStats] = useState({ reviewCount: 0, bookmarkCount: 0, visitCount: 0, averageRating: 0 });
+  const [ stats, setStats ] = useState({
+    reviewCount: 0,
+    bookmarkCount: 0,
+    visitCount: 0,
+    averageRating: 0,
+  });
 
   // 최근 리뷰(3)
-  const [reviews, setReviews] = useState([]);
-  const [rvLoading, setRvLoading] = useState(true);
+  const [ reviews, setReviews ] = useState([]);
+  const [ rvLoading, setRvLoading ] = useState(true);
 
   // 즐겨찾기 미리보기(3)
-  const [bm3, setBm3] = useState([]);
-  const [bmLoading, setBmLoading] = useState(true);
+  const [ bm3, setBm3 ] = useState([]);
+  const [ bmLoading, setBmLoading ] = useState(true);
 
-  // 월간 통계
-  const [mRows, setMRows] = useState([]);
-  const [mLoading, setMLoading] = useState(true);
-  const [mError, setMError] = useState('');
+  // ===== 월간 통계(신규) =====
+  const [ mRows, setMRows ] = useState([]);
+  const [ mLoading, setMLoading ] = useState(true);
+  const [ mError, setMError ] = useState('');
 
   // 탈퇴 모달
-  const [showLeave, setShowLeave] = useState(false);
-  const [leavePwd, setLeavePwd] = useState('');
-  const [leaving, setLeaving] = useState(false);
+  const [ showLeave, setShowLeave ] = useState(false);
+  const [ leavePwd, setLeavePwd ] = useState('');
+  const [ leaving, setLeaving ] = useState(false);
 
   const navigate = useNavigate();
 
@@ -164,14 +170,14 @@ export default function MyPage() {
             visitCount: Number(s?.visitCount ?? 0),
             averageRating: Number(s?.averageRating ?? 0),
           });
-        } catch (e) {}
+        } catch (e) { }
 
         // 최근 리뷰
         try {
           const list = await getMyRecentReviews(3);
           if (!mounted) return;
           setReviews(Array.isArray(list) ? list : (list?.content || []));
-        } catch (e) {} finally { if (mounted) setRvLoading(false); }
+        } catch (e) { } finally { if (mounted) setRvLoading(false); }
 
         // 즐겨찾기(3)
         let preview = [];
@@ -179,26 +185,26 @@ export default function MyPage() {
           const r1 = await api.get('/account/bookmarks', { params: { limit: 3 } });
           const list = toArr(r1?.data).map(normalizeBookmarkItem);
           preview = dedupById(list).slice(0, 3);
-        } catch {}
+        } catch { }
         if (!preview.length) {
           try {
             const r2 = await getMyBookmarks();
             const list = toArr(r2?.data).map(normalizeBookmarkItem);
             preview = dedupById(list).slice(0, 3);
-          } catch {}
+          } catch { }
         }
         if (preview.length) {
           const needIdx = preview.map((x, i) => (!x.name || !x.roadAddress ? i : -1)).filter(i => i >= 0);
           if (needIdx.length) {
-            const results = await Promise.allSettled(needIdx.map(i => getRestaurantDetail(preview[i].id)));
+            const results = await Promise.allSettled(needIdx.map(i => getRestaurantDetail(preview[ i ].id)));
             results.forEach((res, k) => {
-              const i = needIdx[k];
+              const i = needIdx[ k ];
               if (res.status === 'fulfilled') {
                 const d = res.value?.data ?? {};
-                preview[i].name = preview[i].name || d.name || d.restaurantName || d.title || d.storeName;
-                preview[i].roadAddress = preview[i].roadAddress || d.roadAddress || d.address2 || d.address || d.roadAddr || d.addr;
-                preview[i].phone = preview[i].phone || d.phone || d.tel || d.telephone || d.phoneNumber;
-                preview[i].rating = preview[i].rating ?? d.rating ?? d.avgRating;
+                preview[ i ].name = preview[ i ].name || d.name || d.restaurantName || d.title || d.storeName;
+                preview[ i ].roadAddress = preview[ i ].roadAddress || d.roadAddress || d.address2 || d.address || d.roadAddr || d.addr;
+                preview[ i ].phone = preview[ i ].phone || d.phone || d.tel || d.telephone || d.phoneNumber;
+                preview[ i ].rating = preview[ i ].rating ?? d.rating ?? d.avgRating;
               }
             });
           }
@@ -241,19 +247,19 @@ export default function MyPage() {
       bookmarks: Number(d?.bookmarkCount || 0),
       rating: d?.avgRating == null ? null : Number(d.avgRating),
     })),
-    [mRows]
+    [ mRows ]
   );
 
-  const role = useMemo(() => String(me?.role || '').toUpperCase(), [me]);
-  const providerName = useMemo(() => String(me?.provider || 'MYPLATE').toUpperCase(), [me]);
+  const role = useMemo(() => String(me?.role || '').toUpperCase(), [ me ]);
+  const providerName = useMemo(() => String(me?.provider || 'MYPLATE').toUpperCase(), [ me ]);
 
   const initials = useMemo(() => {
     const base = me?.name || me?.username || me?.email || '?';
     const parts = String(base).trim().split(/\s+/);
-    const first = parts[0]?.[0] ?? '';
-    const second = parts[1]?.[0] ?? '';
+    const first = parts[ 0 ]?.[ 0 ] ?? '';
+    const second = parts[ 1 ]?.[ 0 ] ?? '';
     return (first + second || first || '?').toUpperCase();
-  }, [me]);
+  }, [ me ]);
 
   // 이벤트
   const onLogout = () => {
@@ -318,212 +324,235 @@ export default function MyPage() {
   if (!me) return <div className="lp-myp-wrap"><div className="lp-myp-loading">불러오는 중…</div></div>;
 
   return (
-    <div className="app-shell with-sidebar">
-      <aside className="app-sidebar"><SideBarMenu /></aside>
+    <>
+      <div className="mainpage-mobile-gap"></div>
+      <div className="mp-mypage-page">
+        <SideBarMenu />
+        <main className="app-main">
+          <div className="lp-myp-wrap in-layout">
+            <div className="lp-myp-card">
+              {/* 헤더 */}
+              <div className="lp-myp-header">
+                <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
+                  <div className="lp-myp-avatar" aria-hidden>{initials}</div>
+                  <div className="lp-myp-id">
 
-      <main className="app-main">
-        <div className="lp-myp-wrap in-layout">
-          <div className="lp-myp-card">
-            {/* 헤더 */}
-            <div className="lp-myp-header">
-              <div className="lp-myp-avatar" aria-hidden>{initials}</div>
-              <div className="lp-myp-id"><div className="lp-myp-name">{me.name || me.username || '사용자'}</div></div>
-              <div className="lp-myp-right">
-                {role && <span className={`myp-badge ${role === 'ADMIN' ? 'is-admin' : 'is-user'}`}>{role}</span>}
-              </div>
-            </div>
 
-            {/* provider / logout */}
-            <div className="lp-myp-subbar">
-              <div className="lp-myp-provider"><ProviderBadge provider={me?.provider} /></div>
-              <button className="lp-logout-top" onClick={onLogout}>로그아웃</button>
-            </div>
-
-            {/* 본문 */}
-            <div className="lp-myp-body">
-              {/* 이메일 */}
-              <div className="lp-myp-row">
-                <span className="lp-myp-key">이메일</span>
-                <span className="lp-myp-val">{me.email}</span>
+                    <div className="lp-myp-name">{me.name || me.username || '사용자'}</div>
+                  </div>
+                </div>
+                <div className="lp-myp-right">
+                  {role && <span className={`myp-badge ${role === 'ADMIN' ? 'is-admin' : 'is-user'}`}>{role}</span>}
+                </div>
               </div>
 
-              {/* 이름 편집 */}
-              <div className="lp-myp-row">
-                <span className="lp-myp-key">이름</span>
-                {!editing ? (
-                  <span className="lp-myp-val">
-                    {me.name || me.username}
-                    <button type="button" className="lp-myp-btn" onClick={startEdit}>수정</button>
-                  </span>
-                ) : (
-                  <span className="lp-myp-val">
-                    <input className="lp-myp-input" value={nickname} onChange={(e) => setNickname(e.target.value)} maxLength={20} placeholder="새 닉네임" disabled={saving} />
-                    <button type="button" className="lp-myp-btn primary" onClick={saveNick} disabled={saving}>저장</button>
-                    <button type="button" className="lp-myp-btn" onClick={cancelEdit} disabled={saving}>취소</button>
-                    {error && <div className="lp-myp-error small">{error}</div>}
-                  </span>
+              {/* provider / logout */}
+              <div className="lp-myp-subbar">
+                <div className="lp-myp-provider"><ProviderBadge provider={me?.provider} /></div>
+                <button className="lp-logout-top" onClick={onLogout}>로그아웃</button>
+              </div>
+
+              {/* 본문 */}
+              <div className="lp-myp-body">
+                {/* 이메일 */}
+                <div className="lp-myp-row">
+                  <span className="lp-myp-key">이메일</span>
+                  <span className="lp-myp-val">{me.email}</span>
+                </div>
+
+                {/* 이름 편집 */}
+                <div className="lp-myp-row">
+                  <span className="lp-myp-key">이름</span>
+                  {!editing ? (
+                    <span className="lp-myp-val">
+                      {me.name || me.username}
+                      <button type="button" className="lp-myp-btn" onClick={startEdit}>수정</button>
+                    </span>
+                  ) : (
+                    <span className="lp-myp-val">
+                      <input className="lp-myp-input" value={nickname} onChange={(e) => setNickname(e.target.value)} maxLength={20} placeholder="새 닉네임" disabled={saving} />
+                      <button type="button" className="lp-myp-btn primary" onClick={saveNick} disabled={saving}>저장</button>
+                      <button type="button" className="lp-myp-btn" onClick={cancelEdit} disabled={saving}>취소</button>
+                      {error && <div className="lp-myp-error small">{error}</div>}
+                    </span>
+                  )}
+                </div>
+
+                {/* KPI */}
+                <div className="lp-myp-kpis">
+                  <div className="kpi" onClick={() => navigate('/reviews')} role="button" tabIndex={0}>
+                    <div className="num">{stats.reviewCount}</div><div className="label">내 리뷰</div>
+                  </div>
+                  <div className="kpi" onClick={() => navigate('/bookmarks')} role="button" tabIndex={0}>
+                    <div className="num">{stats.bookmarkCount}</div><div className="label">즐겨찾기</div>
+                  </div>
+                  <div className="kpi">
+                    <div className="num">{Number(stats.averageRating || 0).toFixed(1)}</div><div className="label">평균 평점</div>
+                  </div>
+                </div>
+
+                {/* 월간 통계 (신규) */}
+                <div className="lp-hidden-mobile lp-myp-section">
+                  <div className="lp-myp-sec-head">
+                    <div className="lp-myp-sec-title">월간 통계</div>
+                  </div>
+
+                  {mLoading ? (
+                    <div className="lp-myp-loading sm">불러오는 중…</div>
+                  ) : mError ? (
+                    <div className="lp-myp-error sm">불러오기 실패: {String(mError)}</div>
+                  ) : monthlyData.length === 0 ? (
+                    <div className="lp-myp-empty">표시할 데이터가 없습니다.</div>
+                  ) : (
+                    <MonthlyStatsInlineChart data={monthlyData} />
+                  )}
+                </div>
+
+                {/* 즐겨찾기(3) */}
+                <div className="lp-myp-section">
+                  <div className="lp-myp-sec-head">
+                    <div className="lp-myp-sec-title">즐겨찾기</div>
+                    <button className="lp-myp-link sm" onClick={() => navigate('/bookmarks')}>전체보기</button>
+                  </div>
+
+                  {bmLoading ? (
+                    <div className="lp-myp-loading sm">불러오는 중…</div>
+                  ) : bm3.length === 0 ? (
+                    <div className="lp-myp-empty">즐겨찾기가 없어요.</div>
+                  ) : (
+                    <ul className="lp-myp-reviewlist is-bookmarks">
+                      {bm3.map((bm, i) => (
+                        <li
+                          key={bm.id ?? i}
+                          className="lp-myp-rv"
+                          onClick={() => bm.id && navigate(`/restaurants/detail/${bm.id}`)}
+                          style={{ cursor: bm.id ? 'pointer' : 'default' }}
+                        >
+                          <div className="rv-row">
+                            <span className="rv-name">{bm.name || '(이름 없음)'}</span>
+                            {bm.createdAt && (
+                              <div className="rv-date" style={{ marginBottom: '5px', fontSize: '12px' }}>
+                                {fmtDate(bm.createdAt)}
+                              </div>
+                              
+                            )}
+                            </div>
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                </div>
+
+                {/* 최근 리뷰(3) */}
+                <div className="lp-myp-section">
+                  <div className="lp-myp-sec-head">
+                    <div className="lp-myp-sec-title">최근 리뷰</div>
+                    <button className="lp-myp-link sm" onClick={() => navigate('/reviews')}>전체보기</button>
+                  </div>
+                  {rvLoading ? <div className="lp-myp-loading sm">불러오는 중…</div>
+                    : reviews.length === 0 ? <div className="lp-myp-empty">아직 리뷰가 없어요.</div>
+                      : (
+                        <ul className="lp-myp-reviewlist is-reviews">
+                          {reviews.map((rv) => (
+                            <li key={rv.id ?? `${rv.restaurantId}-${rv.createdAt}`} className="lp-myp-rv">
+                              <div className="rv-row" onClick={() => navigate(`/restaurants/detail/${rv.restaurantId}`)}>
+                                <span className="rv-name">{rv.restaurantName}</span>
+                                <span className="rv-rating"><i aria-hidden>★</i><b>{Number(rv.rating || 0).toFixed(1)}</b></span>
+                                <time className="rv-date" dateTime={rv.createdAt ? new Date(rv.createdAt).toISOString() : undefined}>{fmtDate(rv.createdAt)}</time>
+                              </div>
+                              {rv.comment && <div className="rv-comment">{rv.comment}</div>}
+                            </li>
+                          ))}
+                        </ul>
+                      )}
+                </div>
+
+                {/* 비밀번호 변경 버튼 (MYPLATE만) */}
+                {providerName === 'MYPLATE' && (
+                  <div style={{ display: 'flex', justifyContent: 'center', marginTop: 8, marginBottom: 8 }}>
+                    <button
+                      type="button"
+                      onClick={() => navigate('/account/password')}
+                      className="lp-myp-btn primary"
+                      style={{ background: '#ff6233', color: '#fff', padding: '10px 18px', borderRadius: '12px', fontWeight: 700 }}
+                    >
+                      비밀번호 변경
+                    </button>
+                  </div>
                 )}
               </div>
 
-              {/* KPI */}
-              <div className="lp-myp-kpis">
-                <div className="kpi" onClick={() => navigate('/reviews')} role="button" tabIndex={0}>
-                  <div className="num">{stats.reviewCount}</div><div className="label">내 리뷰</div>
-                </div>
-                <div className="kpi" onClick={() => navigate('/bookmarks')} role="button" tabIndex={0}>
-                  <div className="num">{stats.bookmarkCount}</div><div className="label">즐겨찾기</div>
-                </div>
-                <div className="kpi">
-                  <div className="num">{Number(stats.averageRating || 0).toFixed(1)}</div><div className="label">평균 평점</div>
-                </div>
-              </div>
-
-              {/* 월간 통계 */}
-              <div className="lp-myp-section">
-                <div className="lp-myp-sec-head"><div className="lp-myp-sec-title">월간 통계</div></div>
-                {mLoading ? <div className="lp-myp-loading sm">불러오는 중…</div>
-                  : mError ? <div className="lp-myp-error sm">불러오기 실패: {String(mError)}</div>
-                  : monthlyData.length === 0 ? <div className="lp-myp-empty">표시할 데이터가 없습니다.</div>
-                  : <MonthlyStatsInlineChart data={monthlyData} height={320} />}
-              </div>
-
-              {/* 즐겨찾기(3) */}
-              <div className="lp-myp-section">
-                <div className="lp-myp-sec-head">
-                  <div className="lp-myp-sec-title">즐겨찾기</div>
-                  <button className="lp-myp-link sm" onClick={() => navigate('/bookmarks')}>전체보기</button>
-                </div>
-                {bmLoading ? <div className="lp-myp-loading sm">불러오는 중…</div>
-                  : bm3.length === 0 ? <div className="lp-myp-empty">즐겨찾기가 없어요.</div>
-                  : (
-                    <ul className="lp-myp-reviewlist is-bookmarks">
-                      {bm3.map((bm, i) => (
-                        <li key={bm.id ?? i} className="lp-myp-rv">
-                          <div className="rv-row" onClick={() => bm.id && navigate(`/restaurants/detail/${bm.id}`)} style={{ cursor: bm.id ? 'pointer' : 'default' }}>
-                            <span className="rv-name">{bm.name || '(이름 없음)'}</span>
-                            {bm.createdAt && <div className="rv-date" style={{ marginBottom: '5px', fontSize: '12px' }}>{fmtDate(bm.createdAt)}</div>}
-                          </div>
-                          {(bm.roadAddress || bm.phone) && (
-                            <span className="rv-comment" style={{ fontSize: '12px', color: '#666' }}>
-                              {bm.roadAddress || ''}{bm.roadAddress && bm.phone ? ' · ' : ''}{bm.phone || ''}
-                            </span>
-                          )}
-                        </li>
-                      ))}
-                    </ul>
-                  )}
-              </div>
-
-              {/* 최근 리뷰(3) */}
-              <div className="lp-myp-section">
-                <div className="lp-myp-sec-head">
-                  <div className="lp-myp-sec-title">최근 리뷰</div>
-                  <button className="lp-myp-link sm" onClick={() => navigate('/reviews')}>전체보기</button>
-                </div>
-                {rvLoading ? <div className="lp-myp-loading sm">불러오는 중…</div>
-                  : reviews.length === 0 ? <div className="lp-myp-empty">아직 리뷰가 없어요.</div>
-                  : (
-                    <ul className="lp-myp-reviewlist is-reviews">
-                      {reviews.map((rv) => (
-                        <li key={rv.id ?? `${rv.restaurantId}-${rv.createdAt}`} className="lp-myp-rv">
-                          <div className="rv-row" onClick={() => navigate(`/restaurants/detail/${rv.restaurantId}`)}>
-                            <span className="rv-name">{rv.restaurantName}</span>
-                            <span className="rv-rating"><i aria-hidden>★</i><b>{Number(rv.rating || 0).toFixed(1)}</b></span>
-                            <time className="rv-date" dateTime={rv.createdAt ? new Date(rv.createdAt).toISOString() : undefined}>{fmtDate(rv.createdAt)}</time>
-                          </div>
-                          {rv.comment && <div className="rv-comment">{rv.comment}</div>}
-                        </li>
-                      ))}
-                    </ul>
-                  )}
-              </div>
-
-              {/* 비밀번호 변경 버튼 (MYPLATE만) */}
-              {providerName === 'MYPLATE' && (
-                <div style={{ display: 'flex', justifyContent: 'center', marginTop: 8, marginBottom: 8 }}>
-                  <button
-                    type="button"
-                    onClick={() => navigate('/account/password')}
-                    className="lp-myp-btn primary"
-                    style={{ background: '#ff6233', color: '#fff', padding: '10px 18px', borderRadius: '12px', fontWeight: 700 }}
-                  >
-                    비밀번호 변경
-                  </button>
-                </div>
-              )}
-            </div>
-
-            {/* 하단 액션 */}
-            <div className="lp-myp-actions" style={{ display: 'flex', gap: 12 }}>
-              {role === 'ADMIN' && <Link to="/admin" className="lp-myp-link">관리자 페이지로</Link>}
-              <button
-                type="button"
-                onClick={onWithdrawClick}
-                className="lp-myp-btn"
-                style={{ marginLeft: 'auto', background: '#e02424', color: '#fff', padding: '10px 16px', borderRadius: 12, fontWeight: 700 }}
-              >
-                회원탈퇴
-              </button>
-            </div>
-          </div>
-        </div>
-
-        {/* 🔒 탈퇴 모달 (MYPLATE만 사용) */}
-        {showLeave && providerName === 'MYPLATE' && (
-          <div
-            style={{
-              position: 'fixed', inset: 0, background: 'rgba(0,0,0,.45)',
-              display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 9999
-            }}
-            onClick={() => !leaving && setShowLeave(false)}
-          >
-            <div
-              style={{ background: '#fff', width: 360, borderRadius: 12, padding: 20, boxShadow: '0 10px 30px rgba(0,0,0,.2)' }}
-              onClick={(e) => e.stopPropagation()}
-            >
-              <div style={{ fontSize: 18, fontWeight: 800, marginBottom: 10 }}>회원탈퇴</div>
-              <div style={{ fontSize: 13, color: '#555', marginBottom: 12 }}>
-                탈퇴를 진행하려면 <b>현재 비밀번호</b>를 입력해주세요.
-              </div>
-              <input
-                type="password"
-                value={leavePwd}
-                onChange={(e) => setLeavePwd(e.target.value)}
-                placeholder="현재 비밀번호"
-                style={{ width: '100%', border: '1px solid #ddd', borderRadius: 8, padding: '10px 12px', marginBottom: 12 }}
-                disabled={leaving}
-              />
-              <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end' }}>
-                <button className="lp-myp-btn" onClick={() => setShowLeave(false)} disabled={leaving}>취소</button>
+              {/* 하단 액션 */}
+              <div className="lp-myp-actions" style={{ display: 'flex', gap: 12 }}>
+                {role === 'ADMIN' && <Link to="/admin" className="lp-myp-link">관리자 페이지로</Link>}
                 <button
-                  className="lp-myp-btn primary"
-                  onClick={submitWithdraw}
-                  disabled={leaving || leavePwd.length < 4}
-                  style={{ background: '#e02424' }}
+                  type="button"
+                  onClick={onWithdrawClick}
+                  className="lp-myp-btn"
+                  style={{ marginLeft: 'auto', background: '#e02424', color: '#fff', padding: '10px 16px', borderRadius: 12, fontWeight: 700 }}
                 >
-                  {leaving ? '처리 중…' : '탈퇴하기'}
+                  회원탈퇴
                 </button>
               </div>
             </div>
           </div>
-        )}
-      </main>
-    </div>
-  );
+
+          {/* 🔒 탈퇴 모달 (MYPLATE만 사용) */}
+          {showLeave && providerName === 'MYPLATE' && (
+            <div
+              style={{
+                position: 'fixed', inset: 0, background: 'rgba(0,0,0,.45)',
+                display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 9999
+              }}
+              onClick={() => !leaving && setShowLeave(false)}
+            >
+              <div
+                style={{ background: '#fff', width: 360, borderRadius: 12, padding: 20, boxShadow: '0 10px 30px rgba(0,0,0,.2)' }}
+                onClick={(e) => e.stopPropagation()}
+              >
+                <div style={{ fontSize: 18, fontWeight: 800, marginBottom: 10 }}>회원탈퇴</div>
+                <div style={{ fontSize: 13, color: '#555', marginBottom: 12 }}>
+                  탈퇴를 진행하려면 <b>현재 비밀번호</b>를 입력해주세요.
+                </div>
+                <input
+                  type="password"
+                  value={leavePwd}
+                  onChange={(e) => setLeavePwd(e.target.value)}
+                  placeholder="현재 비밀번호"
+                  style={{ width: '90%', border: '1px solid #ddd', borderRadius: 8, padding: '10px 12px', marginBottom: 12 }}
+                  disabled={leaving}
+                />
+                <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end' }}>
+                  <button className="lp-myp-btn" onClick={() => setShowLeave(false)} disabled={leaving}>취소</button>
+                  <button
+                    className="lp-myp-btn primary"
+                    onClick={submitWithdraw}
+                    disabled={leaving || leavePwd.length < 4}
+                    style={{ background: '#e02424' }}
+                  >
+                    {leaving ? '처리 중…' : '탈퇴하기'}
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
+        </main>
+      </div>
+    </>);
 }
 
 // =============================
 // Inline SVG Chart (colored)
 // =============================
-function MonthlyStatsInlineChart({ data, height = 320 }) {
+function MonthlyStatsInlineChart({ data, height }) {
   const VB_W = 1000, VB_H = 300;
   const P_LEFT = 64, P_RIGHT = 64, P_TOP = 24, P_BOTTOM = 48;
   const plotW = VB_W - P_LEFT - P_RIGHT;
   const plotH = VB_H - P_TOP - P_BOTTOM;
 
-  const C_BAR_REVIEW   = '#60a5fa';
+  const C_BAR_REVIEW = '#60a5fa';
   const C_BAR_BOOKMARK = '#34d399';
-  const C_LINE_RATING  = '#f59e0b';
+  const C_LINE_RATING = '#f59e0b';
   const C_GRID = '#e9ecef', C_AXIS = '#cbd5e1', C_TEXT = '#6b7280';
 
   const n = data.length || 1;
@@ -531,13 +560,13 @@ function MonthlyStatsInlineChart({ data, height = 320 }) {
   const xCenter = (i) => P_LEFT + step * i + step / 2;
 
   const countMax = Math.max(1, ...data.map(d => Math.max(d.reviews || 0, d.bookmarks || 0)));
-  const yCount  = (v) => P_TOP + (1 - (v || 0) / countMax) * plotH;
+  const yCount = (v) => P_TOP + (1 - (v || 0) / countMax) * plotH;
 
   const ratingMin = 0, ratingMax = 5;
   const yRating = (r) => r == null ? null : P_TOP + (1 - (r - ratingMin) / (ratingMax - ratingMin)) * plotH;
 
   const groupW = step * 0.6;
-  const barW   = groupW / 2;
+  const barW = groupW / 2;
 
   const ratingPath = (() => {
     let started = false, path = '';
@@ -565,19 +594,19 @@ function MonthlyStatsInlineChart({ data, height = 320 }) {
           </g>
         );
       })}
-      {[0,1,2,3,4,5].map((r) => {
+      {[ 0, 1, 2, 3, 4, 5 ].map((r) => {
         const y = yRating(r);
         return <text key={r} x={VB_W - P_RIGHT + 8} y={y + 4} fontSize="12" fill={C_TEXT}>{r}</text>;
       })}
       {data.map((d, i) => {
         const xc = xCenter(i);
         const x1 = xc - groupW / 2, x2 = x1 + barW;
-        const hRev = plotH - (yCount(d.reviews)   - P_TOP);
-        const hBm  = plotH - (yCount(d.bookmarks) - P_TOP);
+        const hRev = plotH - (yCount(d.reviews) - P_TOP);
+        const hBm = plotH - (yCount(d.bookmarks) - P_TOP);
         return (
           <g key={i}>
-            <rect x={x1} y={yCount(d.reviews)}   width={barW - 2} height={hRev} fill={C_BAR_REVIEW} />
-            <rect x={x2} y={yCount(d.bookmarks)} width={barW - 2} height={hBm}  fill={C_BAR_BOOKMARK} />
+            <rect x={x1} y={yCount(d.reviews)} width={barW - 2} height={hRev} fill={C_BAR_REVIEW} />
+            <rect x={x2} y={yCount(d.bookmarks)} width={barW - 2} height={hBm} fill={C_BAR_BOOKMARK} />
           </g>
         );
       })}

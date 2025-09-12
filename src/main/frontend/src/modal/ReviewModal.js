@@ -4,9 +4,11 @@ import "./ReviewModal.css";
 import { useSelector } from "react-redux";
 import axios from "axios";
 import WriteReviewModal from "./WriteReviewModal";
+import {useAlert} from '../ui/alert-center';
 
 const ReviewModal = ({ restaurant, onClose, onReviewSubmitted, fetchReview, onDeleteReview}) => {
     const user = useSelector(state => state.user);
+    const {alert} = useAlert();
 
     const [ reviews, setReviews ] = useState([]);
     const [ loading, setLoading ] = useState(true);

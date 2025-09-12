@@ -63,12 +63,19 @@
 
 /* 반응형 */
 @media (max-width: 960px) {
+
+.lp-auth-wrap {
+  padding-top: 40px;  /* 모바일 헤더 높이(40px) */
+  width:90%;
+  margin: 0 auto;
+}
+
   .lp-auth-grid {
     grid-template-columns: 1fr;
     gap: 16px;
     align-items: start;
   }
-  .lp-auth-hero { height: 260px; }
+  .lp-auth-hero { display: none; }
 }
 
 .lp-auth-brand{

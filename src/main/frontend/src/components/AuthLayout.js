@@ -14,6 +14,9 @@ export default function AuthLayout({
   const hasHero = !!imageSrc;
 
   return (
+    <>
+    <div className="mainpage-mobile-gap"></div>
+
     <div className="lp-auth-wrap">
       <div className={`lp-auth-grid ${hasHero ? '' : 'no-hero'}`}>
         {hasHero && (
@@ -37,5 +40,6 @@ export default function AuthLayout({
         </div>
       </div>
     </div>
+    </>
   );
 }

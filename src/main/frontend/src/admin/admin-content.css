@@ -428,6 +428,7 @@
     background: #f3f4f6;
     padding: 3px 8px;
     border-radius: 999px;
+    font-weight: 700;
     font-size: 12px;
 }
 
@@ -609,3 +610,7 @@
 .admin-approved-grid--modal+.admin-modal-footer {
     margin-top: 8px;
 }
+
+.admin-approved-tag.ok   { background:#e8f5e9; color:#2e7d32; }
+.admin-approved-tag.warn { background:#fff8e1; color:#b26a00; }
+.admin-approved-tag.off  { background:#eceff1; color:#455a64; }

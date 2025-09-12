@@ -1,0 +1,20 @@
+/* src/components/MobileFooter.css */
+
+/* PC에서는 숨김 */
+.mobile-footer {
+    display: none;
+}
+
+/* 모바일 전용 스타일 (768px 이하) */
+@media (max-width: 768px) {
+    .mobile-footer {
+        display: block;
+        width: 90%;
+        padding: 20px;
+        text-align: center;
+        background-color: #f0f2f5;
+        color: #6c757d;
+        font-size: 12px;
+        border-top: 1px solid #e9ecef;
+    }
+}

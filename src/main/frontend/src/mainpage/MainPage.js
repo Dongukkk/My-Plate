@@ -2,6 +2,7 @@ import { useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { getRestaurants } from '../api/api';
 import '../mainpage/MainPage.css';
+import Footer from "../components/Footer";
 
 function MainPage() {
     const navigate = useNavigate();
@@ -59,6 +60,7 @@ function MainPage() {
         <div 
             className="mainpage-restaurant"
             onClick={() => navigate(`/restaurants/detail/${restaurant.id}`)}
+            style={{cursor:'pointer'}}
         >
             <div 
                 className="restaurant-image" 
@@ -205,6 +207,7 @@ function MainPage() {
                     </div>
                 </div>
             </section>
+            
         </>
     );
 }

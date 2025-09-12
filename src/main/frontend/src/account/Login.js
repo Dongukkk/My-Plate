@@ -16,7 +16,7 @@ export default function Login() {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const location = useLocation();
-  const from = location.state?.from?.pathname || '/';
+  const from = location.state?.from || '/';
 
   // 기본 이메일/비번 로그인
   const onSubmit = async (e) => {
@@ -50,7 +50,7 @@ export default function Login() {
           dispatch(setUser(userData));
           setMsg('로그인 완료! 잠시 후 이동합니다…');
 
-          navigate('/', { replace: true });
+          navigate(from, { replace: true });
         })
         .catch(err => {
           console.error(err);
@@ -68,18 +68,20 @@ export default function Login() {
   };
 
   // 공통: 소셜 시작 헬퍼
-  const startSso = async (provider, urlPath, movingMsg, failMsg) => {
+  const startSso = async (provider, urlPath, movingMsg, failMsg, redirectPath) => {
     if (loading || sso) return;
     setSso(provider);
     setMsg(movingMsg);
     try {
-      const { data } = await api.get(urlPath, { baseURL: '/api' }); // 백엔드가 동의화면 URL 생성
+      // URL에 이전 페이지 경로를 쿼리 파라미터로 추가
+      const finalUrlPath = `${urlPath}?from=${encodeURIComponent(redirectPath)}`;
+      const { data } = await api.get(finalUrlPath, { baseURL: '/api' });
       if (!data?.url) {
         setMsg(failMsg);
         setSso('');
         return;
       }
-      window.location.href = data.url; // 동의화면으로 이동(페이지 전환)
+      window.location.href = data.url;
     } catch (e) {
       console.error(e);
       setMsg(failMsg);
@@ -89,15 +91,15 @@ export default function Login() {
 
   // 구글 OAuth
   const goGoogle = () =>
-    startSso('google', '/oauth/google/url', '구글 로그인으로 이동합니다...', '구글 로그인 시작 중 오류가 발생했습니다.');
+    startSso('google', '/oauth/google/url', '구글 로그인으로 이동합니다...', '구글 로그인 시작 중 오류가 발생했습니다.', from);
 
   // 네이버 OAuth
   const goNaver = () =>
-    startSso('naver', '/oauth/naver/url', '네이버 로그인으로 이동합니다...', '네이버 로그인 시작 중 오류가 발생했습니다.');
+    startSso('naver', '/oauth/naver/url', '네이버 로그인으로 이동합니다...', '네이버 로그인 시작 중 오류가 발생했습니다.', from);
 
   // 카카오 OAuth
   const goKakao = () =>
-    startSso('kakao', '/oauth/kakao/url', '카카오 로그인으로 이동합니다...', '카카오 로그인 시작 중 오류가 발생했습니다.');
+    startSso('kakao', '/oauth/kakao/url', '카카오 로그인으로 이동합니다...', '카카오 로그인 시작 중 오류가 발생했습니다.', from);
 
   const anyBusy = loading || !!sso;
 

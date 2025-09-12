@@ -40,13 +40,6 @@ function SideBarMenu(){
                         </Link>
                     </li>
                     }
-                    {user && user.id && 
-                    <li className={`main-menu-item ${location.pathname === '/settings' ? 'active' : ''}`}>
-                        <Link to="/settings">
-                            <span className="main-side-bar-text">설정</span>
-                        </Link>
-                    </li>
-                    }
                 </ul>
                 <div className="main-side-bar-divider"></div>
 
