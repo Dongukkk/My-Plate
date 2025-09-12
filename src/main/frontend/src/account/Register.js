@@ -227,7 +227,7 @@ export default function Register() {
                   type="checkbox"
                   readOnly
                   checked={agree1}
-                  onClick={(e) => { e.preventDefault(); setOpen(o => ({ ...o, tos: true })); }}
+                  onClick={(e) => { e.preventDefault(); setAgree1(!agree1); }}
                 />
                 <span>서비스 이용약관에 동의합니다.<b className="lp-required"> (필수)</b></span>
               </label>

@@ -487,12 +487,12 @@ export default function AdminAnalysis() {
                                         className="admin-pie"
                                         aria-label="사용자 분포 차트"
                                         style={{
-                                            background: `conic-gradient(
-                        var(--admin-red) 0 ${userDist[0]?.value || 0}%,
-                        var(--admin-teal) ${userDist[0]?.value || 0}% ${(userDist[0]?.value || 0) + (userDist[1]?.value || 0)}%,
-                        var(--admin-orange) ${(userDist[0]?.value || 0) + (userDist[1]?.value || 0)}% ${(userDist[0]?.value || 0) + (userDist[1]?.value || 0) + (userDist[2]?.value || 0)}%,
-                        #e5e7eb ${(userDist[0]?.value || 0) + (userDist[1]?.value || 0) + (userDist[2]?.value || 0)}% 100%
-                      )`,
+                                                            background: `conic-gradient(
+                                        var(--admin-red) 0 ${userDist[0]?.value || 0}%,
+                                        var(--admin-teal) ${userDist[0]?.value || 0}% ${(userDist[0]?.value || 0) + (userDist[1]?.value || 0)}%,
+                                        var(--admin-orange) ${(userDist[0]?.value || 0) + (userDist[1]?.value || 0)}% ${(userDist[0]?.value || 0) + (userDist[1]?.value || 0) + (userDist[2]?.value || 0)}%,
+                                        #e5e7eb ${(userDist[0]?.value || 0) + (userDist[1]?.value || 0) + (userDist[2]?.value || 0)}% 100%
+                                    )`,
                                         }}
                                     />
                                     <ul className="admin-legend">

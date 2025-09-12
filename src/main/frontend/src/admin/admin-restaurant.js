@@ -127,9 +127,9 @@ const toTimeKey = (x) => (x?.createdAt ? new Date(x.createdAt).getTime() : safeN
 export function calculateSoloLevel(value) {
     const v = Number(value);
     if (!Number.isFinite(v)) return null;
-    if (v >= 0 && v < 0.5) return 1;
+    if (v >= 0 && v < 0.5) return 3;
     if (v >= 0.5 && v < 1.5) return 2;
-    if (v >= 1.5 && v < 2.0) return 3;
+    if (v >= 1.5 && v < 2.0) return 1;
     return null;
 }
 
