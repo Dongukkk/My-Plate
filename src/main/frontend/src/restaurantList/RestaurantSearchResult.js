@@ -43,7 +43,7 @@ function RestaurantSearchResult() {
             setSelectedTags(initialTags);
 
             const response = await axios.get(
-                `http://localhost:3000/api/restaurants/getAllRestaurants?sort=${sort}&direction=${direction}&query=${encodeURIComponent(query)}&tag=${initialTags.join(',')}&limit=99999`
+                `http://192.168.0.122:3000/api/restaurants/getAllRestaurants?sort=${sort}&direction=${direction}&query=${encodeURIComponent(query)}&tag=${initialTags.join(',')}&limit=99999`
             );
 
             let newRestaurants = response.data;
