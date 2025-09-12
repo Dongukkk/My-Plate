@@ -27,7 +27,7 @@ public class PasswordController {
         var user = userMapper.findByEmail(req.email);
         if (user != null) {
             String token = passwordResetService.issue(req.email, 30); // 30분 유효
-            String link  = "http://localhost:3000/reset?token=" + token;
+            String link  = "http://192.168.0.122:3000/reset?token=" + token;
             mailService.sendPasswordResetLink(req.email, link);
         }
         return ResponseEntity.ok(
